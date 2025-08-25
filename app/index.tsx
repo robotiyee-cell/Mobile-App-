@@ -1383,6 +1383,14 @@ export default function OutfitRatingScreen() {
             </Text>
           </View>
           
+          {/* Default Image Display */}
+          <View style={styles.defaultImageContainer}>
+            <Image 
+              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
+              style={styles.defaultImage}
+            />
+          </View>
+          
           <View style={styles.uploadContainer}>
             <Upload size={48} color="#666" />
             <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
@@ -3308,6 +3316,23 @@ const styles = StyleSheet.create({
   },
   acceptButtonTextDisabled: {
     color: '#999',
+  },
+  
+  // Default image styles
+  defaultImageContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+  defaultImage: {
+    width: 280,
+    height: 350,
+    borderRadius: 20,
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
   },
   
   // All Categories Results Styles
