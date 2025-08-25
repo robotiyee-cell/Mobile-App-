@@ -1224,6 +1224,10 @@ export default function OutfitRatingScreen() {
 
   return (
     <View style={styles.container}>
+      <Image 
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/zifm1ecbiqhfcdurnk6r3' }}
+        style={styles.mainBackgroundImage}
+      />
       <FlowerBackground />
       <TermsModal />
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
@@ -2233,6 +2237,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFE4E6',
     position: 'relative',
+  },
+  mainBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.4,
+    resizeMode: 'cover',
+    zIndex: 0,
   },
   flowerBackground: {
     position: 'absolute',
