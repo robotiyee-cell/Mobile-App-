@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Platform,
   Modal,
+  Pressable,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -1222,15 +1223,30 @@ export default function OutfitRatingScreen() {
   //   );
   // }
 
+  const clearDefaultBackground = () => {
+    // This function will be called when touching empty areas
+    console.log('Background cleared by touch');
+  };
+
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/zifm1ecbiqhfcdurnk6r3' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f2toklo84ksrjfnnazxmb' }}
         style={styles.mainBackgroundImage}
       />
       <FlowerBackground />
       <TermsModal />
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
+      <Pressable 
+        style={styles.touchableOverlay}
+        onPress={clearDefaultBackground}
+      >
+        <View style={styles.touchableContent} />
+      </Pressable>
+      <ScrollView 
+        style={styles.scrollContainer} 
+        contentContainerStyle={styles.contentContainer}
+        scrollEventThrottle={16}
+      >
       <LinearGradient
         colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
         style={styles.header}
@@ -2246,9 +2262,21 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    opacity: 0.4,
+    opacity: 0.6,
     resizeMode: 'cover',
     zIndex: 0,
+  },
+  touchableOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0.5,
+  },
+  touchableContent: {
+    flex: 1,
+    backgroundColor: 'transparent',
   },
   flowerBackground: {
     position: 'absolute',
