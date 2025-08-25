@@ -1231,6 +1231,10 @@ export default function OutfitRatingScreen() {
         colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
         style={styles.header}
       >
+        <Image 
+          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
+          style={styles.headerBackgroundImage}
+        />
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Sparkles size={32} color="#FFD700" />
@@ -2251,6 +2255,18 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     position: 'relative',
+    overflow: 'hidden',
+  },
+  headerBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.3,
+    resizeMode: 'cover',
   },
   headerTitleGradient: {
     borderRadius: 8,
