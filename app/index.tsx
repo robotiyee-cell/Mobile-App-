@@ -1386,7 +1386,7 @@ export default function OutfitRatingScreen() {
           {/* Default Image Display */}
           <View style={styles.defaultImageContainer}>
             <Image 
-              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/sjwmdg3jnueexskoib64g' }}
+              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/db15vqyyvkhlmii3n6qjb' }}
               style={styles.defaultImage}
             />
           </View>
