@@ -1224,17 +1224,17 @@ export default function OutfitRatingScreen() {
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
-        style={styles.mainBackgroundImage}
-      />
       <FlowerBackground />
       <TermsModal />
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
       <LinearGradient
-        colors={['rgba(255, 105, 180, 0.8)', 'rgba(255, 182, 193, 0.8)', 'rgba(255, 192, 203, 0.8)']}
+        colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
         style={styles.header}
       >
+        <Image 
+          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
+          style={styles.headerBackgroundImage}
+        />
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Sparkles size={32} color="#FFD700" />
@@ -1381,14 +1381,6 @@ export default function OutfitRatingScreen() {
                 ? 'Unlimited analyses remaining' 
                 : `${subscription.analysesRemaining} analyses remaining today`}
             </Text>
-          </View>
-          
-          {/* Default Image Display */}
-          <View style={styles.defaultImageContainer}>
-            <Image 
-              source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/db15vqyyvkhlmii3n6qjb' }}
-              style={styles.defaultImage}
-            />
           </View>
           
           <View style={styles.uploadContainer}>
@@ -2241,18 +2233,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFE4E6',
     position: 'relative',
-  },
-  mainBackgroundImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0.4,
-    resizeMode: 'cover',
-    zIndex: -1,
   },
   flowerBackground: {
     position: 'absolute',
@@ -3328,23 +3308,6 @@ const styles = StyleSheet.create({
   },
   acceptButtonTextDisabled: {
     color: '#999',
-  },
-  
-  // Default image styles
-  defaultImageContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 20,
-  },
-  defaultImage: {
-    width: 280,
-    height: 350,
-    borderRadius: 20,
-    shadowColor: '#FF69B4',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
   },
   
   // All Categories Results Styles
