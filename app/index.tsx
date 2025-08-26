@@ -704,7 +704,7 @@ export default function OutfitRatingScreen() {
         );
       } else if (i === fullStars && hasHalfStar) {
         stars.push(
-          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: 0.5 }} />
+          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: '0.5' }} />
         );
       } else {
         stars.push(
