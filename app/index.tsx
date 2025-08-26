@@ -87,6 +87,7 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
+  const [backgroundVisible, setBackgroundVisible] = useState(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t } = useLanguage();
@@ -1224,15 +1225,16 @@ export default function OutfitRatingScreen() {
   // }
 
   const clearDefaultBackground = () => {
-    // This function will be called when touching empty areas
-    console.log('Background cleared by touch');
+    // Toggle background visibility when touching empty areas
+    setBackgroundVisible(!backgroundVisible);
+    console.log('Background visibility toggled:', !backgroundVisible);
   };
 
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/adkrtsp9s3pqyziefxx62' }}
-        style={styles.mainBackgroundImage}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/uvyof935enn4d594g4w4p' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.3 }]}
       />
       <FlowerBackground />
       <TermsModal />
@@ -2262,9 +2264,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    opacity: 0.6,
     resizeMode: 'cover',
     zIndex: 0,
+    transition: 'opacity 0.3s ease',
   },
   touchableOverlay: {
     position: 'absolute',
