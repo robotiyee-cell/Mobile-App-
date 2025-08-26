@@ -90,7 +90,7 @@ export default function OutfitRatingScreen() {
   const [backgroundVisible, setBackgroundVisible] = useState(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
-  const { } = useLanguage();
+  const { language } = useLanguage();
 
   useEffect(() => {
     loadSavedRatings();
@@ -704,7 +704,7 @@ export default function OutfitRatingScreen() {
         );
       } else if (i === fullStars && hasHalfStar) {
         stars.push(
-          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: '0.5' }} />
+          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: 0.5 }} />
         );
       } else {
         stars.push(
@@ -2266,7 +2266,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
     zIndex: 0,
-    transition: 'opacity 0.3s ease',
   },
   touchableOverlay: {
     position: 'absolute',
