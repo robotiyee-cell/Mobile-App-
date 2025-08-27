@@ -87,7 +87,7 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState(false);
+  const [backgroundVisible, setBackgroundVisible] = useState<boolean>(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { language } = useLanguage();
@@ -1233,7 +1233,7 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/8ewm8wpzshf2u1g7sx35t' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.6 : 0.3 }]}
       />
       <FlowerBackground />
