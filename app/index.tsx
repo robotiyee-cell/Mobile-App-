@@ -87,7 +87,7 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState<boolean>(false);
+  const [backgroundVisible, setBackgroundVisible] = useState(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { language } = useLanguage();
