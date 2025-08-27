@@ -703,9 +703,8 @@ export default function OutfitRatingScreen() {
           <Star key={i} size={16} color="#FFD700" fill="#FFD700" />
         );
       } else if (i === fullStars && hasHalfStar) {
-        const halfStarOpacity = 0.5 as const;
         stars.push(
-          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: halfStarOpacity }} />
+          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: 0.5 }} />
         );
       } else {
         stars.push(
