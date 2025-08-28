@@ -2301,7 +2301,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 32,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     position: 'relative',
@@ -2367,7 +2367,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   uploadContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: 'transparent',
     borderRadius: 20,
     padding: 40,
@@ -2382,13 +2382,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1a1a1a',
     marginTop: 16,
+    textAlign: 'left',
+    alignSelf: 'flex-start',
   },
   uploadSubtitle: {
     fontSize: 16,
     color: '#666',
-    textAlign: 'center',
+    textAlign: 'left',
     marginTop: 8,
     lineHeight: 22,
+    alignSelf: 'flex-start',
   },
   buttonContainer: {
     marginTop: 32,
@@ -2542,13 +2545,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: 8,
   },
   categorySubtitle: {
     fontSize: 16,
     color: '#666',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -2692,14 +2695,15 @@ const styles = StyleSheet.create({
   // Header styles
   headerTop: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
     width: '100%',
   },
   headerLeft: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 16,
+    flex: 1,
   },
   historyButton: {
     padding: 8,
@@ -2714,13 +2718,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: 8,
   },
   historySubtitle: {
     fontSize: 16,
     color: '#666',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -3097,13 +3101,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: 8,
   },
   styleCategorySubtitle: {
     fontSize: 14,
     color: '#666',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: 20,
     lineHeight: 20,
   },
@@ -3167,8 +3171,11 @@ const styles = StyleSheet.create({
   
   // Header buttons
   headerButtons: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     gap: 8,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
   headerButton: {
     padding: 8,
@@ -3178,7 +3185,7 @@ const styles = StyleSheet.create({
   centerHistoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -3187,7 +3194,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
   },
   centerHistoryButtonText: {
     fontSize: 14,
@@ -3376,7 +3383,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1a1a1a',
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: 'left',
   },
   categoryResultCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
