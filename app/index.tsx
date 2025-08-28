@@ -1438,7 +1438,6 @@ export default function OutfitRatingScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.cameraButton]}
                 onPress={() => pickImage(true)}
-                testID="take-photo-button"
               >
                 <Camera size={20} color="white" />
                 <Text style={styles.buttonText}>Take Photo</Text>
@@ -1447,7 +1446,6 @@ export default function OutfitRatingScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.galleryButton]}
                 onPress={() => pickImage(false)}
-                testID="choose-gallery-button"
               >
                 <Upload size={20} color="#1a1a1a" />
                 <Text style={[styles.buttonText, styles.galleryButtonText]}>
@@ -2409,8 +2407,6 @@ const styles = StyleSheet.create({
     marginTop: 32,
     gap: 12,
     width: '100%',
-    minHeight: 120,
-    justifyContent: 'center',
   },
   button: {
     flexDirection: 'row',
@@ -2420,43 +2416,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 12,
     gap: 8,
-    minHeight: 56,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   cameraButton: {
     backgroundColor: '#FF69B4',
-    ...Platform.select({
-      android: {
-        elevation: 4,
-      },
-      ios: {
-        shadowColor: '#FF69B4',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-      },
-    }),
   },
   galleryButton: {
     backgroundColor: 'rgba(255, 182, 193, 0.2)',
     borderWidth: 2,
     borderColor: '#FFB6C1',
-    ...Platform.select({
-      android: {
-        elevation: 4,
-        backgroundColor: 'rgba(255, 182, 193, 0.8)',
-      },
-      ios: {
-        shadowColor: '#FFB6C1',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-      },
-    }),
   },
   analyzeButton: {
     backgroundColor: '#FF1493',
