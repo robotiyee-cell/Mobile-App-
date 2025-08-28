@@ -79,14 +79,14 @@ export default function OutfitRatingScreen() {
   const [maskedImage, setMaskedImage] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<StyleCategory | null>(null);
   const [analysis, setAnalysis] = useState<OutfitAnalysis | AllCategoriesAnalysis | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showCategorySelection, setShowCategorySelection] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [showCategorySelection, setShowCategorySelection] = useState<boolean>(false);
   const [savedRatings, setSavedRatings] = useState<SavedRating[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showRateOptions, setShowRateOptions] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showInitialTerms, setShowInitialTerms] = useState(true);
+  const [showHistory, setShowHistory] = useState<boolean>(false);
+  const [showRateOptions, setShowRateOptions] = useState<boolean>(false);
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+  const [showInitialTerms, setShowInitialTerms] = useState<boolean>(true);
   const [backgroundVisible, setBackgroundVisible] = useState<boolean>(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
@@ -1235,6 +1235,7 @@ export default function OutfitRatingScreen() {
       <Image 
         source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.6 : 0.3 }]}
+        contentFit="cover"
       />
       <FlowerBackground />
       <TermsModal />
@@ -1256,6 +1257,7 @@ export default function OutfitRatingScreen() {
         <Image 
           source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
           style={styles.headerBackgroundImage}
+          contentFit="cover"
         />
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
@@ -1340,7 +1342,7 @@ export default function OutfitRatingScreen() {
                     onPress={() => loadSavedRating(rating)}
                   >
                     <View style={styles.historyImageContainer}>
-                      <Image source={{ uri: rating.imageUri }} style={styles.historyImage} />
+                      <Image source={{ uri: rating.imageUri }} style={styles.historyImage} contentFit="cover" />
                       <View style={styles.historyImageOverlay}>
                         <Shield size={16} color="white" />
                       </View>
@@ -1442,7 +1444,7 @@ export default function OutfitRatingScreen() {
       ) : (
         <View style={styles.imageSection}>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: selectedImage }} style={styles.image} />
+            <Image source={{ uri: selectedImage }} style={styles.image} contentFit="cover" />
             <View style={styles.faceMaskOverlay}>
               {Platform.OS !== 'web' ? (
                 <BlurView intensity={30} style={styles.faceBlurArea}>
