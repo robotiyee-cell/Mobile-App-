@@ -15,12 +15,12 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, Settings } from 'lucide-react-native';
+import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { useSubscription } from '../contexts/SubscriptionContext';
-
+import { useLanguage } from '../contexts/LanguageContext';
 import { router } from 'expo-router';
 
 interface OutfitAnalysis {
@@ -87,9 +87,10 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState(true);
+  const [backgroundVisible, setBackgroundVisible] = useState(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadSavedRatings();
@@ -723,41 +724,41 @@ export default function OutfitRatingScreen() {
     >
       {/* Left lens */}
       <Circle
-        cx="18"
-        cy="15"
-        r="12"
+        cx={18}
+        cy={15}
+        r={12}
         fill="rgba(255, 255, 255, 0.2)"
         stroke="#FF69B4"
-        strokeWidth="3"
+        strokeWidth={3}
       />
       {/* Right lens */}
       <Circle
-        cx="62"
-        cy="15"
-        r="12"
+        cx={62}
+        cy={15}
+        r={12}
         fill="rgba(255, 255, 255, 0.2)"
         stroke="#FF69B4"
-        strokeWidth="3"
+        strokeWidth={3}
       />
       {/* Bridge */}
       <Path
         d="M30 15 Q40 12 50 15"
         stroke="#FF69B4"
-        strokeWidth="3"
+        strokeWidth={3}
         fill="none"
       />
       {/* Left temple */}
       <Path
         d="M6 15 Q2 15 0 18"
         stroke="#FF69B4"
-        strokeWidth="3"
+        strokeWidth={3}
         fill="none"
       />
       {/* Right temple */}
       <Path
         d="M74 15 Q78 15 80 18"
         stroke="#FF69B4"
-        strokeWidth="3"
+        strokeWidth={3}
         fill="none"
       />
     </Svg>
@@ -772,7 +773,7 @@ export default function OutfitRatingScreen() {
       preserveAspectRatio="xMidYMid slice"
     >
       {/* Large decorative flowers with purple, red, pink, yellow, sky blue */}
-      <G opacity={Platform.OS === 'ios' ? 0.35 : 0.18}>
+      <G opacity={0.18}>
         {/* Purple Flower 1 - Top left */}
         <G transform="translate(50, 100)">
           <Circle cx="0" cy="-15" r="12" fill="#9B59B6" />
@@ -876,7 +877,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Medium scattered flowers */}
-      <G opacity={Platform.OS === 'ios' ? 0.28 : 0.15}>
+      <G opacity={0.15}>
         {/* Purple flowers */}
         <G transform="translate(150, 80)">
           <Circle cx="0" cy="-8" r="7" fill="#9B59B6" />
@@ -954,7 +955,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Small scattered flowers - covering white areas */}
-      <G opacity={Platform.OS === 'ios' ? 0.25 : 0.12}>
+      <G opacity={0.12}>
         {/* Top area flowers */}
         <G transform="translate(90, 60)">
           <Circle cx="0" cy="-6" r="5" fill="#9B59B6" />
@@ -1087,7 +1088,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Decorative leaves and stems */}
-      <G opacity={Platform.OS === 'ios' ? 0.18 : 0.08}>
+      <G opacity={0.08}>
         <Path d="M60 120 Q80 140 100 120 Q80 100 60 120" fill="#90EE90" />
         <Path d="M340 170 Q360 190 380 170 Q360 150 340 170" fill="#98FB98" />
         <Path d="M50 370 Q70 390 90 370 Q70 350 50 370" fill="#90EE90" />
@@ -1232,8 +1233,8 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/re6flbspb8ly37v6rol5m' }}
-        style={[styles.mainBackgroundImage, { opacity: Platform.OS === 'ios' ? (backgroundVisible ? 1 : 0.4) : 0.8 }]}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/uvyof935enn4d594g4w4p' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.3 }]}
       />
       <FlowerBackground />
       <TermsModal />
@@ -1248,62 +1249,70 @@ export default function OutfitRatingScreen() {
         contentContainerStyle={styles.contentContainer}
         scrollEventThrottle={16}
       >
-      <View style={styles.header}>
-        {/* Header Buttons Row */}
-        <View style={styles.headerButtonsRow}>
-          <TouchableOpacity
-            style={styles.headerButton}
-            onPress={toggleHistory}
-          >
-            <History size={16} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => router.push('/subscription')}
-          >
-            <CreditCard size={16} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => setShowTermsModal(true)}
-          >
-            <FileText size={16} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => router.push('/settings')}
-          >
-            <Settings size={16} color="white" />
-          </TouchableOpacity>
-        </View>
-        
-        {/* Title Section */}
-        <View style={styles.headerTitleSection}>
-          <LinearGradient
-            colors={['#FF69B4', '#9B59B6']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.headerTitleGradient}
-          >
-            <View style={styles.headerTitleContainer}>
-              <Sparkles size={18} color="#9B59B6" style={styles.headerTitleIcon} />
-              <Text style={styles.headerTitle}>Look4Fun</Text>
-              <Flower size={18} color="#FF69B4" style={styles.headerTitleIcon} />
+      <LinearGradient
+        colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
+        style={styles.header}
+      >
+        <Image 
+          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
+          style={styles.headerBackgroundImage}
+        />
+        <View style={styles.headerTop}>
+          <View style={styles.headerLeft}>
+            <Sparkles size={32} color="#FFD700" />
+            <View>
+              <LinearGradient
+                colors={['#FF69B4', '#9B59B6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.headerTitleGradient}
+              >
+                <View style={styles.headerTitleContainer}>
+                  <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
+                  <Text style={styles.headerTitle}>Look4Fun</Text>
+                  <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
+                </View>
+              </LinearGradient>
+              <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
+              {subscription.tier !== 'free' && (
+                <View style={styles.subscriptionBadge}>
+                  <Crown size={12} color="#FFD700" />
+                  <Text style={styles.subscriptionBadgeText}>
+                    {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+                  </Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={styles.centerHistoryButton}
+                onPress={toggleHistory}
+              >
+                <History size={20} color="white" />
+                <Text style={styles.centerHistoryButtonText}>History</Text>
+              </TouchableOpacity>
             </View>
-          </LinearGradient>
-          
-          <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
-          
-          {subscription.tier !== 'free' && (
-            <View style={styles.subscriptionBadge}>
-              <Crown size={12} color="#FFD700" />
-              <Text style={styles.subscriptionBadgeText}>
-                {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-              </Text>
-            </View>
-          )}
+          </View>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/subscription')}
+            >
+              <CreditCard size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => setShowTermsModal(true)}
+            >
+              <FileText size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings size={20} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </LinearGradient>
 
       {showHistory ? (
         <View style={styles.historySection}>
@@ -1397,6 +1406,11 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
+            <Upload size={48} color="#666" />
+            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
+            <Text style={styles.uploadSubtitle}>
+              Take a photo or choose from gallery to get your outfit rated
+            </Text>
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
               <Text style={styles.privacyNoticeText}>
@@ -1408,7 +1422,6 @@ export default function OutfitRatingScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.cameraButton]}
                 onPress={() => pickImage(true)}
-                testID="camera-button"
               >
                 <Camera size={20} color="white" />
                 <Text style={styles.buttonText}>Take Photo</Text>
@@ -1417,7 +1430,6 @@ export default function OutfitRatingScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.galleryButton]}
                 onPress={() => pickImage(false)}
-                testID="gallery-button"
               >
                 <Upload size={20} color="#1a1a1a" />
                 <Text style={[styles.buttonText, styles.galleryButtonText]}>
@@ -2254,6 +2266,7 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
     zIndex: 0,
+    transition: 'opacity 0.3s ease',
   },
   touchableOverlay: {
     position: 'absolute',
@@ -2283,12 +2296,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingTop: 50,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    padding: 32,
+    alignItems: 'center',
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     position: 'relative',
     overflow: 'hidden',
-    backgroundColor: 'transparent',
   },
   headerBackgroundImage: {
     position: 'absolute',
@@ -2302,15 +2315,15 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   headerTitleGradient: {
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    alignSelf: 'center',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginTop: 12,
   },
   headerTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   headerTitleIcon: {
     shadowColor: '#000',
@@ -2320,7 +2333,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 32,
     fontWeight: '900',
     color: '#9B59B6',
     fontFamily: Platform.select({
@@ -2340,13 +2353,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   headerDescription: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginTop: 6,
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: 2,
     fontStyle: 'italic',
-    textAlign: 'center',
-    paddingHorizontal: 16,
-    lineHeight: 16,
   },
   uploadSection: {
     flex: 1,
@@ -2355,18 +2365,30 @@ const styles = StyleSheet.create({
   },
   uploadContainer: {
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'transparent',
     borderRadius: 20,
-    padding: 32,
+    padding: 40,
     shadowColor: '#FF69B4',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 8,
   },
-
-  buttonContainer: {
+  uploadTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
     marginTop: 16,
+  },
+  uploadSubtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 22,
+  },
+  buttonContainer: {
+    marginTop: 32,
     gap: 12,
     width: '100%',
   },
@@ -2374,28 +2396,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    gap: 6,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    gap: 8,
   },
   cameraButton: {
     backgroundColor: '#FF69B4',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   galleryButton: {
-    backgroundColor: 'rgba(255, 182, 193, 0.8)',
+    backgroundColor: 'rgba(255, 182, 193, 0.2)',
     borderWidth: 2,
     borderColor: '#FFB6C1',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   analyzeButton: {
     backgroundColor: '#FF1493',
@@ -2410,7 +2422,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   buttonText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     color: 'white',
   },
@@ -2524,18 +2536,18 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   categoryTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#1a1a1a',
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   categorySubtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 18,
-    lineHeight: 20,
+    marginBottom: 24,
+    lineHeight: 22,
   },
   categoriesGrid: {
     flexDirection: 'row',
@@ -2545,10 +2557,10 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     backgroundColor: 'transparent',
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 12,
+    padding: 12,
     width: '48%',
-    minHeight: 70,
+    minHeight: 80,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#FF69B4',
@@ -2566,20 +2578,20 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   categoryLabel: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: 2,
     textAlign: 'center',
     paddingHorizontal: 4,
-    lineHeight: 14,
+    lineHeight: 16,
     flexWrap: 'wrap',
   },
   categoryDescription: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 11,
+    lineHeight: 12,
     paddingHorizontal: 2,
     flexWrap: 'wrap',
     width: '100%',
@@ -2667,16 +2679,16 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   // Header styles
-  headerButtonsRow: {
+  headerTop: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  headerTitleSection: {
-    alignItems: 'center',
+    justifyContent: 'space-between',
     width: '100%',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
   historyButton: {
     padding: 8,
@@ -3143,17 +3155,14 @@ const styles = StyleSheet.create({
   },
   
   // Header buttons
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
   headerButton: {
     padding: 8,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   centerHistoryButton: {
     flexDirection: 'row',
@@ -3178,13 +3187,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginTop: 8,
-    gap: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 4,
+    gap: 4,
   },
   subscriptionBadgeText: {
     fontSize: 12,
