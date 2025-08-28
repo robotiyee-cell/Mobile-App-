@@ -182,26 +182,7 @@ export default function DemoScreen() {
         {/* Image Section */}
         <View style={styles.imageSection}>
           <View style={styles.imageContainer}>
-            <Image 
-            source={{ uri: DEMO_IMAGE_URL }} 
-            style={styles.image} 
-            contentFit="cover"
-            cachePolicy="memory-disk"
-            priority="high"
-            transition={200}
-            placeholder={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==' }}
-            onError={(error) => {
-              console.log('Demo image failed to load:', error);
-              console.log('Platform:', Platform.OS);
-              console.log('Error details:', error);
-            }}
-            onLoad={() => {
-              console.log('Demo image loaded successfully on platform:', Platform.OS);
-            }}
-            onLoadStart={() => {
-              console.log('Demo image load started on platform:', Platform.OS);
-            }}
-          />
+            <Image source={{ uri: DEMO_IMAGE_URL }} style={styles.image} />
             <View style={styles.demoOverlay}>
               <View style={styles.demoBadge}>
                 <Sparkles size={16} color="#FFD700" />
@@ -423,18 +404,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 0,
     backgroundColor: '#FFE4E6',
-    ...Platform.select({
-      web: {
-        backgroundImage: `
-          radial-gradient(circle at 20% 20%, rgba(155, 89, 182, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 80% 30%, rgba(220, 20, 60, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 10% 60%, rgba(255, 105, 180, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 90% 70%, rgba(135, 206, 235, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 30% 90%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 70% 85%, rgba(147, 112, 219, 0.1) 0%, transparent 50%)
-        `,
-      },
-      default: {},
+    backgroundImage: Platform.select({
+      web: `
+        radial-gradient(circle at 20% 20%, rgba(155, 89, 182, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(220, 20, 60, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 10% 60%, rgba(255, 105, 180, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 90% 70%, rgba(135, 206, 235, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 30% 90%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 70% 85%, rgba(147, 112, 219, 0.1) 0%, transparent 50%)
+      `,
+      default: undefined,
     }),
   },
   scrollContainer: {
