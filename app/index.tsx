@@ -10,13 +10,12 @@ import {
   Platform,
   Modal,
   Pressable,
-  Animated,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, Settings } from 'lucide-react-native';
+import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
@@ -92,17 +91,6 @@ export default function OutfitRatingScreen() {
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t } = useLanguage();
-
-  const floatAnim = React.useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, { toValue: 1, duration: 4000, useNativeDriver: false }),
-        Animated.timing(floatAnim, { toValue: 0, duration: 4000, useNativeDriver: false }),
-      ])
-    ).start();
-  }, [floatAnim]);
 
   useEffect(() => {
     loadSavedRatings();
@@ -1248,21 +1236,6 @@ export default function OutfitRatingScreen() {
         source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/qg05ad4609iuwu6tmxs9q' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1 : 0.2 }]}
       />
-      <Animated.View
-        style={[
-          styles.floatingFlowers,
-          {
-            transform: [
-              {
-                translateY: floatAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -10] }),
-              },
-            ],
-          },
-        ]}
-        testID="floating-flowers"
-      >
-        <FlowerBackground />
-      </Animated.View>
       <TermsModal />
       <Pressable 
         style={styles.touchableOverlay}
@@ -1304,43 +1277,34 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               )}
-              {/* History moved to center row with side buttons */}
+              <TouchableOpacity
+                style={styles.centerHistoryButton}
+                onPress={toggleHistory}
+              >
+                <History size={20} color="white" />
+                <Text style={styles.centerHistoryButtonText}>History</Text>
+              </TouchableOpacity>
             </View>
           </View>
-          <View style={styles.headerSideActionsRow}>
-            <View style={styles.sideGroupLeft}>
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => router.push('/subscription')}
-                testID="btn-pay"
-              >
-                <CreditCard size={20} color="white" />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.headerButtons}>
             <TouchableOpacity
-              style={styles.centerHistoryButton}
-              onPress={toggleHistory}
-              testID="btn-history"
+              style={styles.headerButton}
+              onPress={() => router.push('/subscription')}
             >
-              <History size={20} color="white" />
-              <Text style={styles.centerHistoryButtonText}>History</Text>
+              <CreditCard size={20} color="white" />
             </TouchableOpacity>
-            <View style={styles.sideGroupRight}>
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => setShowTermsModal(true)}
-                testID="btn-terms"
-              >
-                <FileText size={20} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => router.push('/settings')}
-                testID="btn-settings"
-              >
-                <Settings size={20} color="white" />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => setShowTermsModal(true)}
+            >
+              <FileText size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings size={20} color="white" />
+            </TouchableOpacity>
           </View>
         </View>
       </LinearGradient>
@@ -1437,6 +1401,11 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
+            <Upload size={48} color="#666" />
+            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
+            <Text style={styles.uploadSubtitle}>
+              Take a photo or choose from gallery to get your outfit rated
+            </Text>
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
               <Text style={styles.privacyNoticeText}>
@@ -2293,15 +2262,6 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     zIndex: 0,
     transition: 'opacity 0.3s ease',
-  },
-  floatingFlowers: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 0,
-    pointerEvents: 'none',
   },
   touchableOverlay: {
     position: 'absolute',
@@ -3191,21 +3151,6 @@ const styles = StyleSheet.create({
   
   // Header buttons
   headerButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  headerSideActionsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    marginTop: 12,
-  },
-  sideGroupLeft: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  sideGroupRight: {
     flexDirection: 'row',
     gap: 8,
   },
