@@ -15,7 +15,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, Settings } from 'lucide-react-native';
+import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
@@ -90,7 +90,7 @@ export default function OutfitRatingScreen() {
   const [backgroundVisible, setBackgroundVisible] = useState(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
-  const { } = useLanguage();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadSavedRatings();
@@ -704,7 +704,7 @@ export default function OutfitRatingScreen() {
         );
       } else if (i === fullStars && hasHalfStar) {
         stars.push(
-          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: '0.5' }} />
+          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: 0.5 }} />
         );
       } else {
         stars.push(
@@ -1226,15 +1226,15 @@ export default function OutfitRatingScreen() {
 
   const clearDefaultBackground = () => {
     // Toggle background visibility when touching empty areas
-    setBackgroundVisible(prev => !prev);
+    setBackgroundVisible(!backgroundVisible);
     console.log('Background visibility toggled:', !backgroundVisible);
   };
 
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/a92fjtosm70xtoj5pnplw' }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.6 : 0.3 }]}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/uvyof935enn4d594g4w4p' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.3 }]}
       />
       <FlowerBackground />
       <TermsModal />
