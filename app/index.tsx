@@ -1248,14 +1248,7 @@ export default function OutfitRatingScreen() {
         contentContainerStyle={styles.contentContainer}
         scrollEventThrottle={16}
       >
-      <LinearGradient
-        colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
-        style={styles.header}
-      >
-        <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
-          style={styles.headerBackgroundImage}
-        />
+      <View style={styles.header}>
         
         {/* Header Buttons Row */}
         <View style={styles.headerButtonsRow}>
@@ -1311,7 +1304,7 @@ export default function OutfitRatingScreen() {
             </View>
           )}
         </View>
-      </LinearGradient>
+      </View>
 
       {showHistory ? (
         <View style={styles.historySection}>
@@ -2295,10 +2288,8 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 16,
     paddingBottom: 16,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
     position: 'relative',
-    overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   headerBackgroundImage: {
     position: 'absolute',
