@@ -2266,7 +2266,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
     zIndex: 0,
   },
   touchableOverlay: {
@@ -2275,7 +2274,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0.5,
+    zIndex: 1,
   },
   touchableContent: {
     flex: 1,
@@ -2313,7 +2312,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     opacity: 0.3,
-    resizeMode: 'cover',
   },
   headerTitleGradient: {
     borderRadius: 8,
