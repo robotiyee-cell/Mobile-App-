@@ -771,7 +771,6 @@ export default function OutfitRatingScreen() {
       height="100%"
       viewBox="0 0 400 800"
       preserveAspectRatio="xMidYMid slice"
-    pointerEvents="none"
     >
       {/* Large decorative flowers with purple, red, pink, yellow, sky blue */}
       <G opacity={0.18}>
@@ -1237,7 +1236,6 @@ export default function OutfitRatingScreen() {
         source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/9ehw7is0i032a02myrdiy' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1 : 0.2 }]}
       />
-      <FlowerBackground />
       <TermsModal />
       <Pressable 
         style={styles.touchableOverlay}
@@ -2279,7 +2277,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
+    zIndex: 0,
   },
   scrollContainer: {
     flex: 1,
