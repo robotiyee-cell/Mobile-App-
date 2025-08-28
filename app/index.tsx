@@ -1238,8 +1238,15 @@ export default function OutfitRatingScreen() {
         contentFit="cover"
         cachePolicy="memory-disk"
         priority="high"
-        onError={(error) => console.log('Background image failed to load:', error)}
-        onLoad={() => console.log('Background image loaded successfully')}
+        transition={200}
+        placeholder={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==' }}
+        onError={(error) => {
+          console.log('Background image failed to load:', error);
+          console.log('Platform:', Platform.OS);
+        }}
+        onLoad={() => {
+          console.log('Background image loaded successfully on platform:', Platform.OS);
+        }}
       />
       {backgroundVisible && <FlowerBackground />}
       <TermsModal />
@@ -2271,6 +2278,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     zIndex: 1,
+    ...Platform.select({
+      web: {
+        objectFit: 'cover',
+      },
+      ios: {
+        resizeMode: 'cover',
+      },
+      android: {
+        resizeMode: 'cover',
+      },
+    }),
   },
   touchableOverlay: {
     position: 'absolute',
