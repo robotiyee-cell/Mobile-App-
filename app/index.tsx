@@ -1270,14 +1270,14 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               )}
-              <TouchableOpacity
-                style={styles.centerHistoryButton}
-                onPress={toggleHistory}
-              >
-                <History size={20} color="white" />
-                <Text style={styles.centerHistoryButtonText}>History</Text>
-              </TouchableOpacity>
               <View style={styles.headerActionsRow}>
+                <TouchableOpacity
+                  style={styles.headerActionPill}
+                  onPress={toggleHistory}
+                >
+                  <History size={16} color="#fff" />
+                  <Text style={styles.headerActionPillText}>History</Text>
+                </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.headerActionPill}
                   onPress={() => router.push('/subscription')}
