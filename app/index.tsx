@@ -79,15 +79,15 @@ export default function OutfitRatingScreen() {
   const [maskedImage, setMaskedImage] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<StyleCategory | null>(null);
   const [analysis, setAnalysis] = useState<OutfitAnalysis | AllCategoriesAnalysis | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showCategorySelection, setShowCategorySelection] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [showCategorySelection, setShowCategorySelection] = useState<boolean>(false);
   const [savedRatings, setSavedRatings] = useState<SavedRating[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showRateOptions, setShowRateOptions] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState(true);
+  const [showHistory, setShowHistory] = useState<boolean>(false);
+  const [showRateOptions, setShowRateOptions] = useState<boolean>(false);
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+  const [showInitialTerms, setShowInitialTerms] = useState<boolean>(true);
+  const [backgroundVisible, setBackgroundVisible] = useState<boolean>(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { language } = useLanguage();
@@ -1233,8 +1233,8 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/sytm0z6nqr2x9umjnigkt' }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.6 : 0 }]}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1 : 1 }]}
         contentFit="cover"
       />
       <FlowerBackground />
