@@ -1423,16 +1423,15 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
-            <Upload size={48} color="#666" />
-            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
-            <Text style={styles.uploadSubtitle}>
-              Take a photo or choose from gallery to get your outfit rated
-            </Text>
-            <View style={styles.privacyNotice}>
-              <Shield size={20} color="#4CAF50" />
-              <Text style={styles.privacyNoticeText}>
-                Your face will be automatically masked before AI analysis for privacy protection
-              </Text>
+            <View style={styles.defaultImageContainer}>
+              <Image 
+                source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/8fa27l01jsxzqgqw5fatc' }}
+                style={styles.defaultImage}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                priority="high"
+                transition={200}
+              />
             </View>
             
             <View style={styles.buttonContainer}>
@@ -2378,7 +2377,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   uploadContainer: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'transparent',
     borderRadius: 20,
     padding: 40,
@@ -2388,21 +2387,21 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-  uploadTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginTop: 16,
-    textAlign: 'left',
-    alignSelf: 'flex-start',
+  defaultImageContainer: {
+    width: '100%',
+    height: 400,
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  uploadSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'left',
-    marginTop: 8,
-    lineHeight: 22,
-    alignSelf: 'flex-start',
+  defaultImage: {
+    width: '100%',
+    height: '100%',
   },
   buttonContainer: {
     marginTop: 32,
