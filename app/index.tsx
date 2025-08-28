@@ -1234,10 +1234,12 @@ export default function OutfitRatingScreen() {
     <View style={styles.container}>
       <Image 
         source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
-        style={[styles.mainBackgroundImage, { opacity: 0.2 }]}
+        style={[styles.mainBackgroundImage, { opacity: 0.4 }]}
         contentFit="cover"
         cachePolicy="memory-disk"
         priority="high"
+        onError={(error) => console.log('Background image failed to load:', error)}
+        onLoad={() => console.log('Background image loaded successfully')}
       />
       <FlowerBackground />
       <TermsModal />
@@ -2592,17 +2594,17 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
   },
   categoryDescription: {
-    fontSize: 10,
-    color: '#555',
+    fontSize: 11,
+    color: '#444',
     textAlign: 'center',
-    lineHeight: 12,
-    paddingHorizontal: 2,
+    lineHeight: 14,
+    paddingHorizontal: 4,
     flexWrap: 'wrap',
     width: '100%',
-    fontWeight: '600',
-    textShadowColor: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '700',
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
+    textShadowRadius: 2,
   },
   selectedCategoryDisplay: {
     backgroundColor: 'transparent',
@@ -2681,10 +2683,11 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     flex: 1,
-    fontSize: 15,
-    color: '#666',
-    lineHeight: 22,
+    fontSize: 16,
+    color: '#444',
+    lineHeight: 24,
     paddingRight: 8,
+    fontWeight: '500',
   },
   // Header styles
   headerTop: {
@@ -2927,8 +2930,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    opacity: 0.15,
-    borderRadius: 10,
+    opacity: 0.25,
+    borderRadius: 12,
   },
   categoryIconContainer: {
     position: 'absolute',
@@ -2989,8 +2992,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   sixtiesCategoryDescription: {
-    color: '#3A3A3A',
-    fontWeight: '600',
+    color: '#2A2A2A',
+    fontWeight: '700',
     textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
@@ -3046,8 +3049,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   themedCategoryDescription: {
-    color: '#444',
-    fontWeight: '600',
+    color: '#333',
+    fontWeight: '700',
     textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -3412,13 +3415,14 @@ const styles = StyleSheet.create({
     maxWidth: '75%',
   },
   categoryResultName: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
     color: '#1a1a1a',
     flexShrink: 1,
-    lineHeight: 26,
+    lineHeight: 28,
     textAlign: 'left',
     flexWrap: 'wrap',
+    letterSpacing: 0.5,
   },
   categoryResultScore: {
     flexDirection: 'column',
@@ -3450,14 +3454,15 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   categoryResultAnalysis: {
-    fontSize: 16,
-    color: '#555',
-    lineHeight: 24,
-    marginBottom: 18,
-    paddingHorizontal: 6,
+    fontSize: 17,
+    color: '#333',
+    lineHeight: 26,
+    marginBottom: 20,
+    paddingHorizontal: 8,
     textAlign: 'left',
     width: '100%',
     flexWrap: 'wrap',
+    fontWeight: '500',
   },
   categorySuggestions: {
     marginTop: 16,
@@ -3465,10 +3470,11 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   suggestionsSubtitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FF69B4',
-    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FF1493',
+    marginBottom: 12,
+    letterSpacing: 0.3,
   },
   noResultsContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
