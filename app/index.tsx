@@ -20,7 +20,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { useSubscription } from '../contexts/SubscriptionContext';
-import { useLanguage } from '../contexts/LanguageContext';
+
 import { router } from 'expo-router';
 
 interface OutfitAnalysis {
@@ -723,41 +723,41 @@ export default function OutfitRatingScreen() {
     >
       {/* Left lens */}
       <Circle
-        cx={18}
-        cy={15}
-        r={12}
+        cx="18"
+        cy="15"
+        r="12"
         fill="rgba(255, 255, 255, 0.2)"
         stroke="#FF69B4"
-        strokeWidth={3}
+        strokeWidth="3"
       />
       {/* Right lens */}
       <Circle
-        cx={62}
-        cy={15}
-        r={12}
+        cx="62"
+        cy="15"
+        r="12"
         fill="rgba(255, 255, 255, 0.2)"
         stroke="#FF69B4"
-        strokeWidth={3}
+        strokeWidth="3"
       />
       {/* Bridge */}
       <Path
         d="M30 15 Q40 12 50 15"
         stroke="#FF69B4"
-        strokeWidth={3}
+        strokeWidth="3"
         fill="none"
       />
       {/* Left temple */}
       <Path
         d="M6 15 Q2 15 0 18"
         stroke="#FF69B4"
-        strokeWidth={3}
+        strokeWidth="3"
         fill="none"
       />
       {/* Right temple */}
       <Path
         d="M74 15 Q78 15 80 18"
         stroke="#FF69B4"
-        strokeWidth={3}
+        strokeWidth="3"
         fill="none"
       />
     </Svg>
@@ -1233,7 +1233,7 @@ export default function OutfitRatingScreen() {
     <View style={styles.container}>
       <Image 
         source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/me3mc8j9d8j7vgih6cgkz' }}
-        style={[styles.mainBackgroundImage, { opacity: Platform.OS === 'ios' ? (backgroundVisible ? 1.0 : 0.4) : 0.8 }]}
+        style={[styles.mainBackgroundImage, { opacity: Platform.OS === 'ios' ? (backgroundVisible ? 1 : 0.4) : 0.8 }]}
       />
       <FlowerBackground />
       <TermsModal />
@@ -2254,7 +2254,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
     zIndex: 0,
-    transition: 'opacity 0.3s ease',
   },
   touchableOverlay: {
     position: 'absolute',
