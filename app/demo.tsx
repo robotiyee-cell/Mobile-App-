@@ -193,9 +193,13 @@ export default function DemoScreen() {
             onError={(error) => {
               console.log('Demo image failed to load:', error);
               console.log('Platform:', Platform.OS);
+              console.log('Error details:', error);
             }}
             onLoad={() => {
               console.log('Demo image loaded successfully on platform:', Platform.OS);
+            }}
+            onLoadStart={() => {
+              console.log('Demo image load started on platform:', Platform.OS);
             }}
           />
             <View style={styles.demoOverlay}>
