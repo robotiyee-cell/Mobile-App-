@@ -1232,8 +1232,8 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/me3mc8j9d8j7vgih6cgkz' }}
-        style={[styles.mainBackgroundImage, { opacity: Platform.OS === 'ios' ? (backgroundVisible ? 1 : 0.4) : 0.8 }]}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/re6flbspb8ly37v6rol5m' }}
+        style={[styles.mainBackgroundImage, { opacity: Platform.OS === 'ios' ? (backgroundVisible ? 1.0 : 0.4) : 0.8 }]}
       />
       <FlowerBackground />
       <TermsModal />
