@@ -703,7 +703,7 @@ export default function OutfitRatingScreen() {
         );
       } else if (i === fullStars && hasHalfStar) {
         stars.push(
-          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: 0.5 }} />
+          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: '0.5' }} />
         );
       } else {
         stars.push(
@@ -772,7 +772,7 @@ export default function OutfitRatingScreen() {
       preserveAspectRatio="xMidYMid slice"
     >
       {/* Large decorative flowers with purple, red, pink, yellow, sky blue */}
-      <G opacity={Platform.OS === 'ios' ? 0.35 : 0.18}>
+      <G opacity={Platform.OS === 'ios' ? '0.35' : '0.18'}>
         {/* Purple Flower 1 - Top left */}
         <G transform="translate(50, 100)">
           <Circle cx="0" cy="-15" r="12" fill="#9B59B6" />
@@ -876,7 +876,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Medium scattered flowers */}
-      <G opacity={Platform.OS === 'ios' ? 0.28 : 0.15}>
+      <G opacity={Platform.OS === 'ios' ? '0.28' : '0.15'}>
         {/* Purple flowers */}
         <G transform="translate(150, 80)">
           <Circle cx="0" cy="-8" r="7" fill="#9B59B6" />
@@ -954,7 +954,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Small scattered flowers - covering white areas */}
-      <G opacity={Platform.OS === 'ios' ? 0.25 : 0.12}>
+      <G opacity={Platform.OS === 'ios' ? '0.25' : '0.12'}>
         {/* Top area flowers */}
         <G transform="translate(90, 60)">
           <Circle cx="0" cy="-6" r="5" fill="#9B59B6" />
@@ -1087,7 +1087,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Decorative leaves and stems */}
-      <G opacity={Platform.OS === 'ios' ? 0.18 : 0.08}>
+      <G opacity={Platform.OS === 'ios' ? '0.18' : '0.08'}>
         <Path d="M60 120 Q80 140 100 120 Q80 100 60 120" fill="#90EE90" />
         <Path d="M340 170 Q360 190 380 170 Q360 150 340 170" fill="#98FB98" />
         <Path d="M50 370 Q70 390 90 370 Q70 350 50 370" fill="#90EE90" />
