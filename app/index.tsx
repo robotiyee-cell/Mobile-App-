@@ -1397,11 +1397,6 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
-            <Upload size={48} color="#666" />
-            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
-            <Text style={styles.uploadSubtitle}>
-              Take a photo or choose from gallery to get your outfit rated
-            </Text>
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
               <Text style={styles.privacyNoticeText}>
