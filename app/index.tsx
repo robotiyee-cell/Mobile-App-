@@ -1266,36 +1266,34 @@ export default function OutfitRatingScreen() {
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Sparkles size={32} color="#FFD700" />
-            <View>
-              <LinearGradient
-                colors={['#FF69B4', '#9B59B6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.headerTitleGradient}
-              >
-                <View style={styles.headerTitleContainer}>
-                  <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
-                  <Text style={styles.headerTitle}>Look4Fun</Text>
-                  <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
-                </View>
-              </LinearGradient>
-              <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
-              {subscription.tier !== 'free' && (
-                <View style={styles.subscriptionBadge}>
-                  <Crown size={12} color="#FFD700" />
-                  <Text style={styles.subscriptionBadgeText}>
-                    {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-                  </Text>
-                </View>
-              )}
-              <TouchableOpacity
-                style={styles.centerHistoryButton}
-                onPress={toggleHistory}
-              >
-                <History size={20} color="white" />
-                <Text style={styles.centerHistoryButtonText}>History</Text>
-              </TouchableOpacity>
-            </View>
+            <LinearGradient
+              colors={['#FF69B4', '#9B59B6']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.headerTitleGradient}
+            >
+              <View style={styles.headerTitleContainer}>
+                <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
+                <Text style={styles.headerTitle}>Look4Fun</Text>
+                <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
+              </View>
+            </LinearGradient>
+            <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
+            {subscription.tier !== 'free' && (
+              <View style={styles.subscriptionBadge}>
+                <Crown size={12} color="#FFD700" />
+                <Text style={styles.subscriptionBadgeText}>
+                  {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+                </Text>
+              </View>
+            )}
+            <TouchableOpacity
+              style={styles.centerHistoryButton}
+              onPress={toggleHistory}
+            >
+              <History size={20} color="white" />
+              <Text style={styles.centerHistoryButtonText}>History</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.headerButtons}>
             <TouchableOpacity
@@ -1304,7 +1302,8 @@ export default function OutfitRatingScreen() {
               testID="subscription-button"
               activeOpacity={0.7}
             >
-              <CreditCard size={24} color="white" />
+              <CreditCard size={20} color="white" />
+              <Text style={styles.headerButtonText}>Pay</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.headerButton, { backgroundColor: 'rgba(255, 105, 180, 0.3)' }]}
@@ -1312,7 +1311,8 @@ export default function OutfitRatingScreen() {
               testID="terms-button"
               activeOpacity={0.7}
             >
-              <FileText size={24} color="white" />
+              <FileText size={20} color="white" />
+              <Text style={styles.headerButtonText}>Terms</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.headerButton, { backgroundColor: 'rgba(155, 89, 182, 0.3)' }]}
@@ -1320,7 +1320,8 @@ export default function OutfitRatingScreen() {
               testID="settings-button"
               activeOpacity={0.7}
             >
-              <Settings size={24} color="white" />
+              <Settings size={20} color="white" />
+              <Text style={styles.headerButtonText}>Settings</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -2306,14 +2307,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingTop: 48,
-    paddingBottom: 32,
+    paddingTop: 60,
+    paddingBottom: 40,
     paddingHorizontal: 24,
     alignItems: 'center',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     position: 'relative',
     overflow: 'hidden',
+    minHeight: 180,
   },
   headerBackgroundImage: {
     position: 'absolute',
@@ -2699,18 +2701,18 @@ const styles = StyleSheet.create({
   },
   // Header styles
   headerTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
     width: '100%',
-    minHeight: 60,
+    minHeight: 120,
+    gap: 16,
   },
   headerLeft: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: 16,
+    gap: 8,
     flex: 1,
-    paddingRight: 16,
   },
   historyButton: {
     padding: 8,
@@ -3181,11 +3183,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     paddingTop: 8,
+    width: '100%',
   },
   headerButton: {
-    padding: 14,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
     borderRadius: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     borderWidth: 2,
@@ -3195,10 +3201,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 6,
-    minWidth: 48,
-    minHeight: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
+    minWidth: 80,
+    minHeight: 60,
+    gap: 4,
+    flex: 1,
+    maxWidth: 100,
+  },
+  headerButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'white',
+    textAlign: 'center',
   },
   centerHistoryButton: {
     flexDirection: 'row',
