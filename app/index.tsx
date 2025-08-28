@@ -2270,7 +2270,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0.5,
+    zIndex: 1,
   },
   touchableContent: {
     flex: 1,
@@ -2286,7 +2286,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    zIndex: 1,
+    zIndex: 2,
   },
   contentContainer: {
     flexGrow: 1,
