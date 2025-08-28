@@ -1438,6 +1438,7 @@ export default function OutfitRatingScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.cameraButton]}
                 onPress={() => pickImage(true)}
+                testID="camera-button"
               >
                 <Camera size={20} color="white" />
                 <Text style={styles.buttonText}>Take Photo</Text>
@@ -1446,6 +1447,7 @@ export default function OutfitRatingScreen() {
               <TouchableOpacity
                 style={[styles.button, styles.galleryButton]}
                 onPress={() => pickImage(false)}
+                testID="gallery-button"
               >
                 <Upload size={20} color="#1a1a1a" />
                 <Text style={[styles.buttonText, styles.galleryButtonText]}>
@@ -2574,9 +2576,9 @@ const styles = StyleSheet.create({
   categoryCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 12,
-    padding: 12,
+    padding: 16,
     width: '48%',
-    minHeight: 80,
+    minHeight: 100,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#FF69B4',
@@ -2586,38 +2588,45 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 2,
     borderColor: 'rgba(255, 182, 193, 0.4)',
+    position: 'relative',
+    overflow: 'hidden',
   },
   categoryColorDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginBottom: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    zIndex: 5,
   },
   categoryLabel: {
     fontSize: 14,
     fontWeight: '800',
     color: '#1a1a1a',
-    marginBottom: 2,
+    marginBottom: 4,
     textAlign: 'center',
     paddingHorizontal: 4,
     lineHeight: 16,
     flexWrap: 'wrap',
-    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
+    textShadowRadius: 2,
+    zIndex: 5,
   },
   categoryDescription: {
     fontSize: 11,
-    color: '#444',
+    color: '#333',
     textAlign: 'center',
     lineHeight: 14,
     paddingHorizontal: 4,
     flexWrap: 'wrap',
     width: '100%',
-    fontWeight: '700',
-    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '600',
+    textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+    zIndex: 5,
   },
   selectedCategoryDisplay: {
     backgroundColor: 'transparent',
@@ -2944,16 +2953,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    opacity: 0.25,
-    borderRadius: 12,
+    opacity: 0.15,
+    borderRadius: 10,
   },
   categoryIconContainer: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 20,
-    padding: 8,
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 16,
+    padding: 6,
+    zIndex: 10,
   },
   categoryIcon: {
     shadowColor: '#000',
@@ -3048,26 +3058,29 @@ const styles = StyleSheet.create({
   
   themedColorDot: {
     borderWidth: 2,
-    borderColor: 'white',
+    borderColor: 'rgba(255, 255, 255, 0.9)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 2,
+    zIndex: 5,
   },
   themedCategoryLabel: {
     color: '#1a1a1a',
     fontWeight: '800',
-    textShadowColor: 'rgba(255, 255, 255, 0.9)',
+    textShadowColor: 'rgba(255, 255, 255, 0.95)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
+    zIndex: 5,
   },
   themedCategoryDescription: {
-    color: '#333',
-    fontWeight: '700',
-    textShadowColor: 'rgba(255, 255, 255, 0.9)',
+    color: '#2a2a2a',
+    fontWeight: '600',
+    textShadowColor: 'rgba(255, 255, 255, 0.95)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
+    zIndex: 5,
   },
   
   // Rate options section
