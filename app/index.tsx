@@ -1233,7 +1233,7 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/qg05ad4609iuwu6tmxs9q' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/9ehw7is0i032a02myrdiy' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1 : 0.2 }]}
       />
       <TermsModal />
@@ -1257,7 +1257,7 @@ export default function OutfitRatingScreen() {
             <Sparkles size={32} color="#FFD700" />
             <View>
               <LinearGradient
-                colors={['#FF69B4', '#9B59B6']}
+                colors={['transparent', 'transparent']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.headerTitleGradient}
