@@ -79,18 +79,18 @@ export default function OutfitRatingScreen() {
   const [maskedImage, setMaskedImage] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<StyleCategory | null>(null);
   const [analysis, setAnalysis] = useState<OutfitAnalysis | AllCategoriesAnalysis | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
-  const [showCategorySelection, setShowCategorySelection] = useState<boolean>(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showCategorySelection, setShowCategorySelection] = useState(false);
   const [savedRatings, setSavedRatings] = useState<SavedRating[]>([]);
-  const [showHistory, setShowHistory] = useState<boolean>(false);
-  const [showRateOptions, setShowRateOptions] = useState<boolean>(false);
-  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
-  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-  const [showInitialTerms, setShowInitialTerms] = useState<boolean>(true);
-  const [backgroundVisible, setBackgroundVisible] = useState<boolean>(true);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showRateOptions, setShowRateOptions] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showInitialTerms, setShowInitialTerms] = useState(true);
+  const [backgroundVisible, setBackgroundVisible] = useState(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
-  const { language } = useLanguage();
+  const { } = useLanguage();
 
   useEffect(() => {
     loadSavedRatings();
@@ -704,7 +704,7 @@ export default function OutfitRatingScreen() {
         );
       } else if (i === fullStars && hasHalfStar) {
         stars.push(
-          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: 1 }} />
+          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: '0.5' }} />
         );
       } else {
         stars.push(
@@ -773,7 +773,7 @@ export default function OutfitRatingScreen() {
       preserveAspectRatio="xMidYMid slice"
     >
       {/* Large decorative flowers with purple, red, pink, yellow, sky blue */}
-      <G opacity={0.8}>
+      <G opacity={0.18}>
         {/* Purple Flower 1 - Top left */}
         <G transform="translate(50, 100)">
           <Circle cx="0" cy="-15" r="12" fill="#9B59B6" />
@@ -877,7 +877,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Medium scattered flowers */}
-      <G opacity={0.8}>
+      <G opacity={0.15}>
         {/* Purple flowers */}
         <G transform="translate(150, 80)">
           <Circle cx="0" cy="-8" r="7" fill="#9B59B6" />
@@ -955,7 +955,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Small scattered flowers - covering white areas */}
-      <G opacity={0.8}>
+      <G opacity={0.12}>
         {/* Top area flowers */}
         <G transform="translate(90, 60)">
           <Circle cx="0" cy="-6" r="5" fill="#9B59B6" />
@@ -1088,7 +1088,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Decorative leaves and stems */}
-      <G opacity={0.8}>
+      <G opacity={0.08}>
         <Path d="M60 120 Q80 140 100 120 Q80 100 60 120" fill="#90EE90" />
         <Path d="M340 170 Q360 190 380 170 Q360 150 340 170" fill="#98FB98" />
         <Path d="M50 370 Q70 390 90 370 Q70 350 50 370" fill="#90EE90" />
@@ -1226,18 +1226,15 @@ export default function OutfitRatingScreen() {
 
   const clearDefaultBackground = () => {
     // Toggle background visibility when touching empty areas
-    setBackgroundVisible(current => !current);
-    console.log('Background visibility toggled');
+    setBackgroundVisible(prev => !prev);
+    console.log('Background visibility toggled:', !backgroundVisible);
   };
 
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
-        style={[styles.mainBackgroundImage, { opacity: 0.4 }]}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-        priority="high"
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/a92fjtosm70xtoj5pnplw' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.6 : 0.3 }]}
       />
       <FlowerBackground />
       <TermsModal />
@@ -1259,7 +1256,6 @@ export default function OutfitRatingScreen() {
         <Image 
           source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
           style={styles.headerBackgroundImage}
-          contentFit="cover"
         />
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
@@ -1344,7 +1340,7 @@ export default function OutfitRatingScreen() {
                     onPress={() => loadSavedRating(rating)}
                   >
                     <View style={styles.historyImageContainer}>
-                      <Image source={{ uri: rating.imageUri }} style={styles.historyImage} contentFit="cover" />
+                      <Image source={{ uri: rating.imageUri }} style={styles.historyImage} />
                       <View style={styles.historyImageOverlay}>
                         <Shield size={16} color="white" />
                       </View>
@@ -1446,7 +1442,7 @@ export default function OutfitRatingScreen() {
       ) : (
         <View style={styles.imageSection}>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: selectedImage }} style={styles.image} contentFit="cover" />
+            <Image source={{ uri: selectedImage }} style={styles.image} />
             <View style={styles.faceMaskOverlay}>
               {Platform.OS !== 'web' ? (
                 <BlurView intensity={30} style={styles.faceBlurArea}>
@@ -2268,7 +2264,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
     zIndex: 0,
+    transition: 'opacity 0.3s ease',
   },
   touchableOverlay: {
     position: 'absolute',
@@ -2276,7 +2274,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
+    zIndex: 0.5,
   },
   touchableContent: {
     flex: 1,
@@ -2292,7 +2290,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    zIndex: 2,
+    zIndex: 1,
   },
   contentContainer: {
     flexGrow: 1,
@@ -2314,6 +2312,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     opacity: 0.3,
+    resizeMode: 'cover',
   },
   headerTitleGradient: {
     borderRadius: 8,
@@ -2557,7 +2556,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   categoryCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'transparent',
     borderRadius: 12,
     padding: 12,
     width: '48%',
@@ -2566,11 +2565,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     shadowColor: '#FF69B4',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 182, 193, 0.4)',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 182, 193, 0.3)',
   },
   categoryColorDot: {
     width: 8,
@@ -2580,29 +2579,22 @@ const styles = StyleSheet.create({
   },
   categoryLabel: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: 2,
     textAlign: 'center',
     paddingHorizontal: 4,
     lineHeight: 16,
     flexWrap: 'wrap',
-    textShadowColor: 'rgba(255, 255, 255, 0.8)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
   },
   categoryDescription: {
     fontSize: 10,
-    color: '#555',
+    color: '#666',
     textAlign: 'center',
     lineHeight: 12,
     paddingHorizontal: 2,
     flexWrap: 'wrap',
     width: '100%',
-    fontWeight: '600',
-    textShadowColor: 'rgba(255, 255, 255, 0.6)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
   },
   selectedCategoryDisplay: {
     backgroundColor: 'transparent',
@@ -2927,8 +2919,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    opacity: 0.15,
-    borderRadius: 10,
+    opacity: 0.25,
+    borderRadius: 14,
   },
   categoryIconContainer: {
     position: 'absolute',
@@ -3039,17 +3031,17 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   themedCategoryLabel: {
-    color: '#1a1a1a',
-    fontWeight: '800',
-    textShadowColor: 'rgba(255, 255, 255, 0.9)',
-    textShadowOffset: { width: 0, height: 1 },
+    color: '#2A2A2A',
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
   themedCategoryDescription: {
-    color: '#444',
+    color: '#3A3A3A',
     fontWeight: '600',
-    textShadowColor: 'rgba(255, 255, 255, 0.9)',
-    textShadowOffset: { width: 0, height: 1 },
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
   
