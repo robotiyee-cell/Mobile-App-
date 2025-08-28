@@ -15,7 +15,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings } from 'lucide-react-native';
+import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, Settings } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
@@ -87,10 +87,9 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState(false);
+  const [backgroundVisible, setBackgroundVisible] = useState(true);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
-  const { t } = useLanguage();
 
   useEffect(() => {
     loadSavedRatings();
@@ -773,7 +772,7 @@ export default function OutfitRatingScreen() {
       preserveAspectRatio="xMidYMid slice"
     >
       {/* Large decorative flowers with purple, red, pink, yellow, sky blue */}
-      <G opacity={Platform.OS === 'ios' ? '0.35' : '0.18'}>
+      <G opacity={Platform.OS === 'ios' ? 0.35 : 0.18}>
         {/* Purple Flower 1 - Top left */}
         <G transform="translate(50, 100)">
           <Circle cx="0" cy="-15" r="12" fill="#9B59B6" />
@@ -877,7 +876,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Medium scattered flowers */}
-      <G opacity={Platform.OS === 'ios' ? '0.28' : '0.15'}>
+      <G opacity={Platform.OS === 'ios' ? 0.28 : 0.15}>
         {/* Purple flowers */}
         <G transform="translate(150, 80)">
           <Circle cx="0" cy="-8" r="7" fill="#9B59B6" />
@@ -955,7 +954,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Small scattered flowers - covering white areas */}
-      <G opacity={Platform.OS === 'ios' ? '0.25' : '0.12'}>
+      <G opacity={Platform.OS === 'ios' ? 0.25 : 0.12}>
         {/* Top area flowers */}
         <G transform="translate(90, 60)">
           <Circle cx="0" cy="-6" r="5" fill="#9B59B6" />
@@ -1088,7 +1087,7 @@ export default function OutfitRatingScreen() {
       </G>
       
       {/* Decorative leaves and stems */}
-      <G opacity={Platform.OS === 'ios' ? '0.18' : '0.08'}>
+      <G opacity={Platform.OS === 'ios' ? 0.18 : 0.08}>
         <Path d="M60 120 Q80 140 100 120 Q80 100 60 120" fill="#90EE90" />
         <Path d="M340 170 Q360 190 380 170 Q360 150 340 170" fill="#98FB98" />
         <Path d="M50 370 Q70 390 90 370 Q70 350 50 370" fill="#90EE90" />
@@ -1234,7 +1233,7 @@ export default function OutfitRatingScreen() {
     <View style={styles.container}>
       <Image 
         source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/uvyof935enn4d594g4w4p' }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.3 }]}
+        style={[styles.mainBackgroundImage, { opacity: Platform.OS === 'ios' ? (backgroundVisible ? 0.8 : 0.3) : 0.6 }]}
       />
       <FlowerBackground />
       <TermsModal />
@@ -1258,9 +1257,34 @@ export default function OutfitRatingScreen() {
           style={styles.headerBackgroundImage}
         />
         <View style={styles.headerTop}>
-          <View style={styles.headerLeft}>
-            <Sparkles size={32} color="#FFD700" />
-            <View>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={toggleHistory}
+            >
+              <History size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/subscription')}
+            >
+              <CreditCard size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => setShowTermsModal(true)}
+            >
+              <FileText size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.headerRight}>
+            <View style={styles.headerContent}>
               <LinearGradient
                 colors={['#FF69B4', '#9B59B6']}
                 start={{ x: 0, y: 0 }}
@@ -1282,34 +1306,7 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               )}
-              <TouchableOpacity
-                style={styles.centerHistoryButton}
-                onPress={toggleHistory}
-              >
-                <History size={20} color="white" />
-                <Text style={styles.centerHistoryButtonText}>History</Text>
-              </TouchableOpacity>
             </View>
-          </View>
-          <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/subscription')}
-            >
-              <CreditCard size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => setShowTermsModal(true)}
-            >
-              <FileText size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/settings')}
-            >
-              <Settings size={20} color="white" />
-            </TouchableOpacity>
           </View>
         </View>
       </LinearGradient>
@@ -1406,11 +1403,6 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
-            <Upload size={48} color="#666" />
-            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
-            <Text style={styles.uploadSubtitle}>
-              Take a photo or choose from gallery to get your outfit rated
-            </Text>
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
               <Text style={styles.privacyNoticeText}>
@@ -2369,28 +2361,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 20,
-    padding: 40,
+    padding: 32,
     shadowColor: '#FF69B4',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 8,
   },
-  uploadTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginTop: 16,
-  },
-  uploadSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 8,
-    lineHeight: 22,
-  },
+
   buttonContainer: {
-    marginTop: 32,
+    marginTop: 16,
     gap: 12,
     width: '100%',
   },
@@ -2697,10 +2677,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
+  headerRight: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  headerContent: {
+    alignItems: 'flex-end',
   },
   historyButton: {
     padding: 8,
