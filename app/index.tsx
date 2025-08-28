@@ -1232,13 +1232,18 @@ export default function OutfitRatingScreen() {
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
-        style={[styles.mainBackgroundImage, { opacity: 0.2 }]}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-        priority="high"
-      />
+      {Platform.OS !== 'web' && (
+        <Image 
+          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
+          style={[styles.mainBackgroundImage, { opacity: 0.2 }]}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          priority="high"
+        />
+      )}
+      {Platform.OS === 'web' && (
+        <View style={[styles.mainBackgroundImage, { backgroundColor: '#FFE4E6', opacity: 0.8 }]} />
+      )}
       <FlowerBackground />
       <TermsModal />
       <Pressable 
@@ -2559,9 +2564,9 @@ const styles = StyleSheet.create({
   categoryCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 12,
-    padding: 12,
+    padding: 16,
     width: '48%',
-    minHeight: 80,
+    minHeight: 100,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#FF69B4',
@@ -2571,38 +2576,43 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 2,
     borderColor: 'rgba(255, 182, 193, 0.4)',
+    position: 'relative',
+    overflow: 'hidden',
   },
   categoryColorDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginBottom: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginBottom: 6,
+    zIndex: 10,
   },
   categoryLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '800',
     color: '#1a1a1a',
-    marginBottom: 2,
+    marginBottom: 4,
     textAlign: 'center',
     paddingHorizontal: 4,
-    lineHeight: 16,
+    lineHeight: 18,
     flexWrap: 'wrap',
     textShadowColor: 'rgba(255, 255, 255, 0.8)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
+    zIndex: 10,
   },
   categoryDescription: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#555',
     textAlign: 'center',
-    lineHeight: 12,
-    paddingHorizontal: 2,
+    lineHeight: 14,
+    paddingHorizontal: 4,
     flexWrap: 'wrap',
     width: '100%',
     fontWeight: '600',
     textShadowColor: 'rgba(255, 255, 255, 0.6)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
+    zIndex: 10,
   },
   selectedCategoryDisplay: {
     backgroundColor: 'transparent',
@@ -2927,8 +2937,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    opacity: 0.15,
+    opacity: 0.2,
     borderRadius: 10,
+    zIndex: 1,
   },
   categoryIconContainer: {
     position: 'absolute',
@@ -2937,6 +2948,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 20,
     padding: 8,
+    zIndex: 5,
   },
   categoryIcon: {
     shadowColor: '#000',
@@ -3025,8 +3037,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     width: '100%',
-    minHeight: 90,
-    padding: 12,
+    minHeight: 110,
+    padding: 16,
   },
   
   themedColorDot: {
@@ -3037,6 +3049,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 2,
+    zIndex: 10,
   },
   themedCategoryLabel: {
     color: '#1a1a1a',
@@ -3044,6 +3057,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+    zIndex: 10,
   },
   themedCategoryDescription: {
     color: '#444',
@@ -3051,6 +3065,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+    zIndex: 10,
   },
   
   // Rate options section
