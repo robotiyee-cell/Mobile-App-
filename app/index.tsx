@@ -1263,25 +1263,25 @@ export default function OutfitRatingScreen() {
             style={styles.headerButton}
             onPress={toggleHistory}
           >
-            <History size={18} color="white" />
+            <History size={16} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
             onPress={() => router.push('/subscription')}
           >
-            <CreditCard size={18} color="white" />
+            <CreditCard size={16} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
             onPress={() => setShowTermsModal(true)}
           >
-            <FileText size={18} color="white" />
+            <FileText size={16} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
             onPress={() => router.push('/settings')}
           >
-            <Settings size={18} color="white" />
+            <Settings size={16} color="white" />
           </TouchableOpacity>
         </View>
         
@@ -1294,9 +1294,9 @@ export default function OutfitRatingScreen() {
             style={styles.headerTitleGradient}
           >
             <View style={styles.headerTitleContainer}>
-              <Sparkles size={24} color="#9B59B6" style={styles.headerTitleIcon} />
+              <Sparkles size={18} color="#9B59B6" style={styles.headerTitleIcon} />
               <Text style={styles.headerTitle}>Look4Fun</Text>
-              <Flower size={24} color="#FF69B4" style={styles.headerTitleIcon} />
+              <Flower size={18} color="#FF69B4" style={styles.headerTitleIcon} />
             </View>
           </LinearGradient>
           
@@ -2292,11 +2292,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingTop: 50,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -2312,15 +2312,15 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   headerTitleGradient: {
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     alignSelf: 'center',
   },
   headerTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   headerTitleIcon: {
     shadowColor: '#000',
@@ -2330,7 +2330,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: '900',
     color: '#9B59B6',
     fontFamily: Platform.select({
@@ -2350,13 +2350,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   headerDescription: {
-    fontSize: 14,
+    fontSize: 12,
     color: 'rgba(255, 255, 255, 0.9)',
-    marginTop: 8,
+    marginTop: 6,
     fontStyle: 'italic',
     textAlign: 'center',
-    paddingHorizontal: 20,
-    lineHeight: 18,
+    paddingHorizontal: 16,
+    lineHeight: 16,
   },
   uploadSection: {
     flex: 1,
@@ -2384,10 +2384,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    gap: 6,
   },
   cameraButton: {
     backgroundColor: '#FF69B4',
@@ -2420,7 +2420,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: 'white',
   },
@@ -2534,18 +2534,18 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   categoryTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1a1a1a',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   categorySubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 22,
+    marginBottom: 18,
+    lineHeight: 20,
   },
   categoriesGrid: {
     flexDirection: 'row',
@@ -2555,10 +2555,10 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     backgroundColor: 'transparent',
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 10,
+    padding: 10,
     width: '48%',
-    minHeight: 80,
+    minHeight: 70,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#FF69B4',
@@ -2576,20 +2576,20 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   categoryLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: 2,
     textAlign: 'center',
     paddingHorizontal: 4,
-    lineHeight: 16,
+    lineHeight: 14,
     flexWrap: 'wrap',
   },
   categoryDescription: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 12,
+    lineHeight: 11,
     paddingHorizontal: 2,
     flexWrap: 'wrap',
     width: '100%',
@@ -2681,8 +2681,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 20,
+    gap: 8,
+    marginBottom: 12,
   },
   headerTitleSection: {
     alignItems: 'center',
@@ -3154,8 +3154,8 @@ const styles = StyleSheet.create({
   
   // Header buttons
   headerButton: {
-    padding: 10,
-    borderRadius: 12,
+    padding: 8,
+    borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
