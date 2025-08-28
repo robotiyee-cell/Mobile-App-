@@ -1277,13 +1277,6 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               )}
-              <TouchableOpacity
-                style={styles.centerHistoryButton}
-                onPress={toggleHistory}
-              >
-                <History size={20} color="white" />
-                <Text style={styles.centerHistoryButtonText}>History</Text>
-              </TouchableOpacity>
               <View style={styles.headerButtons}>
                 <TouchableOpacity
                   style={styles.headerButton}
@@ -1302,6 +1295,12 @@ export default function OutfitRatingScreen() {
                   onPress={() => router.push('/settings')}
                 >
                   <Settings size={20} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.headerButton}
+                  onPress={toggleHistory}
+                >
+                  <History size={20} color="white" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -1402,11 +1401,7 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
-            <Upload size={48} color="#666" />
-            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
-            <Text style={styles.uploadSubtitle}>
-              Take a photo or choose from gallery to get your outfit rated
-            </Text>
+
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
               <Text style={styles.privacyNoticeText}>
