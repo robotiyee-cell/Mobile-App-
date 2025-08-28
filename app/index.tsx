@@ -1234,14 +1234,12 @@ export default function OutfitRatingScreen() {
     <View style={styles.container}>
       <Image 
         source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
-        style={[styles.mainBackgroundImage, { opacity: 0.8 }]}
+        style={[styles.mainBackgroundImage, { opacity: 0.2 }]}
         contentFit="cover"
         cachePolicy="memory-disk"
         priority="high"
-        onError={(error) => console.log('Background image failed to load:', error)}
-        onLoad={() => console.log('Background image loaded successfully')}
       />
-      {backgroundVisible && <FlowerBackground />}
+      <FlowerBackground />
       <TermsModal />
       <Pressable 
         style={styles.touchableOverlay}
@@ -2270,7 +2268,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    zIndex: 1,
+    zIndex: 0,
   },
   touchableOverlay: {
     position: 'absolute',
@@ -2301,7 +2299,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 32,
-    alignItems: 'flex-start',
+    alignItems: 'center',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     position: 'relative',
@@ -2367,7 +2365,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   uploadContainer: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: 'transparent',
     borderRadius: 20,
     padding: 40,
@@ -2382,16 +2380,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1a1a1a',
     marginTop: 16,
-    textAlign: 'left',
-    alignSelf: 'flex-start',
   },
   uploadSubtitle: {
     fontSize: 16,
     color: '#666',
-    textAlign: 'left',
+    textAlign: 'center',
     marginTop: 8,
     lineHeight: 22,
-    alignSelf: 'flex-start',
   },
   buttonContainer: {
     marginTop: 32,
@@ -2545,13 +2540,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    textAlign: 'left',
+    textAlign: 'center',
     marginBottom: 8,
   },
   categorySubtitle: {
     fontSize: 16,
     color: '#666',
-    textAlign: 'left',
+    textAlign: 'center',
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -2597,17 +2592,17 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
   },
   categoryDescription: {
-    fontSize: 11,
-    color: '#444',
+    fontSize: 10,
+    color: '#555',
     textAlign: 'center',
-    lineHeight: 14,
-    paddingHorizontal: 4,
+    lineHeight: 12,
+    paddingHorizontal: 2,
     flexWrap: 'wrap',
     width: '100%',
-    fontWeight: '700',
-    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '600',
+    textShadowColor: 'rgba(255, 255, 255, 0.6)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 1,
   },
   selectedCategoryDisplay: {
     backgroundColor: 'transparent',
@@ -2686,24 +2681,22 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     flex: 1,
-    fontSize: 16,
-    color: '#444',
-    lineHeight: 24,
+    fontSize: 15,
+    color: '#666',
+    lineHeight: 22,
     paddingRight: 8,
-    fontWeight: '500',
   },
   // Header styles
   headerTop: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     width: '100%',
   },
   headerLeft: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 16,
-    flex: 1,
   },
   historyButton: {
     padding: 8,
@@ -2718,13 +2711,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    textAlign: 'left',
+    textAlign: 'center',
     marginBottom: 8,
   },
   historySubtitle: {
     fontSize: 16,
     color: '#666',
-    textAlign: 'left',
+    textAlign: 'center',
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -2934,8 +2927,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    opacity: 0.25,
-    borderRadius: 12,
+    opacity: 0.15,
+    borderRadius: 10,
   },
   categoryIconContainer: {
     position: 'absolute',
@@ -2996,8 +2989,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   sixtiesCategoryDescription: {
-    color: '#2A2A2A',
-    fontWeight: '700',
+    color: '#3A3A3A',
+    fontWeight: '600',
     textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
@@ -3053,8 +3046,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   themedCategoryDescription: {
-    color: '#333',
-    fontWeight: '700',
+    color: '#444',
+    fontWeight: '600',
     textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -3101,13 +3094,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    textAlign: 'left',
+    textAlign: 'center',
     marginBottom: 8,
   },
   styleCategorySubtitle: {
     fontSize: 14,
     color: '#666',
-    textAlign: 'left',
+    textAlign: 'center',
     marginBottom: 20,
     lineHeight: 20,
   },
@@ -3171,11 +3164,8 @@ const styles = StyleSheet.create({
   
   // Header buttons
   headerButtons: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     gap: 8,
-    position: 'absolute',
-    right: 0,
-    top: 0,
   },
   headerButton: {
     padding: 8,
@@ -3185,7 +3175,7 @@ const styles = StyleSheet.create({
   centerHistoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -3194,7 +3184,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
   },
   centerHistoryButtonText: {
     fontSize: 14,
@@ -3383,7 +3373,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1a1a1a',
     marginBottom: 16,
-    textAlign: 'left',
+    textAlign: 'center',
   },
   categoryResultCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -3422,14 +3412,13 @@ const styles = StyleSheet.create({
     maxWidth: '75%',
   },
   categoryResultName: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: '#1a1a1a',
     flexShrink: 1,
-    lineHeight: 28,
+    lineHeight: 26,
     textAlign: 'left',
     flexWrap: 'wrap',
-    letterSpacing: 0.5,
   },
   categoryResultScore: {
     flexDirection: 'column',
@@ -3461,15 +3450,14 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   categoryResultAnalysis: {
-    fontSize: 17,
-    color: '#333',
-    lineHeight: 26,
-    marginBottom: 20,
-    paddingHorizontal: 8,
+    fontSize: 16,
+    color: '#555',
+    lineHeight: 24,
+    marginBottom: 18,
+    paddingHorizontal: 6,
     textAlign: 'left',
     width: '100%',
     flexWrap: 'wrap',
-    fontWeight: '500',
   },
   categorySuggestions: {
     marginTop: 16,
@@ -3477,11 +3465,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   suggestionsSubtitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FF1493',
-    marginBottom: 12,
-    letterSpacing: 0.3,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FF69B4',
+    marginBottom: 8,
   },
   noResultsContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
