@@ -87,7 +87,7 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState(false);
+  const [backgroundVisible, setBackgroundVisible] = useState(true);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t } = useLanguage();
@@ -1233,10 +1233,9 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/uvyof935enn4d594g4w4p' }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.3 }]}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/qg05ad4609iuwu6tmxs9q' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1 : 0.2 }]}
       />
-      <FlowerBackground />
       <TermsModal />
       <Pressable 
         style={styles.touchableOverlay}
@@ -1250,13 +1249,9 @@ export default function OutfitRatingScreen() {
         scrollEventThrottle={16}
       >
       <LinearGradient
-        colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
+        colors={['transparent', 'transparent']}
         style={styles.header}
       >
-        <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
-          style={styles.headerBackgroundImage}
-        />
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Sparkles size={32} color="#FFD700" />
