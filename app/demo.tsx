@@ -183,25 +183,25 @@ export default function DemoScreen() {
         <View style={styles.imageSection}>
           <View style={styles.imageContainer}>
             <Image 
-            source={{ uri: DEMO_IMAGE_URL }} 
-            style={styles.image} 
-            contentFit="cover"
-            cachePolicy="memory-disk"
-            priority="high"
-            transition={200}
-            placeholder={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==' }}
-            onError={(error) => {
-              console.log('Demo image failed to load:', error);
-              console.log('Platform:', Platform.OS);
-              console.log('Error details:', error);
-            }}
-            onLoad={() => {
-              console.log('Demo image loaded successfully on platform:', Platform.OS);
-            }}
-            onLoadStart={() => {
-              console.log('Demo image load started on platform:', Platform.OS);
-            }}
-          />
+              source={{ uri: DEMO_IMAGE_URL }} 
+              style={styles.image} 
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              priority="high"
+              transition={200}
+              placeholder={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==' }}
+              onError={(error) => {
+                console.log('Demo image failed to load:', error);
+                console.log('Platform:', Platform.OS);
+                console.log('Error details:', error);
+              }}
+              onLoad={() => {
+                console.log('Demo image loaded successfully on platform:', Platform.OS);
+              }}
+              onLoadStart={() => {
+                console.log('Demo image load started on platform:', Platform.OS);
+              }}
+            />
             <View style={styles.demoOverlay}>
               <View style={styles.demoBadge}>
                 <Sparkles size={16} color="#FFD700" />

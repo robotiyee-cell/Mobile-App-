@@ -1232,26 +1232,33 @@ export default function OutfitRatingScreen() {
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
-        style={[styles.mainBackgroundImage, { opacity: 0.8 }]}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-        priority="high"
-        transition={200}
-        placeholder={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==' }}
-        onError={(error) => {
-          console.log('Background image failed to load:', error);
-          console.log('Platform:', Platform.OS);
-          console.log('Error details:', error);
-        }}
-        onLoad={() => {
-          console.log('Background image loaded successfully on platform:', Platform.OS);
-        }}
-        onLoadStart={() => {
-          console.log('Background image load started on platform:', Platform.OS);
-        }}
-      />
+      {Platform.OS === 'ios' ? (
+        <LinearGradient
+          colors={['#FFE4E6', '#FFF0F5', '#FFE4E6']}
+          style={styles.mainBackgroundImage}
+        />
+      ) : (
+        <Image 
+          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/0hlh3lnmx0ws1kgwdvf6t' }}
+          style={[styles.mainBackgroundImage, { opacity: 0.8 }]}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          priority="high"
+          transition={200}
+          placeholder={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==' }}
+          onError={(error) => {
+            console.log('Background image failed to load:', error);
+            console.log('Platform:', Platform.OS);
+            console.log('Falling back to gradient background');
+          }}
+          onLoad={() => {
+            console.log('Background image loaded successfully on platform:', Platform.OS);
+          }}
+          onLoadStart={() => {
+            console.log('Background image load started on platform:', Platform.OS);
+          }}
+        />
+      )}
       {backgroundVisible && <FlowerBackground />}
       <TermsModal />
       <Pressable 
@@ -2405,25 +2412,62 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 32,
-    gap: 12,
+    gap: 16,
     width: '100%',
+    paddingHorizontal: 8,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 18,
     paddingHorizontal: 24,
     borderRadius: 12,
     gap: 8,
+    minHeight: 56,
+    ...Platform.select({
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   cameraButton: {
     backgroundColor: '#FF69B4',
+    ...Platform.select({
+      android: {
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+    }),
   },
   galleryButton: {
-    backgroundColor: 'rgba(255, 182, 193, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderWidth: 2,
-    borderColor: '#FFB6C1',
+    borderColor: '#FF69B4',
+    ...Platform.select({
+      android: {
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+    }),
   },
   analyzeButton: {
     backgroundColor: '#FF1493',
@@ -2444,6 +2488,7 @@ const styles = StyleSheet.create({
   },
   galleryButtonText: {
     color: '#FF1493',
+    fontWeight: '600',
   },
   resetButtonText: {
     color: '#666',
