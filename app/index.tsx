@@ -1284,28 +1284,29 @@ export default function OutfitRatingScreen() {
                 <History size={20} color="white" />
                 <Text style={styles.centerHistoryButtonText}>History</Text>
               </TouchableOpacity>
+              <View style={styles.headerButtons}>
+                <TouchableOpacity
+                  style={styles.headerButton}
+                  onPress={() => router.push('/subscription')}
+                >
+                  <CreditCard size={20} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.headerButton}
+                  onPress={() => setShowTermsModal(true)}
+                >
+                  <FileText size={20} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.headerButton}
+                  onPress={() => router.push('/settings')}
+                >
+                  <Settings size={20} color="white" />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-          <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/subscription')}
-            >
-              <CreditCard size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => setShowTermsModal(true)}
-            >
-              <FileText size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/settings')}
-            >
-              <Settings size={20} color="white" />
-            </TouchableOpacity>
-          </View>
+
         </View>
       </LinearGradient>
 
