@@ -87,7 +87,7 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState(false);
+  const [backgroundVisible, setBackgroundVisible] = useState(true);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t } = useLanguage();
@@ -1233,30 +1233,18 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/uvyof935enn4d594g4w4p' }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.3 }]}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/rfkl4a58ibgbpabnefe6m' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.9 : 0.5 }]}
       />
       <FlowerBackground />
       <TermsModal />
-      <Pressable 
-        style={styles.touchableOverlay}
-        onPress={clearDefaultBackground}
-      >
-        <View style={styles.touchableContent} />
-      </Pressable>
+
       <ScrollView 
         style={styles.scrollContainer} 
         contentContainerStyle={styles.contentContainer}
         scrollEventThrottle={16}
       >
-      <LinearGradient
-        colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
-        style={styles.header}
-      >
-        <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
-          style={styles.headerBackgroundImage}
-        />
+      <View style={styles.header}>
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Sparkles size={32} color="#FFD700" />
@@ -1289,30 +1277,33 @@ export default function OutfitRatingScreen() {
                 <History size={20} color="white" />
                 <Text style={styles.centerHistoryButtonText}>History</Text>
               </TouchableOpacity>
+              <View style={styles.headerActionsRow}>
+                <TouchableOpacity
+                  style={styles.headerActionPill}
+                  onPress={() => router.push('/subscription')}
+                >
+                  <CreditCard size={16} color="#fff" />
+                  <Text style={styles.headerActionPillText}>Pay</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.headerActionPill}
+                  onPress={() => setShowTermsModal(true)}
+                >
+                  <FileText size={16} color="#fff" />
+                  <Text style={styles.headerActionPillText}>Terms</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.headerActionPill}
+                  onPress={() => router.push('/settings')}
+                >
+                  <Settings size={16} color="#fff" />
+                  <Text style={styles.headerActionPillText}>Settings</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-          <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/subscription')}
-            >
-              <CreditCard size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => setShowTermsModal(true)}
-            >
-              <FileText size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/settings')}
-            >
-              <Settings size={20} color="white" />
-            </TouchableOpacity>
-          </View>
         </View>
-      </LinearGradient>
+      </View>
 
       {showHistory ? (
         <View style={styles.historySection}>
@@ -2266,7 +2257,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
     zIndex: 0,
-    transition: 'opacity 0.3s ease',
   },
   touchableOverlay: {
     position: 'absolute',
@@ -2274,7 +2264,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0.5,
+    zIndex: 2,
   },
   touchableContent: {
     flex: 1,
@@ -2286,11 +2276,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0,
+    zIndex: 1,
   },
   scrollContainer: {
     flex: 1,
-    zIndex: 1,
+    zIndex: 3,
   },
   contentContainer: {
     flexGrow: 1,
@@ -2301,18 +2291,10 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     position: 'relative',
-    overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   headerBackgroundImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0.3,
-    resizeMode: 'cover',
+    display: 'none',
   },
   headerTitleGradient: {
     borderRadius: 8,
@@ -2570,6 +2552,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 182, 193, 0.3)',
+    overflow: 'hidden',
   },
   categoryColorDot: {
     width: 8,
@@ -2920,7 +2903,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     opacity: 0.25,
-    borderRadius: 14,
+    borderRadius: 12,
   },
   categoryIconContainer: {
     position: 'absolute',
@@ -3104,10 +3087,14 @@ const styles = StyleSheet.create({
   compactCategoryLabel: {
     fontSize: 11,
     lineHeight: 13,
+    textAlign: 'center',
+    alignSelf: 'center',
   },
   compactCategoryDescription: {
     fontSize: 8,
     lineHeight: 10,
+    textAlign: 'center',
+    alignSelf: 'center',
   },
   
   // Copyright styles
@@ -3156,19 +3143,16 @@ const styles = StyleSheet.create({
   
   // Header buttons
   headerButtons: {
-    flexDirection: 'row',
-    gap: 8,
+    display: 'none',
   },
   headerButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    display: 'none',
   },
   centerHistoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -3182,6 +3166,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: 'white',
+  },
+  headerActionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+    alignSelf: 'center',
+  },
+  headerActionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  headerActionPillText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   subscriptionBadge: {
     flexDirection: 'row',
