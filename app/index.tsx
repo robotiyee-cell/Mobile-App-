@@ -1256,58 +1256,60 @@ export default function OutfitRatingScreen() {
           source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
           style={styles.headerBackgroundImage}
         />
-        <View style={styles.headerTop}>
-          <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={toggleHistory}
-            >
-              <History size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/subscription')}
-            >
-              <CreditCard size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => setShowTermsModal(true)}
-            >
-              <FileText size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/settings')}
-            >
-              <Settings size={20} color="white" />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.headerRight}>
-            <View style={styles.headerContent}>
-              <LinearGradient
-                colors={['#FF69B4', '#9B59B6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.headerTitleGradient}
-              >
-                <View style={styles.headerTitleContainer}>
-                  <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
-                  <Text style={styles.headerTitle}>Look4Fun</Text>
-                  <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
-                </View>
-              </LinearGradient>
-              <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
-              {subscription.tier !== 'free' && (
-                <View style={styles.subscriptionBadge}>
-                  <Crown size={12} color="#FFD700" />
-                  <Text style={styles.subscriptionBadgeText}>
-                    {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-                  </Text>
-                </View>
-              )}
+        
+        {/* Header Buttons Row */}
+        <View style={styles.headerButtonsRow}>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={toggleHistory}
+          >
+            <History size={18} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => router.push('/subscription')}
+          >
+            <CreditCard size={18} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => setShowTermsModal(true)}
+          >
+            <FileText size={18} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => router.push('/settings')}
+          >
+            <Settings size={18} color="white" />
+          </TouchableOpacity>
+        </View>
+        
+        {/* Title Section */}
+        <View style={styles.headerTitleSection}>
+          <LinearGradient
+            colors={['#FF69B4', '#9B59B6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.headerTitleGradient}
+          >
+            <View style={styles.headerTitleContainer}>
+              <Sparkles size={24} color="#9B59B6" style={styles.headerTitleIcon} />
+              <Text style={styles.headerTitle}>Look4Fun</Text>
+              <Flower size={24} color="#FF69B4" style={styles.headerTitleIcon} />
             </View>
-          </View>
+          </LinearGradient>
+          
+          <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
+          
+          {subscription.tier !== 'free' && (
+            <View style={styles.subscriptionBadge}>
+              <Crown size={12} color="#FFD700" />
+              <Text style={styles.subscriptionBadgeText}>
+                {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+              </Text>
+            </View>
+          )}
         </View>
       </LinearGradient>
 
@@ -2290,8 +2292,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    padding: 32,
-    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 24,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     position: 'relative',
@@ -2309,10 +2312,10 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   headerTitleGradient: {
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginTop: 12,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    alignSelf: 'center',
   },
   headerTitleContainer: {
     flexDirection: 'row',
@@ -2327,7 +2330,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '900',
     color: '#9B59B6',
     fontFamily: Platform.select({
@@ -2348,9 +2351,12 @@ const styles = StyleSheet.create({
   },
   headerDescription: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 2,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 8,
     fontStyle: 'italic',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    lineHeight: 18,
   },
   uploadSection: {
     flex: 1,
@@ -2671,18 +2677,16 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   // Header styles
-  headerTop: {
+  headerButtonsRow: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 20,
+  },
+  headerTitleSection: {
+    alignItems: 'center',
     width: '100%',
-  },
-  headerRight: {
-    flex: 1,
-    alignItems: 'flex-end',
-  },
-  headerContent: {
-    alignItems: 'flex-end',
   },
   historyButton: {
     padding: 8,
@@ -3149,14 +3153,17 @@ const styles = StyleSheet.create({
   },
   
   // Header buttons
-  headerButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
   headerButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   centerHistoryButton: {
     flexDirection: 'row',
@@ -3181,11 +3188,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginTop: 4,
-    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginTop: 8,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
   },
   subscriptionBadgeText: {
     fontSize: 12,
