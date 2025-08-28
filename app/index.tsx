@@ -1233,7 +1233,7 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/9ehw7is0i032a02myrdiy' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/qg05ad4609iuwu6tmxs9q' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1 : 0.2 }]}
       />
       <TermsModal />
@@ -1257,7 +1257,7 @@ export default function OutfitRatingScreen() {
             <Sparkles size={32} color="#FFD700" />
             <View>
               <LinearGradient
-                colors={['transparent', 'transparent']}
+                colors={['#FF69B4', '#9B59B6']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.headerTitleGradient}
@@ -1277,35 +1277,35 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               )}
-              <View style={styles.headerButtons}>
-                <TouchableOpacity
-                  style={styles.headerButton}
-                  onPress={() => router.push('/subscription')}
-                >
-                  <CreditCard size={20} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.headerButton}
-                  onPress={() => setShowTermsModal(true)}
-                >
-                  <FileText size={20} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.headerButton}
-                  onPress={() => router.push('/settings')}
-                >
-                  <Settings size={20} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.headerButton}
-                  onPress={toggleHistory}
-                >
-                  <History size={20} color="white" />
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.centerHistoryButton}
+                onPress={toggleHistory}
+              >
+                <History size={20} color="white" />
+                <Text style={styles.centerHistoryButtonText}>History</Text>
+              </TouchableOpacity>
             </View>
           </View>
-
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/subscription')}
+            >
+              <CreditCard size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => setShowTermsModal(true)}
+            >
+              <FileText size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings size={20} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
       </LinearGradient>
 
@@ -1401,7 +1401,11 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
-
+            <Upload size={48} color="#666" />
+            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
+            <Text style={styles.uploadSubtitle}>
+              Take a photo or choose from gallery to get your outfit rated
+            </Text>
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
               <Text style={styles.privacyNoticeText}>
@@ -2265,7 +2269,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
+    zIndex: 0.5,
   },
   touchableContent: {
     flex: 1,
@@ -2281,7 +2285,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    zIndex: 2,
+    zIndex: 1,
   },
   contentContainer: {
     flexGrow: 1,
