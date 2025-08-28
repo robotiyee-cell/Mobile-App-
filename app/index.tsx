@@ -1299,22 +1299,28 @@ export default function OutfitRatingScreen() {
           </View>
           <View style={styles.headerButtons}>
             <TouchableOpacity
-              style={styles.headerButton}
+              style={[styles.headerButton, { backgroundColor: 'rgba(255, 215, 0, 0.3)' }]}
               onPress={() => router.push('/subscription')}
+              testID="subscription-button"
+              activeOpacity={0.7}
             >
-              <CreditCard size={20} color="white" />
+              <CreditCard size={24} color="white" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.headerButton}
+              style={[styles.headerButton, { backgroundColor: 'rgba(255, 105, 180, 0.3)' }]}
               onPress={() => setShowTermsModal(true)}
+              testID="terms-button"
+              activeOpacity={0.7}
             >
-              <FileText size={20} color="white" />
+              <FileText size={24} color="white" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.headerButton}
+              style={[styles.headerButton, { backgroundColor: 'rgba(155, 89, 182, 0.3)' }]}
               onPress={() => router.push('/settings')}
+              testID="settings-button"
+              activeOpacity={0.7}
             >
-              <Settings size={20} color="white" />
+              <Settings size={24} color="white" />
             </TouchableOpacity>
           </View>
         </View>
@@ -2300,7 +2306,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    padding: 32,
+    paddingTop: 48,
+    paddingBottom: 32,
+    paddingHorizontal: 24,
     alignItems: 'center',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
@@ -2692,14 +2700,17 @@ const styles = StyleSheet.create({
   // Header styles
   headerTop: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     width: '100%',
+    minHeight: 60,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+    flex: 1,
+    paddingRight: 16,
   },
   historyButton: {
     padding: 8,
@@ -3168,12 +3179,26 @@ const styles = StyleSheet.create({
   // Header buttons
   headerButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingTop: 8,
   },
   headerButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
+    minWidth: 48,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   centerHistoryButton: {
     flexDirection: 'row',
