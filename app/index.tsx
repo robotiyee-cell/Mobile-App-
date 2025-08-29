@@ -1322,7 +1322,7 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/2bq7h6qagxstixiuv4ou0' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/lkm42p1h9w1gkpe4920f8' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.35 }]}
       />
       <FlowerBackground />
