@@ -1233,7 +1233,7 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/qv7x87plfzl28mslo2xw2' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/rfkl4a58ibgbpabnefe6m' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.9 : 0.5 }]}
       />
       <FlowerBackground />
@@ -1270,34 +1270,34 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               )}
+              <TouchableOpacity
+                style={styles.centerHistoryButton}
+                onPress={toggleHistory}
+              >
+                <History size={20} color="white" />
+                <Text style={styles.centerHistoryButtonText}>History</Text>
+              </TouchableOpacity>
               <View style={styles.headerActionsRow}>
                 <TouchableOpacity
                   style={styles.headerActionPill}
-                  onPress={toggleHistory}
-                >
-                  <History size={16} color="#fff" />
-                  <Text style={styles.headerActionPillText}>History</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.headerActionPill, styles.headerActionPillWhite]}
                   onPress={() => router.push('/subscription')}
                 >
-                  <CreditCard size={16} color="#1a1a1a" />
-                  <Text style={[styles.headerActionPillText, styles.headerActionPillTextDark]}>Pay</Text>
+                  <CreditCard size={16} color="#fff" />
+                  <Text style={styles.headerActionPillText}>Pay</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.headerActionPill, styles.headerActionPillWhite]}
+                  style={styles.headerActionPill}
                   onPress={() => setShowTermsModal(true)}
                 >
-                  <FileText size={16} color="#1a1a1a" />
-                  <Text style={[styles.headerActionPillText, styles.headerActionPillTextDark]}>Terms</Text>
+                  <FileText size={16} color="#fff" />
+                  <Text style={styles.headerActionPillText}>Terms</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.headerActionPill, styles.headerActionPillWhite]}
+                  style={styles.headerActionPill}
                   onPress={() => router.push('/settings')}
                 >
-                  <Settings size={16} color="#1a1a1a" />
-                  <Text style={[styles.headerActionPillText, styles.headerActionPillTextDark]}>Settings</Text>
+                  <Settings size={16} color="#fff" />
+                  <Text style={styles.headerActionPillText}>Settings</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -1397,6 +1397,11 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
+            <Upload size={48} color="#666" />
+            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
+            <Text style={styles.uploadSubtitle}>
+              Take a photo or choose from gallery to get your outfit rated
+            </Text>
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
               <Text style={styles.privacyNoticeText}>
@@ -2564,8 +2569,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     lineHeight: 16,
     flexWrap: 'wrap',
-    width: '100%',
-    alignSelf: 'stretch',
   },
   categoryDescription: {
     fontSize: 10,
@@ -2575,7 +2578,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     flexWrap: 'wrap',
     width: '100%',
-    alignSelf: 'stretch',
   },
   selectedCategoryDisplay: {
     backgroundColor: 'transparent',
@@ -2902,7 +2904,6 @@ const styles = StyleSheet.create({
     height: '100%',
     opacity: 0.25,
     borderRadius: 12,
-    overflow: 'hidden',
   },
   categoryIconContainer: {
     position: 'absolute',
@@ -3182,13 +3183,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
-  },
-  headerActionPillWhite: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderColor: 'rgba(0,0,0,0.08)',
-  },
-  headerActionPillTextDark: {
-    color: '#1a1a1a',
   },
   headerActionPillText: {
     color: '#fff',
