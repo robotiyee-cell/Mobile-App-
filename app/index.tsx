@@ -10,6 +10,7 @@ import {
   Platform,
   Modal,
   Pressable,
+  Animated,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -771,6 +772,7 @@ export default function OutfitRatingScreen() {
       height="100%"
       viewBox="0 0 400 800"
       preserveAspectRatio="xMidYMid slice"
+      accessibilityLabel="static-flower-background"
     >
       {/* Large decorative flowers with purple, red, pink, yellow, sky blue */}
       <G opacity={0.18}>
@@ -1104,6 +1106,93 @@ export default function OutfitRatingScreen() {
     </Svg>
   );
 
+  interface FloatingFlowerSpec {
+    id: string;
+    left: number;
+    size: number;
+    duration: number;
+    delay: number;
+    color: string;
+  }
+
+  const FloatingFlowers = React.memo(function FloatingFlowers() {
+    const specs = React.useMemo<FloatingFlowerSpec[]>(() => {
+      const palette = ['#FF69B4', '#FFD700', '#87CEEB', '#9B59B6', '#FF6347', '#98FB98'];
+      const arr: FloatingFlowerSpec[] = [];
+      for (let i = 0; i < 12; i++) {
+        arr.push({
+          id: `ff-${i}`,
+          left: Math.random() * 90,
+          size: 14 + Math.round(Math.random() * 18),
+          duration: 6000 + Math.round(Math.random() * 4000),
+          delay: Math.round(Math.random() * 3000),
+          color: palette[i % palette.length],
+        });
+      }
+      return arr;
+    }, []);
+
+    return (
+      <View pointerEvents="none" style={styles.floatingFlowersLayer}>
+        {specs.map((spec) => (
+          <FloatingFlower key={spec.id} spec={spec} />
+        ))}
+      </View>
+    );
+  });
+
+  function FloatingFlower({ spec }: { spec: FloatingFlowerSpec }) {
+    const translateY = React.useRef(new Animated.Value(0)).current;
+    const opacity = React.useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.delay(spec.delay),
+          Animated.parallel([
+            Animated.timing(translateY, {
+              toValue: -50,
+              duration: spec.duration,
+              useNativeDriver: Platform.OS !== 'web',
+            }),
+            Animated.sequence([
+              Animated.timing(opacity, { toValue: 0.6, duration: 600, useNativeDriver: Platform.OS !== 'web' }),
+              Animated.timing(opacity, { toValue: 0.2, duration: spec.duration - 1200, useNativeDriver: Platform.OS !== 'web' }),
+              Animated.timing(opacity, { toValue: 0, duration: 600, useNativeDriver: Platform.OS !== 'web' }),
+            ]),
+          ]),
+          Animated.timing(translateY, { toValue: 0, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
+        ])
+      );
+      loop.start();
+      return () => loop.stop();
+    }, [opacity, spec.delay, spec.duration, translateY]);
+
+    return (
+      <Animated.View
+        style={[
+          styles.floatingFlower,
+          {
+            left: `${spec.left}%`,
+            width: spec.size,
+            height: spec.size,
+            transform: [{ translateY }],
+            opacity,
+          },
+        ]}
+        accessibilityLabel={`floating-flower-${spec.id}`}
+      >
+        <Svg width={spec.size} height={spec.size} viewBox="0 0 24 24">
+          <Circle cx="12" cy="4" r="4" fill={spec.color} />
+          <Circle cx="4" cy="12" r="4" fill={spec.color} />
+          <Circle cx="20" cy="12" r="4" fill={spec.color} />
+          <Circle cx="12" cy="20" r="4" fill={spec.color} />
+          <Circle cx="12" cy="12" r="3" fill="#FFFFFF" />
+        </Svg>
+      </Animated.View>
+    );
+  }
+
   const TermsModal = () => (
     <Modal
       visible={showTermsModal || showInitialTerms}
@@ -1233,10 +1322,11 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/uvyof935enn4d594g4w4p' }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.3 }]}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/2bq7h6qagxstixiuv4ou0' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.35 }]}
       />
       <FlowerBackground />
+      <FloatingFlowers />
       <TermsModal />
       <Pressable 
         style={styles.touchableOverlay}
@@ -2274,6 +2364,18 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 0,
+  },
+  floatingFlowersLayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0.2,
+  },
+  floatingFlower: {
+    position: 'absolute',
+    bottom: 10,
   },
   scrollContainer: {
     flex: 1,
