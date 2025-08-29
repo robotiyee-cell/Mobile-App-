@@ -2425,7 +2425,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: '900',
     color: '#9B59B6',
     fontFamily: Platform.select({
@@ -2445,7 +2445,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   headerDescription: {
-    fontSize: 14,
+    fontSize: 12,
     color: 'rgba(255, 255, 255, 0.7)',
     marginTop: 2,
     fontStyle: 'italic',
@@ -2916,9 +2916,9 @@ const styles = StyleSheet.create({
   },
   privacyNoticeText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 12,
     color: '#2E7D32',
-    lineHeight: 20,
+    lineHeight: 18,
   },
   faceMaskOverlay: {
     position: 'absolute',
@@ -3288,7 +3288,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   subscriptionBadgeText: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#FFD700',
   },
@@ -3317,12 +3317,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   subscriptionStatusTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#1a1a1a',
   },
   subscriptionStatusText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
   },
   upgradeButton: {
