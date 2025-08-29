@@ -1469,30 +1469,38 @@ export default function OutfitRatingScreen() {
         </View>
       ) : !selectedImage ? (
         <View style={styles.uploadSection}>
-
-          <View style={styles.uploadContainer}>
-            <View style={styles.privacyNotice}>
-              <TouchableOpacity
-                style={styles.planPillButton}
-                onPress={() => router.push('/subscription')}
-                testID="btn-plan-pill"
-              >
-                <Crown size={14} color="#7A5AF8" />
-                <View style={styles.planPillTextWrap}>
-                  <Text style={styles.planPillTextPrimary}>
-                    {subscription.tier === 'free' ? 'Free Plan' : subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1) + ' Plan'}
-                  </Text>
-                  <Text style={styles.planPillTextSecondary}>
-                    {subscription.tier === 'premium' || subscription.tier === 'ultimate' ? 'Unlimited analyses' : `${subscription.analysesRemaining} left today`}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <View style={styles.privacyLeft}>
-                <Shield size={20} color="#4CAF50" />
-                <Text style={styles.privacyNoticeText}>
-                  Your face will be automatically masked before AI analysis for privacy protection
+          {/* Subscription Status Card */}
+          <View style={styles.subscriptionStatusCard}>
+            <View style={styles.subscriptionStatusHeader}>
+              <View style={styles.subscriptionStatusLeft}>
+                <Crown size={20} color={subscription.tier === 'free' ? '#9E9E9E' : '#FFD700'} />
+                <Text style={styles.subscriptionStatusTitle}>
+                  {subscription.tier === 'free' ? 'Free Plan' : 
+                   subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1) + ' Plan'}
                 </Text>
               </View>
+              <TouchableOpacity
+                style={styles.upgradeButton}
+                onPress={() => router.push('/subscription')}
+              >
+                <Text style={styles.upgradeButtonText}>
+                  {subscription.tier === 'free' ? 'Upgrade' : 'Manage'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.subscriptionStatusText}>
+              {subscription.tier === 'premium' || subscription.tier === 'ultimate' 
+                ? 'Unlimited analyses remaining' 
+                : `${subscription.analysesRemaining} analyses remaining today`}
+            </Text>
+          </View>
+          
+          <View style={styles.uploadContainer}>
+            <View style={styles.privacyNotice}>
+              <Shield size={20} color="#4CAF50" />
+              <Text style={styles.privacyNoticeText}>
+                Your face will be automatically masked before AI analysis for privacy protection
+              </Text>
             </View>
             
             <View style={styles.buttonContainer}>
@@ -2890,8 +2898,8 @@ const styles = StyleSheet.create({
   },
   // Privacy styles
   privacyNotice: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#E8F5E8',
     padding: 16,
     borderRadius: 12,
@@ -2903,38 +2911,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2E7D32',
     lineHeight: 20,
-  },
-  privacyLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-    paddingRight: 12,
-  },
-  planPillButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(122, 90, 248, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(122, 90, 248, 0.25)',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 16,
-    gap: 8,
-  },
-  planPillTextWrap: {
-    flexDirection: 'column',
-  },
-  planPillTextPrimary: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#3B2A8A',
-    lineHeight: 14,
-  },
-  planPillTextSecondary: {
-    fontSize: 10,
-    color: '#6B6B6B',
-    lineHeight: 12,
   },
   faceMaskOverlay: {
     position: 'absolute',
