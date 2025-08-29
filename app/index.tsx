@@ -1233,7 +1233,7 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/rfkl4a58ibgbpabnefe6m' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/qv7x87plfzl28mslo2xw2' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.9 : 0.5 }]}
       />
       <FlowerBackground />
@@ -1279,25 +1279,25 @@ export default function OutfitRatingScreen() {
                   <Text style={styles.headerActionPillText}>History</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.headerActionPill}
+                  style={[styles.headerActionPill, styles.headerActionPillWhite]}
                   onPress={() => router.push('/subscription')}
                 >
-                  <CreditCard size={16} color="#fff" />
-                  <Text style={styles.headerActionPillText}>Pay</Text>
+                  <CreditCard size={16} color="#1a1a1a" />
+                  <Text style={[styles.headerActionPillText, styles.headerActionPillTextDark]}>Pay</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.headerActionPill}
+                  style={[styles.headerActionPill, styles.headerActionPillWhite]}
                   onPress={() => setShowTermsModal(true)}
                 >
-                  <FileText size={16} color="#fff" />
-                  <Text style={styles.headerActionPillText}>Terms</Text>
+                  <FileText size={16} color="#1a1a1a" />
+                  <Text style={[styles.headerActionPillText, styles.headerActionPillTextDark]}>Terms</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.headerActionPill}
+                  style={[styles.headerActionPill, styles.headerActionPillWhite]}
                   onPress={() => router.push('/settings')}
                 >
-                  <Settings size={16} color="#fff" />
-                  <Text style={styles.headerActionPillText}>Settings</Text>
+                  <Settings size={16} color="#1a1a1a" />
+                  <Text style={[styles.headerActionPillText, styles.headerActionPillTextDark]}>Settings</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -2564,6 +2564,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     lineHeight: 16,
     flexWrap: 'wrap',
+    width: '100%',
+    alignSelf: 'stretch',
   },
   categoryDescription: {
     fontSize: 10,
@@ -2573,6 +2575,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     flexWrap: 'wrap',
     width: '100%',
+    alignSelf: 'stretch',
   },
   selectedCategoryDisplay: {
     backgroundColor: 'transparent',
@@ -2899,6 +2902,7 @@ const styles = StyleSheet.create({
     height: '100%',
     opacity: 0.25,
     borderRadius: 12,
+    overflow: 'hidden',
   },
   categoryIconContainer: {
     position: 'absolute',
@@ -3178,6 +3182,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
+  },
+  headerActionPillWhite: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderColor: 'rgba(0,0,0,0.08)',
+  },
+  headerActionPillTextDark: {
+    color: '#1a1a1a',
   },
   headerActionPillText: {
     color: '#fff',
