@@ -1107,11 +1107,18 @@ export default function OutfitRatingScreen() {
   );
 
   const FloatingFlowers = () => {
-    const count = 5;
-    const anims = useRef(Array.from({ length: count }, () => new Animated.Value(0))).current;
+    const flowerUrls = [
+      'https://images.unsplash.com/photo-1526045612212-70caf35c14df?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
+      'https://images.unsplash.com/photo-1524594227084-7f3e9a3d6900?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
+      'https://images.unsplash.com/photo-1491002052546-bf38f186af7f?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
+      'https://images.unsplash.com/photo-1470116945706-e6bf5d5a53ca?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
+      'https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx'
+    ];
+
+    const anims = useRef(flowerUrls.map(() => new Animated.Value(0))).current;
 
     useEffect(() => {
-      console.log('FloatingFlowers: starting svg flower animations');
+      console.log('FloatingFlowers: starting animations');
       anims.forEach((val, i) => {
         const loop = () => {
           Animated.sequence([
@@ -1141,39 +1148,26 @@ export default function OutfitRatingScreen() {
       { top: 600, left: 30 },
     ] as const;
 
-    const palettes = [
-      ['#9B59B6', '#8E44AD', '#BB6BD9'],
-      ['#DC143C', '#B22222', '#FF6347'],
-      ['#FF69B4', '#FF1493', '#FFB6C1'],
-      ['#87CEEB', '#00BFFF', '#ADD8E6'],
-      ['#FFD700', '#FFA500', '#FFFF00'],
-    ] as const;
-
     return (
       <View pointerEvents="none" style={styles.floatingFlowersContainer}>
-        {anims.map((val, i) => {
-          const translateY = val.interpolate({ inputRange: [0, 1], outputRange: [0, -15] });
-          const translateX = val.interpolate({ inputRange: [0, 1], outputRange: [0, i % 2 === 0 ? 8 : -8] });
-          const opacity = val.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0.9] });
+        {flowerUrls.map((url, i) => {
+          const translateY = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0, -15] });
+          const translateX = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0, i % 2 === 0 ? 8 : -8] });
+          const opacity = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0.5, 0.9] });
           const style = [
             styles.floatingFlower,
             positions[i] as object,
             { transform: [{ translateY }, { translateX }], opacity },
           ];
-          const colors = palettes[i % palettes.length];
           return (
-            <Animated.View key={`flower-${i}`} style={style} testID={`floating-flower-${i}`}>
-              <Svg width={48} height={48} viewBox="-24 -24 48 48">
-                <G>
-                  <Circle cx={0} cy={-10} r={9} fill={colors[0]} />
-                  <Circle cx={8} cy={-4} r={9} fill={colors[1]} />
-                  <Circle cx={5} cy={8} r={9} fill={colors[2]} />
-                  <Circle cx={-5} cy={8} r={9} fill={colors[0]} />
-                  <Circle cx={-8} cy={-4} r={9} fill={colors[1]} />
-                  <Circle cx={0} cy={0} r={5} fill="#FFE082" />
-                </G>
-              </Svg>
-            </Animated.View>
+            <Animated.Image
+              key={`flower-${i}`}
+              source={{ uri: url }}
+              style={style}
+              onError={(e) => console.log('Flower image error', i, e.nativeEvent)}
+              accessibilityRole="image"
+              testID={`floating-flower-${i}`}
+            />
           );
         })}
       </View>
@@ -1347,14 +1341,14 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               )}
+              <TouchableOpacity
+                style={styles.centerHistoryButton}
+                onPress={toggleHistory}
+              >
+                <History size={20} color="white" />
+                <Text style={styles.centerHistoryButtonText}>History</Text>
+              </TouchableOpacity>
               <View style={styles.headerActionsRow}>
-                <TouchableOpacity
-                  style={styles.headerActionPill}
-                  onPress={toggleHistory}
-                >
-                  <History size={16} color="#fff" />
-                  <Text style={styles.headerActionPillText}>History</Text>
-                </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.headerActionPill}
                   onPress={() => router.push('/subscription')}
@@ -1474,6 +1468,11 @@ export default function OutfitRatingScreen() {
           </View>
           
           <View style={styles.uploadContainer}>
+            <Upload size={48} color="#666" />
+            <Text style={styles.uploadTitle}>Upload Your Outfit</Text>
+            <Text style={styles.uploadSubtitle}>
+              Take a photo or choose from gallery to get your outfit rated
+            </Text>
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
               <Text style={styles.privacyNoticeText}>
