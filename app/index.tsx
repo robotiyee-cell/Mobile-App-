@@ -2914,9 +2914,9 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   privacyTextBox: {
-    backgroundColor: 'transparent',
-    padding: 0,
-    borderRadius: 0,
+    backgroundColor: '#E8F5E8',
+    padding: 16,
+    borderRadius: 12,
   },
   planPillButton: {
     flexDirection: 'row',
