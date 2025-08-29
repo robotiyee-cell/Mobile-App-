@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,8 +10,6 @@ import {
   Platform,
   Modal,
   Pressable,
-  Animated,
-  Easing,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -89,7 +87,7 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState(true);
+  const [backgroundVisible, setBackgroundVisible] = useState(false);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t } = useLanguage();
@@ -1106,74 +1104,6 @@ export default function OutfitRatingScreen() {
     </Svg>
   );
 
-  const FloatingFlowers = () => {
-    const flowerUrls = [
-      'https://images.unsplash.com/photo-1526045612212-70caf35c14df?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
-      'https://images.unsplash.com/photo-1524594227084-7f3e9a3d6900?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
-      'https://images.unsplash.com/photo-1491002052546-bf38f186af7f?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
-      'https://images.unsplash.com/photo-1470116945706-e6bf5d5a53ca?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
-      'https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx'
-    ];
-
-    const anims = useRef(flowerUrls.map(() => new Animated.Value(0))).current;
-
-    useEffect(() => {
-      console.log('FloatingFlowers: starting animations');
-      anims.forEach((val, i) => {
-        const loop = () => {
-          Animated.sequence([
-            Animated.timing(val, {
-              toValue: 1,
-              duration: 4000 + i * 350,
-              easing: Easing.inOut(Easing.quad),
-              useNativeDriver: Platform.OS !== 'web',
-            }),
-            Animated.timing(val, {
-              toValue: 0,
-              duration: 4000 + i * 350,
-              easing: Easing.inOut(Easing.quad),
-              useNativeDriver: Platform.OS !== 'web',
-            }),
-          ]).start(() => loop());
-        };
-        loop();
-      });
-    }, [anims]);
-
-    const positions = [
-      { top: 100, left: 20 },
-      { top: 180, right: 30 },
-      { top: 320, left: 50 },
-      { top: 460, right: 40 },
-      { top: 600, left: 30 },
-    ] as const;
-
-    return (
-      <View pointerEvents="none" style={styles.floatingFlowersContainer}>
-        {flowerUrls.map((url, i) => {
-          const translateY = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0, -15] });
-          const translateX = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0, i % 2 === 0 ? 8 : -8] });
-          const opacity = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0.5, 0.9] });
-          const style = [
-            styles.floatingFlower,
-            positions[i] as object,
-            { transform: [{ translateY }, { translateX }], opacity },
-          ];
-          return (
-            <Animated.Image
-              key={`flower-${i}`}
-              source={{ uri: url }}
-              style={style}
-              onError={(e) => console.log('Flower image error', i, e.nativeEvent)}
-              accessibilityRole="image"
-              testID={`floating-flower-${i}`}
-            />
-          );
-        })}
-      </View>
-    );
-  };
-
   const TermsModal = () => (
     <Modal
       visible={showTermsModal || showInitialTerms}
@@ -1303,19 +1233,30 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/ieszal7vgxyoy301nzo4j' }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.9 : 0.5 }]}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/uvyof935enn4d594g4w4p' }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.3 }]}
       />
-      <FloatingFlowers />
       <FlowerBackground />
       <TermsModal />
-
+      <Pressable 
+        style={styles.touchableOverlay}
+        onPress={clearDefaultBackground}
+      >
+        <View style={styles.touchableContent} />
+      </Pressable>
       <ScrollView 
         style={styles.scrollContainer} 
         contentContainerStyle={styles.contentContainer}
         scrollEventThrottle={16}
       >
-      <View style={styles.header}>
+      <LinearGradient
+        colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
+        style={styles.header}
+      >
+        <Image 
+          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
+          style={styles.headerBackgroundImage}
+        />
         <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
             <Sparkles size={32} color="#FFD700" />
@@ -1348,33 +1289,30 @@ export default function OutfitRatingScreen() {
                 <History size={20} color="white" />
                 <Text style={styles.centerHistoryButtonText}>History</Text>
               </TouchableOpacity>
-              <View style={styles.headerActionsRow}>
-                <TouchableOpacity
-                  style={styles.headerActionPill}
-                  onPress={() => router.push('/subscription')}
-                >
-                  <CreditCard size={16} color="#fff" />
-                  <Text style={styles.headerActionPillText}>Pay</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.headerActionPill}
-                  onPress={() => setShowTermsModal(true)}
-                >
-                  <FileText size={16} color="#fff" />
-                  <Text style={styles.headerActionPillText}>Terms</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.headerActionPill}
-                  onPress={() => router.push('/settings')}
-                >
-                  <Settings size={16} color="#fff" />
-                  <Text style={styles.headerActionPillText}>Settings</Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/subscription')}
+            >
+              <CreditCard size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => setShowTermsModal(true)}
+            >
+              <FileText size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings size={20} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </LinearGradient>
 
       {showHistory ? (
         <View style={styles.historySection}>
@@ -2328,6 +2266,7 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
     zIndex: 0,
+    transition: 'opacity 0.3s ease',
   },
   touchableOverlay: {
     position: 'absolute',
@@ -2335,7 +2274,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 2,
+    zIndex: 0.5,
   },
   touchableContent: {
     flex: 1,
@@ -2347,25 +2286,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
-  },
-  floatingFlowersContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
-  },
-  floatingFlower: {
-    position: 'absolute',
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    zIndex: 0,
   },
   scrollContainer: {
     flex: 1,
-    zIndex: 3,
+    zIndex: 1,
   },
   contentContainer: {
     flexGrow: 1,
@@ -2376,10 +2301,18 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     position: 'relative',
-    backgroundColor: 'transparent',
+    overflow: 'hidden',
   },
   headerBackgroundImage: {
-    display: 'none',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.3,
+    resizeMode: 'cover',
   },
   headerTitleGradient: {
     borderRadius: 8,
@@ -2637,7 +2570,6 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 182, 193, 0.3)',
-    overflow: 'hidden',
   },
   categoryColorDot: {
     width: 8,
@@ -2988,7 +2920,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     opacity: 0.25,
-    borderRadius: 12,
+    borderRadius: 14,
   },
   categoryIconContainer: {
     position: 'absolute',
@@ -3172,14 +3104,10 @@ const styles = StyleSheet.create({
   compactCategoryLabel: {
     fontSize: 11,
     lineHeight: 13,
-    textAlign: 'center',
-    alignSelf: 'center',
   },
   compactCategoryDescription: {
     fontSize: 8,
     lineHeight: 10,
-    textAlign: 'center',
-    alignSelf: 'center',
   },
   
   // Copyright styles
@@ -3228,16 +3156,19 @@ const styles = StyleSheet.create({
   
   // Header buttons
   headerButtons: {
-    display: 'none',
+    flexDirection: 'row',
+    gap: 8,
   },
   headerButton: {
-    display: 'none',
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   centerHistoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -3251,28 +3182,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: 'white',
-  },
-  headerActionsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 10,
-    alignSelf: 'center',
-  },
-  headerActionPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  headerActionPillText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
   },
   subscriptionBadge: {
     flexDirection: 'row',
