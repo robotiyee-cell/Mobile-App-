@@ -1487,11 +1487,13 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               </TouchableOpacity>
-              <View style={styles.privacyLeft}>
-                <Shield size={20} color="#4CAF50" />
-                <Text style={styles.privacyNoticeText}>
-                  Your face will be automatically masked before AI analysis for privacy protection
-                </Text>
+              <View style={styles.privacyTextBox}>
+                <View style={styles.privacyLeft}>
+                  <Shield size={20} color="#4CAF50" />
+                  <Text style={styles.privacyNoticeText}>
+                    Your face will be automatically masked before AI analysis for privacy protection
+                  </Text>
+                </View>
               </View>
             </View>
             
@@ -2892,8 +2894,8 @@ const styles = StyleSheet.create({
   privacyNotice: {
     flexDirection: 'column',
     alignItems: 'flex-start',
-    backgroundColor: '#E8F5E8',
-    padding: 16,
+    backgroundColor: 'transparent',
+    padding: 0,
     borderRadius: 12,
     marginTop: 16,
     gap: 12,
@@ -2910,6 +2912,11 @@ const styles = StyleSheet.create({
     gap: 12,
     flex: 1,
     paddingRight: 12,
+  },
+  privacyTextBox: {
+    backgroundColor: '#E8F5E8',
+    padding: 16,
+    borderRadius: 12,
   },
   planPillButton: {
     flexDirection: 'row',
