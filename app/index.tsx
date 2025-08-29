@@ -1119,13 +1119,13 @@ export default function OutfitRatingScreen() {
     const specs = React.useMemo<FloatingFlowerSpec[]>(() => {
       const palette = ['#FF69B4', '#FFD700', '#87CEEB', '#9B59B6', '#FF6347', '#98FB98'];
       const arr: FloatingFlowerSpec[] = [];
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 20; i++) {
         arr.push({
           id: `ff-${i}`,
-          left: Math.random() * 90,
-          size: 14 + Math.round(Math.random() * 18),
-          duration: 6000 + Math.round(Math.random() * 4000),
-          delay: Math.round(Math.random() * 3000),
+          left: Math.random() * 95,
+          size: 18 + Math.round(Math.random() * 24),
+          duration: 7000 + Math.round(Math.random() * 5000),
+          delay: Math.round(Math.random() * 3500),
           color: palette[i % palette.length],
         });
       }
@@ -1319,11 +1319,22 @@ export default function OutfitRatingScreen() {
     console.log('Background visibility toggled:', !backgroundVisible);
   };
 
+  const [bgUri, setBgUri] = useState<string>('https://images.unsplash.com/photo-1520975922284-9a2e7e87a90b?q=80&w=1974&auto=format&fit=crop');
+  const [bgFailed, setBgFailed] = useState<boolean>(false);
+
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/lkm42p1h9w1gkpe4920f8' }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.35 }]}
+        source={{ uri: bgUri }}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.45 }]}
+        onError={() => {
+          console.log('Background image failed to load, switching to fallback');
+          if (!bgFailed) {
+            setBgFailed(true);
+            setBgUri('https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop');
+          }
+        }}
+        testID="background-image"
       />
       <FlowerBackground />
       <FloatingFlowers />
@@ -1331,6 +1342,7 @@ export default function OutfitRatingScreen() {
       <Pressable 
         style={styles.touchableOverlay}
         onPress={clearDefaultBackground}
+        testID="bg-toggle-overlay"
       >
         <View style={styles.touchableContent} />
       </Pressable>
@@ -2343,7 +2355,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
     zIndex: 0,
-    transition: 'opacity 0.3s ease',
   },
   touchableOverlay: {
     position: 'absolute',
@@ -2371,7 +2382,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0.2,
+    zIndex: 0.3,
   },
   floatingFlower: {
     position: 'absolute',
