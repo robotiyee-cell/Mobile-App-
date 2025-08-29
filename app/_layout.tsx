@@ -17,13 +17,13 @@ function RootLayoutNav() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="subscription" options={{ 
         title: "L4F Premium",
-        headerStyle: { backgroundColor: '#FF69B4' },
+        headerTransparent: true,
         headerTintColor: 'white',
         headerTitleStyle: { fontWeight: 'bold' }
       }} />
       <Stack.Screen name="settings" options={{ 
         title: "Settings",
-        headerStyle: { backgroundColor: '#FF69B4' },
+        headerTransparent: true,
         headerTintColor: 'white',
         headerTitleStyle: { fontWeight: 'bold' }
       }} />

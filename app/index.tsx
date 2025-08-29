@@ -1249,70 +1249,62 @@ export default function OutfitRatingScreen() {
         contentContainerStyle={styles.contentContainer}
         scrollEventThrottle={16}
       >
-      <LinearGradient
-        colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
-        style={styles.header}
-      >
-        <Image 
-          source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/f8jmlsp6p5beg20hb9r3y' }}
-          style={styles.headerBackgroundImage}
-        />
-        <View style={styles.headerTop}>
-          <View style={styles.headerLeft}>
-            <Sparkles size={32} color="#FFD700" />
-            <View>
-              <LinearGradient
-                colors={['#FF69B4', '#9B59B6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.headerTitleGradient}
-              >
-                <View style={styles.headerTitleContainer}>
-                  <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
-                  <Text style={styles.headerTitle}>Look4Fun</Text>
-                  <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
-                </View>
-              </LinearGradient>
-              <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
-              {subscription.tier !== 'free' && (
-                <View style={styles.subscriptionBadge}>
-                  <Crown size={12} color="#FFD700" />
-                  <Text style={styles.subscriptionBadgeText}>
-                    {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-                  </Text>
-                </View>
-              )}
-              <TouchableOpacity
-                style={styles.centerHistoryButton}
-                onPress={toggleHistory}
-              >
-                <History size={20} color="white" />
-                <Text style={styles.centerHistoryButtonText}>History</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/subscription')}
-            >
-              <CreditCard size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => setShowTermsModal(true)}
-            >
-              <FileText size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => router.push('/settings')}
-            >
-              <Settings size={20} color="white" />
-            </TouchableOpacity>
-          </View>
+      <View style={styles.header}>
+        <View style={styles.headerButtonsRow}>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={toggleHistory}
+            testID="btn-history"
+          >
+            <History size={20} color="#1a1a1a" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => router.push('/subscription')}
+            testID="btn-subscription"
+          >
+            <CreditCard size={20} color="#1a1a1a" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => setShowTermsModal(true)}
+            testID="btn-terms"
+          >
+            <FileText size={20} color="#1a1a1a" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => router.push('/settings')}
+            testID="btn-settings"
+          >
+            <Settings size={20} color="#1a1a1a" />
+          </TouchableOpacity>
         </View>
-      </LinearGradient>
+        <View style={styles.headerBrand}>
+          <Sparkles size={32} color="#FFD700" />
+          <LinearGradient
+            colors={['#FF69B4', '#9B59B6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.headerTitleGradient}
+          >
+            <View style={styles.headerTitleContainer}>
+              <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
+              <Text style={styles.headerTitle}>Look4Fun</Text>
+              <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
+            </View>
+          </LinearGradient>
+          <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
+          {subscription.tier !== 'free' && (
+            <View style={styles.subscriptionBadge}>
+              <Crown size={12} color="#FFD700" />
+              <Text style={styles.subscriptionBadgeText}>
+                {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
 
       {showHistory ? (
         <View style={styles.historySection}>
@@ -2291,24 +2283,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   header: {
-    padding: 32,
+    padding: 24,
     alignItems: 'center',
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
     position: 'relative',
-    overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
-  headerBackgroundImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    opacity: 0.3,
-    resizeMode: 'cover',
-  },
+
   headerTitleGradient: {
     borderRadius: 8,
     paddingHorizontal: 8,
@@ -2674,16 +2654,10 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   // Header styles
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  headerBrand: {
     width: '100%',
-  },
-  headerLeft: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    marginTop: 12,
   },
   historyButton: {
     padding: 8,
@@ -3150,14 +3124,22 @@ const styles = StyleSheet.create({
   },
   
   // Header buttons
-  headerButtons: {
+  headerButtonsRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
+    alignItems: 'center',
+    alignSelf: 'center',
+    paddingVertical: 4,
   },
   headerButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   centerHistoryButton: {
     flexDirection: 'row',
