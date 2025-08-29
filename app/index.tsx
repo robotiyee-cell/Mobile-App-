@@ -1401,14 +1401,6 @@ export default function OutfitRatingScreen() {
             </View>
           </LinearGradient>
           <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
-          {subscription.tier !== 'free' && (
-            <View style={styles.subscriptionBadge}>
-              <Crown size={12} color="#FFD700" />
-              <Text style={styles.subscriptionBadgeText}>
-                {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-              </Text>
-            </View>
-          )}
         </View>
       </View>
 
