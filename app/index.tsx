@@ -1326,13 +1326,16 @@ export default function OutfitRatingScreen() {
     <View style={styles.container}>
       <Image 
         source={{ uri: bgUri }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.45 }]}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1.0 : 0.7 }]}
         onError={() => {
           console.log('Background image failed to load, switching to fallback');
           if (!bgFailed) {
             setBgFailed(true);
             setBgUri('https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop');
           }
+        }}
+        onLoad={() => {
+          console.log('Background image loaded successfully');
         }}
         testID="background-image"
       />
@@ -2354,7 +2357,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
-    zIndex: 0,
+    zIndex: 1,
   },
   touchableOverlay: {
     position: 'absolute',
@@ -2362,7 +2365,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0.5,
+    zIndex: 4,
   },
   touchableContent: {
     flex: 1,
@@ -2374,7 +2377,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0,
+    zIndex: 2,
   },
   floatingFlowersLayer: {
     position: 'absolute',
@@ -2382,7 +2385,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0.3,
+    zIndex: 3,
   },
   floatingFlower: {
     position: 'absolute',
@@ -2390,7 +2393,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    zIndex: 1,
+    zIndex: 5,
   },
   contentContainer: {
     flexGrow: 1,
