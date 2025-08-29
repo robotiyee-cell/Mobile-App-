@@ -88,7 +88,7 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState(false);
+  const [backgroundVisible, setBackgroundVisible] = useState<boolean>(true);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t } = useLanguage();
@@ -1319,16 +1319,17 @@ export default function OutfitRatingScreen() {
     console.log('Background visibility toggled:', !backgroundVisible);
   };
 
-  const [bgUri, setBgUri] = useState<string>('https://images.unsplash.com/photo-1520975922284-9a2e7e87a90b?q=80&w=1974&auto=format&fit=crop');
+  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/aahdtger27v9gtzt9078o');
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
     <View style={styles.container}>
       <Image 
         source={{ uri: bgUri }}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1.0 : 0.7 }]}
-        onError={() => {
-          console.log('Background image failed to load, switching to fallback');
+        contentFit="cover"
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1.0 : 0.0 }]}
+        onError={(err) => {
+          console.log('Background image failed to load, switching to fallback', err ?? {});
           if (!bgFailed) {
             setBgFailed(true);
             setBgUri('https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop');
