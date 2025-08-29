@@ -1472,12 +1472,6 @@ export default function OutfitRatingScreen() {
 
           <View style={styles.uploadContainer}>
             <View style={styles.privacyNotice}>
-              <View style={styles.privacyLeft}>
-                <Shield size={20} color="#4CAF50" />
-                <Text style={styles.privacyNoticeText}>
-                  Your face will be automatically masked before AI analysis for privacy protection
-                </Text>
-              </View>
               <TouchableOpacity
                 style={styles.planPillButton}
                 onPress={() => router.push('/subscription')}
@@ -1493,6 +1487,12 @@ export default function OutfitRatingScreen() {
                   </Text>
                 </View>
               </TouchableOpacity>
+              <View style={styles.privacyLeft}>
+                <Shield size={20} color="#4CAF50" />
+                <Text style={styles.privacyNoticeText}>
+                  Your face will be automatically masked before AI analysis for privacy protection
+                </Text>
+              </View>
             </View>
             
             <View style={styles.buttonContainer}>
@@ -2890,9 +2890,8 @@ const styles = StyleSheet.create({
   },
   // Privacy styles
   privacyNotice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     backgroundColor: '#E8F5E8',
     padding: 16,
     borderRadius: 12,
