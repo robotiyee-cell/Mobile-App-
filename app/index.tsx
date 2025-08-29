@@ -1386,7 +1386,30 @@ export default function OutfitRatingScreen() {
             <Settings size={20} color="#1a1a1a" />
           </TouchableOpacity>
         </View>
-        <View style={styles.headerBrand} />
+        <View style={styles.headerBrand}>
+          <Sparkles size={32} color="#FFD700" />
+          <LinearGradient
+            colors={['#FF69B4', '#9B59B6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.headerTitleGradient}
+          >
+            <View style={styles.headerTitleContainer}>
+              <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
+              <Text style={styles.headerTitle}>Look4Fun</Text>
+              <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
+            </View>
+          </LinearGradient>
+          <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
+          {subscription.tier !== 'free' && (
+            <View style={styles.subscriptionBadge}>
+              <Crown size={12} color="#FFD700" />
+              <Text style={styles.subscriptionBadgeText}>
+                {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
 
       {showHistory ? (
@@ -1472,10 +1495,6 @@ export default function OutfitRatingScreen() {
                   {subscription.tier === 'free' ? 'Upgrade' : 'Manage'}
                 </Text>
               </TouchableOpacity>
-            </View>
-            <View style={styles.movedBrand}>
-              <Text style={styles.headerTitle}>Look4Fun</Text>
-              <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
             </View>
             <Text style={styles.subscriptionStatusText}>
               {subscription.tier === 'premium' || subscription.tier === 'ultimate' 
@@ -3275,10 +3294,6 @@ const styles = StyleSheet.create({
   },
   
   // Subscription status card
-  movedBrand: {
-    alignItems: 'center',
-    marginBottom: 8,
-  },
   subscriptionStatusCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 16,
