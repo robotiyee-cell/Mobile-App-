@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Platform,
   Modal,
   Pressable,
+  Animated,
+  Easing,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -1104,6 +1106,74 @@ export default function OutfitRatingScreen() {
     </Svg>
   );
 
+  const FloatingFlowers = () => {
+    const flowerUrls = [
+      'https://images.unsplash.com/photo-1526045612212-70caf35c14df?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
+      'https://images.unsplash.com/photo-1524594227084-7f3e9a3d6900?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
+      'https://images.unsplash.com/photo-1491002052546-bf38f186af7f?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
+      'https://images.unsplash.com/photo-1470116945706-e6bf5d5a53ca?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx',
+      'https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=Mnwx'
+    ];
+
+    const anims = useRef(flowerUrls.map(() => new Animated.Value(0))).current;
+
+    useEffect(() => {
+      console.log('FloatingFlowers: starting animations');
+      anims.forEach((val, i) => {
+        const loop = () => {
+          Animated.sequence([
+            Animated.timing(val, {
+              toValue: 1,
+              duration: 4000 + i * 350,
+              easing: Easing.inOut(Easing.quad),
+              useNativeDriver: Platform.OS !== 'web',
+            }),
+            Animated.timing(val, {
+              toValue: 0,
+              duration: 4000 + i * 350,
+              easing: Easing.inOut(Easing.quad),
+              useNativeDriver: Platform.OS !== 'web',
+            }),
+          ]).start(() => loop());
+        };
+        loop();
+      });
+    }, [anims]);
+
+    const positions = [
+      { top: 100, left: 20 },
+      { top: 180, right: 30 },
+      { top: 320, left: 50 },
+      { top: 460, right: 40 },
+      { top: 600, left: 30 },
+    ] as const;
+
+    return (
+      <View pointerEvents="none" style={styles.floatingFlowersContainer}>
+        {flowerUrls.map((url, i) => {
+          const translateY = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0, -15] });
+          const translateX = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0, i % 2 === 0 ? 8 : -8] });
+          const opacity = anims[i].interpolate({ inputRange: [0, 1], outputRange: [0.5, 0.9] });
+          const style = [
+            styles.floatingFlower,
+            positions[i] as object,
+            { transform: [{ translateY }, { translateX }], opacity },
+          ];
+          return (
+            <Animated.Image
+              key={`flower-${i}`}
+              source={{ uri: url }}
+              style={style}
+              onError={(e) => console.log('Flower image error', i, e.nativeEvent)}
+              accessibilityRole="image"
+              testID={`floating-flower-${i}`}
+            />
+          );
+        })}
+      </View>
+    );
+  };
+
   const TermsModal = () => (
     <Modal
       visible={showTermsModal || showInitialTerms}
@@ -1233,9 +1303,10 @@ export default function OutfitRatingScreen() {
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/rfkl4a58ibgbpabnefe6m' }}
+        source={{ uri: 'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/ieszal7vgxyoy301nzo4j' }}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.9 : 0.5 }]}
       />
+      <FloatingFlowers />
       <FlowerBackground />
       <TermsModal />
 
@@ -2277,6 +2348,20 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1,
+  },
+  floatingFlowersContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+  floatingFlower: {
+    position: 'absolute',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
   scrollContainer: {
     flex: 1,
