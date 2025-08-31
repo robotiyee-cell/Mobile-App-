@@ -1314,11 +1314,12 @@ export default function OutfitRatingScreen() {
   // }
 
   const clearDefaultBackground = () => {
-    setBackgroundVisible(true);
-    console.log('Background visibility set to true');
+    // Toggle background visibility when touching empty areas
+    setBackgroundVisible(!backgroundVisible);
+    console.log('Background visibility toggled:', !backgroundVisible);
   };
 
-  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/j52nibyy8nmdde76ce9wf');
+  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/aahdtger27v9gtzt9078o');
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
@@ -1345,7 +1346,6 @@ export default function OutfitRatingScreen() {
       <Pressable 
         style={styles.touchableOverlay}
         onPress={clearDefaultBackground}
-        pointerEvents={backgroundVisible ? 'none' : 'auto'}
         testID="bg-toggle-overlay"
       >
         <View style={styles.touchableContent} />
