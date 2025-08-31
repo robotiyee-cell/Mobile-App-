@@ -1319,7 +1319,7 @@ export default function OutfitRatingScreen() {
     console.log('Background visibility toggled:', !backgroundVisible);
   };
 
-  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/aahdtger27v9gtzt9078o');
+  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/17u8nq3mcaabkjl20htxw');
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
