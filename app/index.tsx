@@ -1319,14 +1319,17 @@ export default function OutfitRatingScreen() {
     console.log('Background visibility toggled:', !backgroundVisible);
   };
 
-  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/17u8nq3mcaabkjl20htxw');
+  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/tquw36g4sy5kp2nyhlxyu');
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
     <View style={styles.container}>
       <Image 
         source={{ uri: bgUri }}
+        cachePolicy="memory-disk"
         contentFit="cover"
+        transition={300}
+        recyclingKey={bgUri}
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.0 }]}
         onError={(err) => {
           console.log('Background image failed to load, switching to fallback', err ?? {});
@@ -2628,6 +2631,7 @@ const styles = StyleSheet.create({
     minHeight: 80,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
     shadowColor: '#FF69B4',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -2979,7 +2983,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     opacity: 0.25,
-    borderRadius: 14,
+    borderRadius: 12,
+    overflow: 'hidden',
+    pointerEvents: 'none',
   },
   categoryIconContainer: {
     position: 'absolute',
