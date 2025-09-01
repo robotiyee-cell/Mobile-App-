@@ -1327,7 +1327,7 @@ export default function OutfitRatingScreen() {
       <Image 
         source={{ uri: bgUri }}
         contentFit="cover"
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 1.0 : 0.0 }]}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.0 }]}
         onError={(err) => {
           console.log('Background image failed to load, switching to fallback', err ?? {});
           if (!bgFailed) {
@@ -1400,7 +1400,6 @@ export default function OutfitRatingScreen() {
               <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
             </View>
           </LinearGradient>
-          <Text style={styles.headerDescription}>Score your look for fun with ai fashion review</Text>
           {subscription.tier !== 'free' && (
             <View style={styles.subscriptionBadge}>
               <Crown size={12} color="#FFD700" />
@@ -1477,31 +1476,7 @@ export default function OutfitRatingScreen() {
         </View>
       ) : !selectedImage ? (
         <View style={styles.uploadSection}>
-          {/* Subscription Status Card */}
-          <View style={styles.subscriptionStatusCard}>
-            <View style={styles.subscriptionStatusHeader}>
-              <View style={styles.subscriptionStatusLeft}>
-                <Crown size={20} color={subscription.tier === 'free' ? '#9E9E9E' : '#FFD700'} />
-                <Text style={styles.subscriptionStatusTitle}>
-                  {subscription.tier === 'free' ? 'Free Plan' : 
-                   subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1) + ' Plan'}
-                </Text>
-              </View>
-              <TouchableOpacity
-                style={styles.upgradeButton}
-                onPress={() => router.push('/subscription')}
-              >
-                <Text style={styles.upgradeButtonText}>
-                  {subscription.tier === 'free' ? 'Upgrade' : 'Manage'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.subscriptionStatusText}>
-              {subscription.tier === 'premium' || subscription.tier === 'ultimate' 
-                ? 'Unlimited analyses remaining' 
-                : `${subscription.analysesRemaining} analyses remaining today`}
-            </Text>
-          </View>
+          <Text style={styles.headerDescription}>Look4Fun Score your look for fun with ai fashion review</Text>
           
           <View style={styles.uploadContainer}>
             <View style={styles.privacyNotice}>
@@ -2357,7 +2332,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
     zIndex: 1,
   },
   touchableOverlay: {
@@ -2445,10 +2419,16 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   headerDescription: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 2,
+    fontSize: 18,
+    color: '#1a1a1a',
+    marginTop: 20,
+    marginBottom: 20,
     fontStyle: 'italic',
+    textAlign: 'center',
+    fontWeight: '600',
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   uploadSection: {
     flex: 1,
