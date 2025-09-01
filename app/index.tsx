@@ -1314,34 +1314,43 @@ export default function OutfitRatingScreen() {
 
 
   const bgCandidates = [
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/3pkk1nz581ag3y521wnx7'
+    // User-provided R2 URL (may fail due to CORS or missing content-type)
+    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/3pkk1nz581ag3y521wnx7',
+    // Reliable fallbacks
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1495567720989-cebdbdd97913?auto=format&fit=crop&w=1600&q=80'
   ] as const;
   const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={{ uri: bgCandidates[bgIndex] }}
-        cachePolicy="memory-disk"
-        contentFit="cover"
-        transition={300}
-        recyclingKey={bgCandidates[bgIndex]}
-        style={[styles.mainBackgroundImage, { opacity: 1 }]}
-        pointerEvents="none"
-        onError={(err) => {
-          console.log('Background image failed to load', err ?? {});
-          if (bgIndex < bgCandidates.length - 1) {
-            setBgIndex(bgIndex + 1);
-          } else if (!bgFailed) {
-            setBgFailed(true);
-          }
-        }}
-        onLoad={() => {
-          console.log('Background image loaded successfully', bgCandidates[bgIndex]);
-        }}
-        testID="background-image"
-      />
+      {!bgFailed && (
+        <Image 
+          source={{ uri: bgCandidates[bgIndex] }}
+          cachePolicy="memory-disk"
+          contentFit="cover"
+          transition={300}
+          recyclingKey={bgCandidates[bgIndex]}
+          style={[styles.mainBackgroundImage, { opacity: 1 }]}
+          pointerEvents="none"
+          onError={(err) => {
+            console.log('Background image failed to load', err ?? {});
+            setBgIndex((prev) => {
+              const next = prev + 1;
+              if (next >= bgCandidates.length) {
+                if (!bgFailed) setBgFailed(true);
+                return prev;
+              }
+              return next;
+            });
+          }}
+          onLoad={() => {
+            console.log('Background image loaded successfully', bgCandidates[bgIndex]);
+          }}
+          testID="background-image"
+        />
+      )}
       <FlowerBackground />
       <FloatingFlowers />
       <TermsModal />
