@@ -1314,8 +1314,7 @@ export default function OutfitRatingScreen() {
 
 
   const bgCandidates = [
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/rbp24dxzxgtey5usz60bo',
-    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop'
+    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/5k0857nf4iihf3t8d9240'
   ] as const;
   const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
