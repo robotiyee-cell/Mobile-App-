@@ -1314,7 +1314,9 @@ export default function OutfitRatingScreen() {
 
 
   const bgCandidates = [
-    // User-provided R2 URL (may fail due to CORS or missing content-type)
+    // User-provided Google Drive direct link (converted to a direct file URL)
+    'https://drive.google.com/uc?export=view&id=1a69AMRfUbMmy4R86_ZEi6ZD-zoGxFFEj',
+    // Previous R2 URL (kept as secondary, may fail due to CORS)
     'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/3pkk1nz581ag3y521wnx7',
     // Reliable fallbacks
     'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
