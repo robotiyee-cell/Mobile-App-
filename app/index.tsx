@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import {
   Modal,
   Pressable,
   Animated,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -83,6 +85,11 @@ export default function OutfitRatingScreen() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCategorySelection, setShowCategorySelection] = useState(false);
   const [savedRatings, setSavedRatings] = useState<SavedRating[]>([]);
+  const [isAppActive, setIsAppActive] = useState<boolean>(true);
+  const isMountedRef = useRef<boolean>(true);
+  const ignoreResponsesRef = useRef<boolean>(false);
+  const requestIdRef = useRef<number>(0);
+  const currentAbortRef = useRef<AbortController | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showRateOptions, setShowRateOptions] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -94,6 +101,25 @@ export default function OutfitRatingScreen() {
   useEffect(() => {
     loadSavedRatings();
     checkTermsAcceptance();
+  }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    const handleStateChange = (nextState: AppStateStatus) => {
+      const active = nextState === 'active';
+      setIsAppActive(active);
+      ignoreResponsesRef.current = !active;
+      if (!active && currentAbortRef.current) {
+        try {
+          currentAbortRef.current.abort();
+        } catch {}
+      }
+    };
+    const sub = AppState.addEventListener('change', handleStateChange);
+    return () => {
+      isMountedRef.current = false;
+      sub.remove();
+    };
   }, []);
 
   const checkTermsAcceptance = async () => {
@@ -224,6 +250,7 @@ export default function OutfitRatingScreen() {
     }
 
     setIsAnalyzing(true);
+    const thisReq = ++requestIdRef.current;
     try {
       const categoryInfo = STYLE_CATEGORIES.find(cat => cat.id === selectedCategory);
       
@@ -247,6 +274,11 @@ export default function OutfitRatingScreen() {
         }
       }
       
+      if (currentAbortRef.current) {
+        try { currentAbortRef.current.abort(); } catch {}
+      }
+      const controller = new AbortController();
+      currentAbortRef.current = controller;
       const response = await fetch('https://toolkit.rork.com/text/llm/', {
         method: 'POST',
         headers: {
@@ -487,18 +519,19 @@ export default function OutfitRatingScreen() {
             }
           ]
         })
-      });
+      , signal: controller.signal });
 
       const data = await response.json();
       
       try {
+        if (ignoreResponsesRef.current || thisReq !== requestIdRef.current || !isMountedRef.current) {
+          return;
+        }
         const analysisData = JSON.parse(data.completion);
         setAnalysis(analysisData);
         
-        // Increment analysis count
         await incrementAnalysisCount();
         
-        // Save the rating
         if (selectedImage && selectedCategory) {
           const rating: SavedRating = {
             id: Date.now().toString(),
@@ -570,28 +603,27 @@ export default function OutfitRatingScreen() {
             suggestions: ["Try adding a statement accessory", "Consider different color combinations", "Experiment with layering"]
           };
         }
-        setAnalysis(fallbackAnalysis);
-        
-        // Increment analysis count for fallback too
-        await incrementAnalysisCount();
-        
-        // Save fallback rating too
-        if (selectedImage && selectedCategory) {
-          const rating: SavedRating = {
-            id: Date.now().toString(),
-            imageUri: selectedImage,
-            maskedImageUri: maskedImage || undefined,
-            category: selectedCategory,
-            analysis: fallbackAnalysis,
-            timestamp: Date.now()
-          };
-          await saveRating(rating);
+        if (!(ignoreResponsesRef.current || thisReq !== requestIdRef.current || !isMountedRef.current)) {
+          setAnalysis(fallbackAnalysis);
+          await incrementAnalysisCount();
+          if (selectedImage && selectedCategory) {
+            const rating: SavedRating = {
+              id: Date.now().toString(),
+              imageUri: selectedImage,
+              maskedImageUri: maskedImage || undefined,
+              category: selectedCategory,
+              analysis: fallbackAnalysis,
+              timestamp: Date.now()
+            };
+            await saveRating(rating);
+          }
         }
       }
     } catch {
       Alert.alert('Error', 'Failed to analyze outfit. Please try again.');
     } finally {
-      setIsAnalyzing(false);
+      if (isMountedRef.current) setIsAnalyzing(false);
+      if (currentAbortRef.current) currentAbortRef.current = null;
     }
   };
 
@@ -1113,7 +1145,7 @@ export default function OutfitRatingScreen() {
     color: string;
   }
 
-  const FloatingFlowers = React.memo(function FloatingFlowers() {
+  const FloatingFlowers = React.memo(function FloatingFlowers({ active }: { active: boolean }) {
     const specs = React.useMemo<FloatingFlowerSpec[]>(() => {
       const palette = ['#FF69B4', '#FFD700', '#87CEEB', '#9B59B6', '#FF6347', '#98FB98'];
       const arr: FloatingFlowerSpec[] = [];
@@ -1133,38 +1165,46 @@ export default function OutfitRatingScreen() {
     return (
       <View pointerEvents="none" style={styles.floatingFlowersLayer}>
         {specs.map((spec) => (
-          <FloatingFlower key={spec.id} spec={spec} />
+          <FloatingFlower key={spec.id} spec={spec} active={active} />
         ))}
       </View>
     );
   });
 
-  function FloatingFlower({ spec }: { spec: FloatingFlowerSpec }) {
+  function FloatingFlower({ spec, active }: { spec: FloatingFlowerSpec; active: boolean }) {
     const translateY = React.useRef(new Animated.Value(0)).current;
     const opacity = React.useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-      const loop = Animated.loop(
-        Animated.sequence([
-          Animated.delay(spec.delay),
-          Animated.parallel([
-            Animated.timing(translateY, {
-              toValue: -50,
-              duration: spec.duration,
-              useNativeDriver: Platform.OS !== 'web',
-            }),
-            Animated.sequence([
-              Animated.timing(opacity, { toValue: 0.6, duration: 600, useNativeDriver: Platform.OS !== 'web' }),
-              Animated.timing(opacity, { toValue: 0.2, duration: spec.duration - 1200, useNativeDriver: Platform.OS !== 'web' }),
-              Animated.timing(opacity, { toValue: 0, duration: 600, useNativeDriver: Platform.OS !== 'web' }),
+      let loop: Animated.CompositeAnimation | null = null;
+      if (active) {
+        loop = Animated.loop(
+          Animated.sequence([
+            Animated.delay(spec.delay),
+            Animated.parallel([
+              Animated.timing(translateY, {
+                toValue: -50,
+                duration: spec.duration,
+                useNativeDriver: Platform.OS !== 'web',
+              }),
+              Animated.sequence([
+                Animated.timing(opacity, { toValue: 0.6, duration: 600, useNativeDriver: Platform.OS !== 'web' }),
+                Animated.timing(opacity, { toValue: 0.2, duration: spec.duration - 1200, useNativeDriver: Platform.OS !== 'web' }),
+                Animated.timing(opacity, { toValue: 0, duration: 600, useNativeDriver: Platform.OS !== 'web' }),
+              ]),
             ]),
-          ]),
-          Animated.timing(translateY, { toValue: 0, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
-        ])
-      );
-      loop.start();
-      return () => loop.stop();
-    }, [opacity, spec.delay, spec.duration, translateY]);
+            Animated.timing(translateY, { toValue: 0, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
+          ])
+        );
+        loop.start();
+      } else {
+        translateY.stopAnimation();
+        opacity.stopAnimation();
+      }
+      return () => {
+        if (loop) loop.stop();
+      };
+    }, [active, opacity, spec.delay, spec.duration, translateY]);
 
     return (
       <Animated.View
@@ -1355,7 +1395,7 @@ export default function OutfitRatingScreen() {
         />
       )}
       <FlowerBackground />
-      <FloatingFlowers />
+      <FloatingFlowers active={isAppActive} />
       <TermsModal />
 
       <ScrollView 
@@ -1443,7 +1483,7 @@ export default function OutfitRatingScreen() {
                         <Text style={styles.historyScoreNumber}>{'score' in rating.analysis ? rating.analysis.score : Math.round(rating.analysis.overallScore * 10) / 10}</Text>
                         <Text style={styles.historyScoreOutOf}>/12</Text>
                         <View style={styles.historyStars}>
-                          {renderScoreStars('score' in rating.analysis ? rating.analysis.score : rating.analysis.overallScore).slice(0, 5)}
+                          {renderScoreStars('score' in rating.analysis ? rating.analysis.score : rating.analysis.overallScore)}
                         </View>
                       </View>
                     </View>
@@ -2026,7 +2066,7 @@ export default function OutfitRatingScreen() {
                                     <Text style={styles.categoryScoreOutOf}>/12</Text>
                                   </View>
                                   <View style={styles.categoryStars}>
-                                    {renderScoreStars(result.score || 0).slice(0, 5)}
+                                    {renderScoreStars(result.score || 0)}
                                   </View>
                                 </View>
                               </View>
