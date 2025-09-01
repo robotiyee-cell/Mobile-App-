@@ -1319,27 +1319,33 @@ export default function OutfitRatingScreen() {
     console.log('Background visibility toggled:', !backgroundVisible);
   };
 
-  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/tquw36g4sy5kp2nyhlxyu');
+  const bgCandidates = [
+    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/gkruiihlbuewsjqjb14on',
+    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/kudnote4ii06oaeg5qb84',
+    'https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop'
+  ] as const;
+  const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
     <View style={styles.container}>
       <Image 
-        source={{ uri: bgUri }}
+        source={{ uri: bgCandidates[bgIndex] }}
         cachePolicy="memory-disk"
         contentFit="cover"
         transition={300}
-        recyclingKey={bgUri}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.8 : 0.0 }]}
+        recyclingKey={bgCandidates[bgIndex]}
+        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.0 }]}
         onError={(err) => {
-          console.log('Background image failed to load, switching to fallback', err ?? {});
-          if (!bgFailed) {
+          console.log('Background image failed to load, trying next candidate', err ?? {});
+          if (bgIndex < bgCandidates.length - 1) {
+            setBgIndex(bgIndex + 1);
+          } else if (!bgFailed) {
             setBgFailed(true);
-            setBgUri('https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop');
           }
         }}
         onLoad={() => {
-          console.log('Background image loaded successfully');
+          console.log('Background image loaded successfully', bgCandidates[bgIndex]);
         }}
         testID="background-image"
       />
@@ -2976,12 +2982,12 @@ const styles = StyleSheet.create({
   // Category theme styles
   categoryBackgroundGradient: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
+    top: 1,
+    left: 1,
+    right: 1,
+    bottom: 1,
+    width: 'auto',
+    height: 'auto',
     opacity: 0.25,
     borderRadius: 12,
     overflow: 'hidden',
@@ -3226,6 +3232,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     paddingVertical: 4,
+    marginTop: 28,
   },
   headerButton: {
     padding: 10,
