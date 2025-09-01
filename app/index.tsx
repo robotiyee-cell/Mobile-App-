@@ -87,7 +87,7 @@ export default function OutfitRatingScreen() {
   const [showRateOptions, setShowRateOptions] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showInitialTerms, setShowInitialTerms] = useState(true);
+  const [showInitialTerms, setShowInitialTerms] = useState(false);
   const [backgroundVisible, setBackgroundVisible] = useState<boolean>(true);
   
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
@@ -1319,7 +1319,7 @@ export default function OutfitRatingScreen() {
     console.log('Background visibility toggled:', !backgroundVisible);
   };
 
-  const [bgUri, setBgUri] = useState<string>('https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/tquw36g4sy5kp2nyhlxyu');
+  const [bgUri, setBgUri] = useState<string>('https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop');
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
@@ -1335,7 +1335,7 @@ export default function OutfitRatingScreen() {
           console.log('Background image failed to load, switching to fallback', err ?? {});
           if (!bgFailed) {
             setBgFailed(true);
-            setBgUri('https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop');
+            setBgUri('https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=1974&auto=format&fit=crop');
           }
         }}
         onLoad={() => {
@@ -2624,11 +2624,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   categoryCard: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     borderRadius: 12,
     padding: 12,
     width: '48%',
-    minHeight: 80,
+    minHeight: 96,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
