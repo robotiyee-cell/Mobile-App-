@@ -1476,8 +1476,6 @@ export default function OutfitRatingScreen() {
         </View>
       ) : !selectedImage ? (
         <View style={styles.uploadSection}>
-          <Text style={styles.headerDescription}>Look4Fun Score your look for fun with ai fashion review</Text>
-          
           <View style={styles.uploadContainer}>
             <View style={styles.privacyNotice}>
               <Shield size={20} color="#4CAF50" />
