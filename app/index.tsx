@@ -88,8 +88,6 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
-  const [backgroundVisible, setBackgroundVisible] = useState<boolean>(true);
-  
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t } = useLanguage();
 
@@ -1313,19 +1311,12 @@ export default function OutfitRatingScreen() {
   //   );
   // }
 
-  const clearDefaultBackground = () => {
-    // Toggle background visibility when touching empty areas
-    setBackgroundVisible(!backgroundVisible);
-    console.log('Background visibility toggled:', !backgroundVisible);
-  };
+
 
   const bgCandidates = [
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/cle6s8dl8d6zsbavabmw6',
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/gkruiihlbuewsjqjb14on',
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/kudnote4ii06oaeg5qb84',
-    'https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop'
+    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/9325os84g0egwkfbbi64k'
   ] as const;
-  const [bgIndex, setBgIndex] = useState<number>(0);
+  const [bgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
@@ -1336,14 +1327,11 @@ export default function OutfitRatingScreen() {
         contentFit="cover"
         transition={300}
         recyclingKey={bgCandidates[bgIndex]}
-        style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.0 }]}
+        style={[styles.mainBackgroundImage, { opacity: 1 }]}
+        pointerEvents="none"
         onError={(err) => {
-          console.log('Background image failed to load, trying next candidate', err ?? {});
-          if (bgIndex < bgCandidates.length - 1) {
-            setBgIndex(bgIndex + 1);
-          } else if (!bgFailed) {
-            setBgFailed(true);
-          }
+          console.log('Background image failed to load', err ?? {});
+          if (!bgFailed) setBgFailed(true);
         }}
         onLoad={() => {
           console.log('Background image loaded successfully', bgCandidates[bgIndex]);
@@ -1353,13 +1341,7 @@ export default function OutfitRatingScreen() {
       <FlowerBackground />
       <FloatingFlowers />
       <TermsModal />
-      <Pressable 
-        style={styles.touchableOverlay}
-        onPress={clearDefaultBackground}
-        testID="bg-toggle-overlay"
-      >
-        <View style={styles.touchableContent} />
-      </Pressable>
+
       <ScrollView 
         style={styles.scrollContainer} 
         contentContainerStyle={styles.contentContainer}
@@ -2337,18 +2319,7 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 1,
   },
-  touchableOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 4,
-  },
-  touchableContent: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
+
   flowerBackground: {
     position: 'absolute',
     top: 0,
