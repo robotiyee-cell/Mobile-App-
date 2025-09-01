@@ -723,28 +723,7 @@ export default function OutfitRatingScreen() {
     setAnalysis(null);
   };
 
-  const renderScoreStars = (score: number) => {
-    const stars = [];
-    const fullStars = Math.floor(score);
-    const hasHalfStar = score % 1 !== 0;
-    
-    for (let i = 0; i < 12; i++) {
-      if (i < fullStars) {
-        stars.push(
-          <Star key={i} size={16} color="#FFD700" fill="#FFD700" />
-        );
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(
-          <Star key={i} size={16} color="#FFD700" fill="#FFD700" style={{ opacity: 0.5 }} />
-        );
-      } else {
-        stars.push(
-          <Star key={i} size={16} color="#E0E0E0" />
-        );
-      }
-    }
-    return stars;
-  };
+  const renderScoreStars = (_score: number) => null;
 
   const PinkGlasses = () => (
     <Svg
@@ -1363,6 +1342,12 @@ export default function OutfitRatingScreen() {
   const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
+  const formatScore = (score: number): string => {
+    const n = Number(score);
+    if (!Number.isFinite(n)) return '0,0';
+    return n.toFixed(1).replace('.', ',');
+  };
+
   return (
     <View style={styles.container}>
       {!bgFailed && (
@@ -1480,11 +1465,9 @@ export default function OutfitRatingScreen() {
                         <Text style={styles.historyDate}>{formatDate(rating.timestamp)}</Text>
                       </View>
                       <View style={styles.historyScore}>
-                        <Text style={styles.historyScoreNumber}>{'score' in rating.analysis ? rating.analysis.score : Math.round(rating.analysis.overallScore * 10) / 10}</Text>
+                        <Text style={styles.historyScoreNumber}>{'score' in rating.analysis ? formatScore(rating.analysis.score) : formatScore(rating.analysis.overallScore)}</Text>
                         <Text style={styles.historyScoreOutOf}>/12</Text>
-                        <View style={styles.historyStars}>
-                          {renderScoreStars('score' in rating.analysis ? rating.analysis.score : rating.analysis.overallScore)}
-                        </View>
+
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -2011,11 +1994,8 @@ export default function OutfitRatingScreen() {
                   <View style={styles.scoreContainer}>
                     <Text style={styles.scoreTitle}>Overall Style Score</Text>
                     <View style={styles.scoreDisplay}>
-                      <Text style={styles.scoreNumber}>{Math.round(analysis.overallScore * 10) / 10}</Text>
+                      <Text style={styles.scoreNumber}>{formatScore(analysis.overallScore)}</Text>
                       <Text style={styles.scoreOutOf}>/12</Text>
-                    </View>
-                    <View style={styles.starsContainer}>
-                      {renderScoreStars(analysis.overallScore)}
                     </View>
                   </View>
                   
@@ -2062,11 +2042,8 @@ export default function OutfitRatingScreen() {
                                 </View>
                                 <View style={styles.categoryResultScore}>
                                   <View style={styles.scoreRow}>
-                                    <Text style={styles.categoryScoreNumber}>{result.score || 0}</Text>
+                                    <Text style={styles.categoryScoreNumber}>{formatScore((result.score ?? 0))}</Text>
                                     <Text style={styles.categoryScoreOutOf}>/12</Text>
-                                  </View>
-                                  <View style={styles.categoryStars}>
-                                    {renderScoreStars(result.score || 0)}
                                   </View>
                                 </View>
                               </View>
@@ -2102,11 +2079,8 @@ export default function OutfitRatingScreen() {
                   <View style={styles.scoreContainer}>
                     <Text style={styles.scoreTitle}>Your Style Score</Text>
                     <View style={styles.scoreDisplay}>
-                      <Text style={styles.scoreNumber}>{(analysis as OutfitAnalysis).score}</Text>
+                      <Text style={styles.scoreNumber}>{formatScore((analysis as OutfitAnalysis).score)}</Text>
                       <Text style={styles.scoreOutOf}>/12</Text>
-                    </View>
-                    <View style={styles.starsContainer}>
-                      {renderScoreStars((analysis as OutfitAnalysis).score)}
                     </View>
                   </View>
                   
