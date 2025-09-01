@@ -1386,29 +1386,7 @@ export default function OutfitRatingScreen() {
             <Settings size={20} color="#1a1a1a" />
           </TouchableOpacity>
         </View>
-        <View style={styles.headerBrand}>
-          <Sparkles size={32} color="#FFD700" />
-          <LinearGradient
-            colors={['#FF69B4', '#9B59B6']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.headerTitleGradient}
-          >
-            <View style={styles.headerTitleContainer}>
-              <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
-              <Text style={styles.headerTitle}>Look4Fun</Text>
-              <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
-            </View>
-          </LinearGradient>
-          {subscription.tier !== 'free' && (
-            <View style={styles.subscriptionBadge}>
-              <Crown size={12} color="#FFD700" />
-              <Text style={styles.subscriptionBadgeText}>
-                {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-              </Text>
-            </View>
-          )}
-        </View>
+
       </View>
 
       {showHistory ? (
