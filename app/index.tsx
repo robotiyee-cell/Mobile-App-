@@ -1348,6 +1348,33 @@ export default function OutfitRatingScreen() {
     return n.toFixed(1).replace('.', ',');
   };
 
+  const allCategoryScores = React.useMemo<Record<string, number>>(() => {
+    if (selectedCategory === 'rate' && analysis && 'results' in (analysis as AllCategoriesAnalysis)) {
+      const map: Record<string, number> = {};
+      try {
+        (analysis as AllCategoriesAnalysis).results.forEach((r) => {
+          if (r && typeof r.category === 'string' && typeof r.score === 'number') {
+            map[r.category] = r.score;
+          }
+        });
+      } catch {}
+      return map;
+    }
+    return {};
+  }, [analysis, selectedCategory]);
+
+  const CategoryScoreBadge = ({ categoryId }: { categoryId: StyleCategory }) => {
+    const hasScore = Object.prototype.hasOwnProperty.call(allCategoryScores, categoryId);
+    if (!hasScore) return null;
+    const scoreValue = allCategoryScores[categoryId];
+    return (
+      <View style={styles.categoryScoreBadge} testID={`category-score-${categoryId}`}>
+        <Text style={styles.categoryScoreBadgeText}>{formatScore(scoreValue)}</Text>
+        <Text style={styles.categoryScoreBadgeOutOf}>/12</Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       {!bgFailed && (
@@ -1729,6 +1756,7 @@ export default function OutfitRatingScreen() {
                         <Text style={styles.premiumOverlayText}>Premium</Text>
                       </View>
                     )}
+                    <CategoryScoreBadge categoryId={category.id} />
                   </TouchableOpacity>
                   );
                 })}
@@ -3536,6 +3564,29 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     width: '100%',
     flexWrap: 'wrap',
+  },
+  categoryScoreBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    zIndex: 10,
+  },
+  categoryScoreBadgeText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFD700',
+  },
+  categoryScoreBadgeOutOf: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#eee',
+    marginLeft: 3,
   },
   categorySuggestions: {
     marginTop: 16,
