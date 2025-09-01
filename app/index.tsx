@@ -2015,7 +2015,7 @@ export default function OutfitRatingScreen() {
                                     styles.categoryColorDot,
                                     { backgroundColor: categoryInfo?.color || '#999' }
                                   ]} />
-                                  <Text style={styles.categoryResultName}>
+                                  <Text style={styles.categoryResultName} numberOfLines={1} ellipsizeMode="tail">
                                     {categoryInfo?.label || (result.category ? result.category.charAt(0).toUpperCase() + result.category.slice(1) : 'Unknown')}
                                   </Text>
                                 </View>
@@ -3450,7 +3450,7 @@ const styles = StyleSheet.create({
   categoryResultHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 24,
     minHeight: 100,
     width: '100%',
@@ -3465,10 +3465,13 @@ const styles = StyleSheet.create({
     gap: 12,
     borderWidth: 2,
     borderColor: 'rgba(255, 105, 180, 0.4)',
-    flex: 1,
-    marginRight: 20,
-    minHeight: 70,
-    maxWidth: '75%',
+    flexGrow: 1,
+    flexShrink: 1,
+    marginRight: 12,
+    minHeight: 64,
+    minWidth: 220,
+    maxWidth: '100%',
+    alignSelf: 'stretch',
   },
   categoryResultName: {
     fontSize: 22,
@@ -3477,7 +3480,8 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     lineHeight: 26,
     textAlign: 'left',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
+    width: '100%',
   },
   categoryResultScore: {
     flexDirection: 'column',
