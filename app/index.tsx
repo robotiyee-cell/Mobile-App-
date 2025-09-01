@@ -11,6 +11,7 @@ import {
   Modal,
   Pressable,
   Animated,
+  ImageBackground,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -1320,35 +1321,53 @@ export default function OutfitRatingScreen() {
   };
 
   const bgCandidates = [
+    'https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop',
     'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/gkruiihlbuewsjqjb14on',
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/kudnote4ii06oaeg5qb84',
-    'https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop'
+    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/kudnote4ii06oaeg5qb84'
   ] as const;
   const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
-  return (
-    <View style={styles.container}>
-      <Image 
+  const BackgroundLayer = () => {
+    if (Platform.OS === 'web') {
+      return (
+        <Image
+          source={{ uri: bgCandidates[bgIndex] }}
+          cachePolicy="memory-disk"
+          contentFit="cover"
+          transition={300}
+          recyclingKey={bgCandidates[bgIndex]}
+          style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.0 }]}
+          onError={(err) => {
+            console.log('BG(web) failed, switching candidate', err ?? {});
+            if (bgIndex < bgCandidates.length - 1) setBgIndex(bgIndex + 1); else if (!bgFailed) setBgFailed(true);
+          }}
+          onLoad={() => {
+            console.log('BG(web) loaded', bgCandidates[bgIndex]);
+          }}
+          testID="background-image"
+        />
+      );
+    }
+    return (
+      <ImageBackground
         source={{ uri: bgCandidates[bgIndex] }}
-        cachePolicy="memory-disk"
-        contentFit="cover"
-        transition={300}
-        recyclingKey={bgCandidates[bgIndex]}
+        resizeMode="cover"
         style={[styles.mainBackgroundImage, { opacity: backgroundVisible ? 0.85 : 0.0 }]}
         onError={(err) => {
-          console.log('Background image failed to load, trying next candidate', err ?? {});
-          if (bgIndex < bgCandidates.length - 1) {
-            setBgIndex(bgIndex + 1);
-          } else if (!bgFailed) {
-            setBgFailed(true);
-          }
+          console.log('BG(native) failed, switching candidate', err ?? {});
+          if (bgIndex < bgCandidates.length - 1) setBgIndex(bgIndex + 1); else if (!bgFailed) setBgFailed(true);
         }}
         onLoad={() => {
-          console.log('Background image loaded successfully', bgCandidates[bgIndex]);
+          console.log('BG(native) loaded', bgCandidates[bgIndex]);
         }}
-        testID="background-image"
       />
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <BackgroundLayer />
       <FlowerBackground />
       <FloatingFlowers />
       <TermsModal />
