@@ -1320,6 +1320,7 @@ export default function OutfitRatingScreen() {
   };
 
   const bgCandidates = [
+    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/cle6s8dl8d6zsbavabmw6',
     'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/gkruiihlbuewsjqjb14on',
     'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/kudnote4ii06oaeg5qb84',
     'https://images.unsplash.com/photo-1518131678677-a9b61be2b5ae?q=80&w=1974&auto=format&fit=crop'
