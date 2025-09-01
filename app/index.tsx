@@ -1314,7 +1314,9 @@ export default function OutfitRatingScreen() {
 
 
   const bgCandidates = [
-    'https://drive.google.com/uc?export=download&id=1a69AMRfUbMmy4R86_ZEi6ZD-zoGxFFEj',
+    // Google Drive direct thumbnail endpoint is more reliable for CORS and hotlinking
+    'https://drive.google.com/thumbnail?id=1a69AMRfUbMmy4R86_ZEi6ZD-zoGxFFEj&sz=w2000',
+    // Fallbacks
     'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
     'https://images.unsplash.com/photo-1495567720989-cebdbdd97913?auto=format&fit=crop&w=1600&q=80'
   ] as const;
@@ -1330,10 +1332,10 @@ export default function OutfitRatingScreen() {
           contentFit="cover"
           transition={300}
           recyclingKey={bgCandidates[bgIndex]}
-          style={[styles.mainBackgroundImage, { opacity: 0.35 }]}
+          style={[styles.mainBackgroundImage, { opacity: 0.3 }]}
           pointerEvents="none"
           onError={(err) => {
-            console.log('Background image failed to load', err ?? {});
+            console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
             setBgIndex((prev) => {
               const next = prev + 1;
               if (next >= bgCandidates.length) {
