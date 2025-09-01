@@ -1334,7 +1334,7 @@ export default function OutfitRatingScreen() {
           contentFit="cover"
           transition={300}
           recyclingKey={bgCandidates[bgIndex]}
-          style={[styles.mainBackgroundImage, { opacity: 1 }]}
+          style={[styles.mainBackgroundImage, { opacity: 0.35 }]}
           pointerEvents="none"
           onError={(err) => {
             console.log('Background image failed to load', err ?? {});
