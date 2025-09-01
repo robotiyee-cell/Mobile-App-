@@ -2059,17 +2059,17 @@ export default function OutfitRatingScreen() {
                           return (
                             <View key={`${result.category || 'unknown'}-${index}`} style={styles.categoryResultCard}>
                               <View style={styles.categoryResultHeader}>
-                                <View style={styles.categoryResultChip}>
-                                  <View style={[
-                                    styles.categoryColorDot,
-                                    { backgroundColor: categoryInfo?.color || '#999' }
-                                  ]} />
-                                  <Text style={styles.categoryResultName} numberOfLines={1} ellipsizeMode="tail">
-                                    {categoryInfo?.label || (result.category ? result.category.charAt(0).toUpperCase() + result.category.slice(1) : 'Unknown')}
-                                  </Text>
-                                </View>
-                                <View style={styles.categoryResultScore}>
-                                  <View style={styles.scoreRow}>
+                                <View style={styles.categoryResultChip} testID={`category-chip-${result.category}`}>
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flexShrink: 1, flexGrow: 1 }}>
+                                    <View style={[
+                                      styles.categoryColorDot,
+                                      { backgroundColor: categoryInfo?.color || '#999' }
+                                    ]} />
+                                    <Text style={styles.categoryResultName} numberOfLines={1} ellipsizeMode="tail">
+                                      {categoryInfo?.label || (result.category ? result.category.charAt(0).toUpperCase() + result.category.slice(1) : 'Unknown')}
+                                    </Text>
+                                  </View>
+                                  <View style={styles.scoreRow} testID={`category-score-in-chip-${result.category}`}>
                                     <Text style={styles.categoryScoreNumber}>{formatScore((result.score ?? 0))}</Text>
                                     <Text style={styles.categoryScoreOutOf}>/12</Text>
                                   </View>
