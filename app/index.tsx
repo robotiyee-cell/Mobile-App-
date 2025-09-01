@@ -2015,7 +2015,7 @@ export default function OutfitRatingScreen() {
                                     styles.categoryColorDot,
                                     { backgroundColor: categoryInfo?.color || '#999' }
                                   ]} />
-                                  <Text style={styles.categoryResultName}>
+                                  <Text style={styles.categoryResultName} numberOfLines={1} ellipsizeMode="tail">
                                     {categoryInfo?.label || (result.category ? result.category.charAt(0).toUpperCase() + result.category.slice(1) : 'Unknown')}
                                   </Text>
                                 </View>
@@ -2570,7 +2570,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   analysisContainer: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
     borderRadius: 20,
     padding: 24,
     shadowColor: '#FF69B4',
@@ -2590,7 +2590,7 @@ const styles = StyleSheet.create({
   },
   analysisText: {
     fontSize: 15,
-    color: '#666',
+    color: '#333',
     lineHeight: 22,
   },
   categorySection: {
@@ -3435,7 +3435,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   categoryResultCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
     borderRadius: 20,
     padding: 32,
     marginBottom: 20,
@@ -3458,17 +3458,19 @@ const styles = StyleSheet.create({
   categoryResultChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 182, 193, 0.3)',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 182, 193, 0.35)',
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 24,
     gap: 12,
     borderWidth: 2,
-    borderColor: 'rgba(255, 105, 180, 0.4)',
+    borderColor: 'rgba(255, 105, 180, 0.5)',
     flex: 1,
     marginRight: 20,
     minHeight: 70,
     maxWidth: '75%',
+    minWidth: 160,
   },
   categoryResultName: {
     fontSize: 22,
@@ -3476,8 +3478,7 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     flexShrink: 1,
     lineHeight: 26,
-    textAlign: 'left',
-    flexWrap: 'wrap',
+    textAlign: 'center',
   },
   categoryResultScore: {
     flexDirection: 'column',
@@ -3510,13 +3511,12 @@ const styles = StyleSheet.create({
   },
   categoryResultAnalysis: {
     fontSize: 16,
-    color: '#555',
+    color: '#333',
     lineHeight: 24,
     marginBottom: 18,
     paddingHorizontal: 6,
     textAlign: 'left',
     width: '100%',
-    flexWrap: 'wrap',
   },
   categorySuggestions: {
     marginTop: 16,
