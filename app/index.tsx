@@ -657,6 +657,29 @@ export default function OutfitRatingScreen() {
     setShowHistory(false);
   };
 
+  const clearHistory = async () => {
+    Alert.alert(
+      'Clear History',
+      'This will delete all saved ratings. Are you sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('outfitRatings');
+              setSavedRatings([]);
+              Alert.alert('Cleared', 'Your rating history was cleared.');
+            } catch {
+              Alert.alert('Error', 'Could not clear history. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
       month: 'short',
@@ -1503,12 +1526,22 @@ export default function OutfitRatingScreen() {
             </ScrollView>
           )}
           
-          <TouchableOpacity
-            style={[styles.button, styles.newRatingButton]}
-            onPress={() => setShowHistory(false)}
-          >
-            <Text style={styles.buttonText}>Rate New Outfit</Text>
-          </TouchableOpacity>
+          <View style={{ gap: 10 }}>
+            <TouchableOpacity
+              style={[styles.button, styles.resetButton]}
+              onPress={clearHistory}
+              testID="btn-clear-history"
+            >
+              <Text style={[styles.buttonText, styles.resetButtonText]}>Clear History</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.newRatingButton]}
+              onPress={() => setShowHistory(false)}
+              testID="btn-rate-new"
+            >
+              <Text style={styles.buttonText}>Rate New Outfit</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : !selectedImage ? (
         <View style={styles.uploadSection}>
