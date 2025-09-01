@@ -1314,11 +1314,7 @@ export default function OutfitRatingScreen() {
 
 
   const bgCandidates = [
-    // User-provided Google Drive direct link (converted to a direct file URL)
-    'https://drive.google.com/uc?export=view&id=1a69AMRfUbMmy4R86_ZEi6ZD-zoGxFFEj',
-    // Previous R2 URL (kept as secondary, may fail due to CORS)
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/3pkk1nz581ag3y521wnx7',
-    // Reliable fallbacks
+    'https://drive.google.com/uc?export=download&id=1a69AMRfUbMmy4R86_ZEi6ZD-zoGxFFEj',
     'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
     'https://images.unsplash.com/photo-1495567720989-cebdbdd97913?auto=format&fit=crop&w=1600&q=80'
   ] as const;
@@ -1349,6 +1345,9 @@ export default function OutfitRatingScreen() {
           }}
           onLoad={() => {
             console.log('Background image loaded successfully', bgCandidates[bgIndex]);
+            if (bgFailed) {
+              setBgFailed(false);
+            }
           }}
           testID="background-image"
         />
