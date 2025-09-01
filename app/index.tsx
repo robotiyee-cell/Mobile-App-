@@ -1314,9 +1314,10 @@ export default function OutfitRatingScreen() {
 
 
   const bgCandidates = [
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/9325os84g0egwkfbbi64k'
+    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/rbp24dxzxgtey5usz60bo',
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop'
   ] as const;
-  const [bgIndex] = useState<number>(0);
+  const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
 
   return (
@@ -1331,7 +1332,11 @@ export default function OutfitRatingScreen() {
         pointerEvents="none"
         onError={(err) => {
           console.log('Background image failed to load', err ?? {});
-          if (!bgFailed) setBgFailed(true);
+          if (bgIndex < bgCandidates.length - 1) {
+            setBgIndex(bgIndex + 1);
+          } else if (!bgFailed) {
+            setBgFailed(true);
+          }
         }}
         onLoad={() => {
           console.log('Background image loaded successfully', bgCandidates[bgIndex]);
