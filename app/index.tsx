@@ -1839,7 +1839,7 @@ export default function OutfitRatingScreen() {
                     {isPremiumFeature && !hasAccess && (
                       <View style={styles.premiumOverlay}>
                         <Crown size={16} color="#FFD700" />
-                        <Text style={styles.premiumOverlayText}>Premium</Text>
+                        <Text style={styles.premiumOverlayText}>{t('premiumPlan')}</Text>
                       </View>
                     )}
                     <CategoryScoreBadge categoryId={category.id} />
@@ -2062,7 +2062,7 @@ export default function OutfitRatingScreen() {
                     { backgroundColor: STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.color }
                   ]} />
                   <Text style={styles.selectedCategoryText}>
-                    {STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.label}
+                    {t((selectedCategory ?? ''))}
                   </Text>
                 </View>
               </View>

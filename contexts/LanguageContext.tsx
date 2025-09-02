@@ -17,6 +17,7 @@ const translations = {
     appName: 'Look4Fun',
     appDescription: 'Look for fun with ai fashion review',
     
+    
     // Settings
     settings: 'Settings',
     language: 'Language',
@@ -113,6 +114,7 @@ const translations = {
 
     // Terms
     termsTitle: 'Terms and Conditions',
+    copyrightNoticeTitle: 'Copyright Notice',
     copyrightNotice: 'Copyright (©) 2024 robotiyee@gmail.com. All rights reserved. Unauthorized copying or distribution is prohibited.',
     termsOfUseTitle: 'Terms of Use',
     termsIntro: 'By using this application ("L4F"), you agree to the following terms and conditions:',
@@ -311,6 +313,7 @@ const translations = {
 
     // Terms
     termsTitle: 'Şartlar ve Koşullar',
+    copyrightNoticeTitle: 'Telif Hakkı Bildirimi',
     copyrightNotice: 'Telif Hakkı (©) 2024 robotiyee@gmail.com. Tüm hakları saklıdır. İzinsiz kopyalama veya dağıtım yasaktır.',
     termsOfUseTitle: 'Kullanım Şartları',
     termsIntro: 'Bu uygulamayı ("L4F") kullanarak aşağıdaki şartları ve koşulları kabul etmiş olursunuz:',
