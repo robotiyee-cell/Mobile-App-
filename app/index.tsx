@@ -1527,7 +1527,7 @@ export default function OutfitRatingScreen() {
 
       {showHistory ? (
         <View style={styles.historySection}>
-          <Text style={styles.historyTitle}>Your Rating History</Text>
+          <Text style={styles.historyTitle}>{t('yourRatingHistory')}</Text>
           <Text style={styles.historySubtitle}>
             Your last {savedRatings.length} outfit ratings with privacy protection
           </Text>
