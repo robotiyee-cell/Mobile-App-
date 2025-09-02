@@ -17,6 +17,7 @@ export interface SubscriptionPlan {
   hasAdvancedAnalysis: boolean;
   hasPrioritySupport: boolean;
   hasCustomStyles: boolean;
+  hasTrendInsights?: boolean;
 }
 
 export interface UserSubscription {
@@ -37,14 +38,17 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '3 outfit analyses per day',
       'Basic style categories',
       'Limited history (5 items)',
-      'Standard support'
+      'Standard support',
+      'Email support',
+      'Export analysis results'
     ],
     color: '#9E9E9E',
     maxAnalyses: 3,
     hasUnlimitedHistory: false,
     hasAdvancedAnalysis: false,
     hasPrioritySupport: false,
-    hasCustomStyles: false
+    hasCustomStyles: false,
+    hasTrendInsights: false
   },
   {
     id: 'basic',
@@ -53,7 +57,7 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     period: 'month',
     features: [
       '15 outfit analyses per day',
-      'All style categories',
+      'Basic style categories',
       'Extended history (25 items)',
       'Email support',
       'Export analysis results'
@@ -63,7 +67,8 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     hasUnlimitedHistory: false,
     hasAdvancedAnalysis: false,
     hasPrioritySupport: false,
-    hasCustomStyles: false
+    hasCustomStyles: false,
+    hasTrendInsights: false
   },
   {
     id: 'premium',
@@ -72,20 +77,20 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     period: 'month',
     features: [
       'Unlimited outfit analyses',
-      'All style categories + Custom styles',
+      'All categories (7 results)',
       'Unlimited history',
-      'Advanced AI analysis',
-      'Priority support',
       'Detailed improvement suggestions',
-      'Style trend insights'
+      'Email support',
+      'Export analysis results'
     ],
     color: '#FF9800',
     popular: true,
-    maxAnalyses: -1, // unlimited
+    maxAnalyses: -1,
     hasUnlimitedHistory: true,
-    hasAdvancedAnalysis: true,
-    hasPrioritySupport: true,
-    hasCustomStyles: true
+    hasAdvancedAnalysis: false,
+    hasPrioritySupport: false,
+    hasCustomStyles: false,
+    hasTrendInsights: false
   },
   {
     id: 'ultimate',
@@ -94,19 +99,18 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     period: 'month',
     features: [
       'Everything in Premium',
-      'Personal style consultant chat',
-      'Custom outfit recommendations',
-      'Wardrobe planning tools',
-      'Style challenges & rewards',
-      'Early access to new features',
-      'VIP community access'
+      'Custom Style Analysis',
+      'Advanced AI Analysis',
+      'Priority support',
+      'Style trend insights'
     ],
     color: '#9C27B0',
-    maxAnalyses: -1, // unlimited
+    maxAnalyses: -1,
     hasUnlimitedHistory: true,
     hasAdvancedAnalysis: true,
     hasPrioritySupport: true,
-    hasCustomStyles: true
+    hasCustomStyles: true,
+    hasTrendInsights: true
   }
 ];
 
