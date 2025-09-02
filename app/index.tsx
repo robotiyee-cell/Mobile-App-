@@ -1654,7 +1654,7 @@ export default function OutfitRatingScreen() {
                   <PinkGlasses />
                   <View style={styles.faceProtectionInfo}>
                     <Shield size={16} color="white" />
-                    <Text style={styles.faceBlurText}>Face Protected</Text>
+                    <Text style={styles.faceBlurText}>{t('faceProtected')}</Text>
                   </View>
                 </BlurView>
               ) : (
@@ -1662,14 +1662,14 @@ export default function OutfitRatingScreen() {
                   <PinkGlasses />
                   <View style={styles.faceProtectionInfo}>
                     <Shield size={16} color="white" />
-                    <Text style={styles.faceBlurText}>Face Protected</Text>
+                    <Text style={styles.faceBlurText}>{t('faceProtected')}</Text>
                   </View>
                 </View>
               )}
             </View>
             <View style={styles.privacyBadge}>
               <Shield size={14} color="#4CAF50" />
-              <Text style={styles.privacyBadgeText}>Privacy Protected</Text>
+              <Text style={styles.privacyBadgeText}>{t('privacyProtected')}</Text>
             </View>
           </View>
           
@@ -1853,15 +1853,15 @@ export default function OutfitRatingScreen() {
                 onPress={resetApp}
               >
                 <Text style={[styles.buttonText, styles.resetButtonText]}>
-                  Choose Different Photo
+                  {t('chooseDifferentPhoto')}
                 </Text>
               </TouchableOpacity>
             </View>
           ) : showRateOptions ? (
             <View style={styles.rateOptionsSection}>
-              <Text style={styles.categoryTitle}>Rate This Outfit</Text>
+              <Text style={styles.categoryTitle}>{t('rateThisOutfit')}</Text>
               <Text style={styles.categorySubtitle}>
-                Choose a category to get a targeted analysis, or select general rating
+                {t('chooseCategoryForTargetedAnalysis')}
               </Text>
               
               <View style={styles.categoriesGrid}>
@@ -2096,7 +2096,7 @@ export default function OutfitRatingScreen() {
                 onPress={resetApp}
               >
                 <Text style={[styles.buttonText, styles.resetButtonText]}>
-                  Choose Different Photo
+                  {t('chooseDifferentPhoto')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -2106,7 +2106,7 @@ export default function OutfitRatingScreen() {
                 // All Categories Results
                 <>
                   <View style={styles.scoreContainer}>
-                    <Text style={styles.scoreTitle}>Overall Style Score</Text>
+                    <Text style={styles.scoreTitle}>{t('overallStyleScore')}</Text>
                     <View style={styles.scoreDisplay}>
                       <Text style={styles.scoreNumber}>{formatScore(analysis.overallScore)}</Text>
                       <Text style={styles.scoreOutOf}>/12</Text>
@@ -2115,25 +2115,25 @@ export default function OutfitRatingScreen() {
                   
                   <View style={styles.analysisContainer}>
                     <View style={styles.selectedCategoryResultDisplay}>
-                      <Text style={styles.analysisLabel}>Analysis Type:</Text>
+                      <Text style={styles.analysisLabel}>{t('analysisType')}</Text>
                       <View style={styles.selectedCategoryChip}>
                         <View style={[
                           styles.categoryColorDot,
                           { backgroundColor: STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.color }
                         ]} />
                         <Text style={styles.selectedCategoryText}>
-                          All Categories (7 Results)
+                          {t('allCategories7Results')}
                         </Text>
                       </View>
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>Overall Analysis</Text>
+                      <Text style={styles.analysisLabel}>{t('overallAnalysis')}</Text>
                       <Text style={[styles.analysisText, styles.overallAnalysisText]}>{analysis.overallAnalysis}</Text>
                     </View>
                     
                     <View style={styles.allCategoriesResults}>
-                      <Text style={styles.allCategoriesTitle}>Category Breakdown - 7 Separate Results</Text>
+                      <Text style={styles.allCategoriesTitle}>{t('categoryBreakdown7')}</Text>
                       {analysis.results && Array.isArray(analysis.results) && analysis.results.length > 0 ? (
                         analysis.results.map((result, index) => {
                           if (!result || typeof result !== 'object') {
@@ -2152,7 +2152,7 @@ export default function OutfitRatingScreen() {
                                       { backgroundColor: categoryInfo?.color || '#999' }
                                     ]} />
                                     <Text style={styles.categoryResultName} numberOfLines={1} ellipsizeMode="tail">
-                                      {categoryInfo?.label || (result.category ? result.category.charAt(0).toUpperCase() + result.category.slice(1) : 'Unknown')}
+                                      {t((categoryInfo?.id ?? (result.category || '')))}
                                     </Text>
                                   </View>
                                   <View style={styles.scoreRow} testID={`category-score-in-chip-${result.category}`}>
@@ -2181,7 +2181,7 @@ export default function OutfitRatingScreen() {
                         }).filter(Boolean)
                       ) : (
                         <View style={styles.noResultsContainer}>
-                          <Text style={styles.noResultsText}>No category results available</Text>
+                          <Text style={styles.noResultsText}>{t('noCategoryResults')}</Text>
                         </View>
                       )}
                     </View>
@@ -2191,7 +2191,7 @@ export default function OutfitRatingScreen() {
                 // Single Category Results
                 <>
                   <View style={styles.scoreContainer}>
-                    <Text style={styles.scoreTitle}>Your Style Score</Text>
+                    <Text style={styles.scoreTitle}>{t('yourStyleScore')}</Text>
                     <View style={styles.scoreDisplay}>
                       <Text style={styles.scoreNumber}>{formatScore((analysis as OutfitAnalysis).score)}</Text>
                       <Text style={styles.scoreOutOf}>/12</Text>
@@ -2200,14 +2200,14 @@ export default function OutfitRatingScreen() {
                   
                   <View style={styles.analysisContainer}>
                     <View style={styles.selectedCategoryResultDisplay}>
-                      <Text style={styles.analysisLabel}>Analyzed for Style:</Text>
+                      <Text style={styles.analysisLabel}>{t('analyzedForStyle')}</Text>
                       <View style={styles.selectedCategoryChip}>
                         <View style={[
                           styles.categoryColorDot,
                           { backgroundColor: STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.color }
                         ]} />
                         <Text style={styles.selectedCategoryText}>
-                          {STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.label}
+                          {t((selectedCategory ?? ''))}
                         </Text>
                       </View>
                     </View>
@@ -2254,7 +2254,7 @@ export default function OutfitRatingScreen() {
                   onPress={resetApp}
                 >
                   <Upload size={20} color="white" />
-                  <Text style={styles.buttonText}>New Photo</Text>
+                  <Text style={styles.buttonText}>{t('newPhoto')}</Text>
                 </TouchableOpacity>
               </View>
               
@@ -2285,12 +2285,12 @@ export default function OutfitRatingScreen() {
                       onPress={() => {
                         if (category.id === 'rate' && (subscription.tier === 'free' || subscription.tier === 'basic')) {
                           Alert.alert(
-                            'Premium Feature',
-                            'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 7 style categories!',
+                            t('premiumFeatureTitle'),
+                            t('premiumAllMessage'),
                             [
-                              { text: 'Maybe Later', style: 'cancel' },
+                              { text: t('maybeLater'), style: 'cancel' },
                               { 
-                                text: 'Upgrade Now', 
+                                text: t('upgradeNow'), 
                                 onPress: () => router.push('/subscription')
                               }
                             ]
