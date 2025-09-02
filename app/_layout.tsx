@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 function RootLayoutNav() {
   const { t } = useLanguage();
   return (
-    <Stack screenOptions={{ headerBackTitle: "Back" }}>
+    <Stack screenOptions={{ headerBackTitle: t('backToCategories') }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="subscription" options={{ 
         title: t('premiumPlan') ?? 'L4F Premium',
