@@ -13,6 +13,8 @@ import {
   Animated,
   AppState,
   AppStateStatus,
+  Share,
+  Linking,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -802,6 +804,96 @@ export default function OutfitRatingScreen() {
   const goBackToRateOptions = () => {
     setShowRateOptions(true);
     setAnalysis(null);
+  };
+
+  const buildExportText = (): string => {
+    try {
+      const parts: string[] = [];
+      const header = selectedCategory ? `${t('selectedStyle')}: ${t(selectedCategory)}` : t('analysisType');
+      parts.push(header);
+      if (!analysis) return parts.join('\n');
+      if ('results' in (analysis as AllCategoriesAnalysis)) {
+        const a = analysis as AllCategoriesAnalysis;
+        parts.push(`${t('overallStyleScore')}: ${formatScore(a.overallScore)}/12`);
+        parts.push(`${t('overallAnalysis')}: ${a.overallAnalysis}`);
+        a.results.forEach((r) => {
+          parts.push(`\n${t(r.category as string)} — ${formatScore(r.score)}/12`);
+          parts.push(`${t('styleAnalysis')}: ${r.analysis}`);
+          if (Array.isArray(r.suggestions)) {
+            parts.push(`${t('improvementSuggestions')}:`);
+            r.suggestions.forEach((s) => parts.push(`- ${s}`));
+          }
+        });
+      } else {
+        const a = analysis as OutfitAnalysis;
+        parts.push(`${t('yourStyleScore')}: ${formatScore(a.score)}/12`);
+        parts.push(`${t('styleAnalysis')}: ${a.style}`);
+        parts.push(`${t('colorCoordination')}: ${a.colorCoordination}`);
+        parts.push(`${t('accessories')}: ${a.accessories}`);
+        parts.push(`${t('overallHarmony')}: ${a.harmony}`);
+        if (Array.isArray(a.suggestions)) {
+          parts.push(`${t('improvementSuggestions')}:`);
+          a.suggestions.forEach((s) => parts.push(`- ${s}`));
+        }
+      }
+      return parts.join('\n');
+    } catch {
+      return '';
+    }
+  };
+
+  const exportAnalysis = async () => {
+    try {
+      if (!analysis) {
+        Alert.alert(t('error'), t('noCategoryResults'));
+        return;
+      }
+      const content = buildExportText();
+      const fileName = `analysis-${Date.now()}.txt`;
+      if (Platform.OS === 'web') {
+        try {
+          const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.log('Web export failed', e);
+        }
+        return;
+      }
+      const dir = FileSystem.documentDirectory ?? FileSystem.cacheDirectory ?? undefined;
+      if (!dir) {
+        await Share.share({ message: content });
+        return;
+      }
+      const path = dir + fileName;
+      await FileSystem.writeAsStringAsync(path, content, { encoding: FileSystem.EncodingType.UTF8 });
+      await Share.share({ url: path, message: content });
+    } catch (e) {
+      Alert.alert(t('error'), t('couldNotClearHistory'));
+    }
+  };
+
+  const emailSupport = async () => {
+    try {
+      const content = buildExportText();
+      const subject = encodeURIComponent('Outfit AI Support');
+      const body = encodeURIComponent(content || '');
+      const mailto = `mailto:robotiyee@gmail.com?subject=${subject}&body=${body}`;
+      const can = await Linking.canOpenURL(mailto);
+      if (can) {
+        await Linking.openURL(mailto);
+      } else {
+        Alert.alert(t('error'), 'Unable to open email client');
+      }
+    } catch {
+      Alert.alert(t('error'), 'Email failed');
+    }
   };
 
   const goBackToCategories = () => {
@@ -2269,6 +2361,22 @@ export default function OutfitRatingScreen() {
               
               <View style={styles.actionButtonsContainer}>
                 <TouchableOpacity
+                  style={[styles.button, styles.exportButton]}
+                  onPress={exportAnalysis}
+                  testID="btn-export-analysis"
+                >
+                  <Upload size={20} color="white" />
+                  <Text style={styles.buttonText}>{t('export')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.emailButton]}
+                  onPress={emailSupport}
+                  testID="btn-email-support"
+                >
+                  <Upload size={20} color="white" />
+                  <Text style={styles.buttonText}>{t('emailSupport')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   style={[styles.button, styles.newPhotoButton]}
                   onPress={resetApp}
                 >
@@ -3281,6 +3389,14 @@ const styles = StyleSheet.create({
   },
   newPhotoButton: {
     backgroundColor: '#FF69B4',
+    flex: 1,
+  },
+  exportButton: {
+    backgroundColor: '#111827',
+    flex: 1,
+  },
+  emailButton: {
+    backgroundColor: '#2563EB',
     flex: 1,
   },
   
