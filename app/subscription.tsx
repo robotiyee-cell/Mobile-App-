@@ -32,6 +32,19 @@ import { useLanguage } from '../contexts/LanguageContext';
 export default function SubscriptionScreen() {
   const { subscription, plans, isLoading, subscribeTo } = useSubscription();
   const { t } = useLanguage();
+
+  const getPlanFeatures = (planId: SubscriptionTier): string[] => {
+    if (planId === 'free') {
+      return [t('freeFeature1'), t('freeFeature2'), t('freeFeature3'), t('freeFeature4')];
+    }
+    if (planId === 'basic') {
+      return [t('basicFeature1'), t('basicFeature2'), t('basicFeature3'), t('basicFeature4'), t('basicFeature5')];
+    }
+    if (planId === 'premium') {
+      return [t('premiumFeature1'), t('premiumFeature2'), t('premiumFeature3'), t('premiumFeature4'), t('premiumFeature5'), t('premiumFeature6'), t('premiumFeature7')];
+    }
+    return [t('ultimateFeature1'), t('ultimateFeature2'), t('ultimateFeature3'), t('ultimateFeature4'), t('ultimateFeature5'), t('ultimateFeature6'), t('ultimateFeature7')];
+  };
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier | null>(null);
   const [isSubscribing, setIsSubscribing] = useState(false);
 
@@ -126,7 +139,7 @@ export default function SubscriptionScreen() {
             <Text style={styles.currentPlanTitle}>{t('currentPlan')}</Text>
           </View>
           <View style={styles.currentPlanInfo}>
-            <Text style={styles.currentPlanName}>{currentPlan.name}</Text>
+            <Text style={styles.currentPlanName}>{t(currentPlan.id + 'Plan')}</Text>
             {subscription.tier !== 'free' && subscription.expiresAt && (
               <Text style={styles.currentPlanExpiry}>
                 {t('expires')} {subscription.expiresAt.toLocaleDateString()}
@@ -211,7 +224,7 @@ export default function SubscriptionScreen() {
                   <View style={styles.planIconContainer}>
                     {getPlanIcon(plan.id)}
                   </View>
-                  <Text style={styles.planName}>{plan.name}</Text>
+                  <Text style={styles.planName}>{t(plan.id + 'Plan')}</Text>
                   <View style={styles.planPricing}>
                     <Text style={styles.planPrice}>
                       {plan.price === 0 ? t('priceFree') : `${plan.price}`}
@@ -224,7 +237,7 @@ export default function SubscriptionScreen() {
 
                 <View style={styles.planContent}>
                   <View style={styles.planFeatures}>
-                    {plan.features.map((feature, index) => (
+                    {getPlanFeatures(plan.id).map((feature, index) => (
                       <View key={index} style={styles.featureItem}>
                         {getFeatureIcon(feature)}
                         <Text style={styles.featureText}>{feature}</Text>

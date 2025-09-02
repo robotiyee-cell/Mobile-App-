@@ -133,6 +133,7 @@ const translations = {
 
     // Subscription
     freePlan: 'Free Plan',
+    basicPlan: 'Basic Plan',
     premiumPlan: 'Premium Plan',
     ultimatePlan: 'Ultimate Plan',
     upgrade: 'Upgrade',
@@ -154,6 +155,34 @@ const translations = {
     downgrade: 'Downgrade',
     subscribe: 'Subscribe',
     loadingPlans: 'Loading subscription plans...',
+
+    // Plan Feature texts
+    freeFeature1: '3 outfit analyses per day',
+    freeFeature2: 'Basic style categories',
+    freeFeature3: 'Limited history (5 items)',
+    freeFeature4: 'Standard support',
+
+    basicFeature1: '15 outfit analyses per day',
+    basicFeature2: 'All style categories',
+    basicFeature3: 'Extended history (25 items)',
+    basicFeature4: 'Email support',
+    basicFeature5: 'Export analysis results',
+
+    premiumFeature1: 'Unlimited outfit analyses',
+    premiumFeature2: 'All style categories + Custom styles',
+    premiumFeature3: 'Unlimited history',
+    premiumFeature4: 'Advanced AI analysis',
+    premiumFeature5: 'Priority support',
+    premiumFeature6: 'Detailed improvement suggestions',
+    premiumFeature7: 'Style trend insights',
+
+    ultimateFeature1: 'Everything in Premium',
+    ultimateFeature2: 'Personal style consultant chat',
+    ultimateFeature3: 'Custom outfit recommendations',
+    ultimateFeature4: 'Wardrobe planning tools',
+    ultimateFeature5: 'Style challenges & rewards',
+    ultimateFeature6: 'Early access to new features',
+    ultimateFeature7: 'VIP community access',
     whyPremium: 'Why Choose L4F Premium?',
     benefitAdvancedAI: 'Advanced AI Analysis',
     benefitAdvancedAIDesc: 'Get detailed insights with our most sophisticated AI models',
@@ -302,6 +331,7 @@ const translations = {
 
     // Subscription
     freePlan: 'Ücretsiz Plan',
+    basicPlan: 'Temel Plan',
     premiumPlan: 'Premium Plan',
     ultimatePlan: 'Ultimate Plan',
     upgrade: 'Yükselt',
@@ -323,6 +353,34 @@ const translations = {
     downgrade: 'Düşür',
     subscribe: 'Abone Ol',
     loadingPlans: 'Abonelik planları yükleniyor...',
+
+    // Plan Feature texts
+    freeFeature1: 'Günde 3 kıyafet analizi',
+    freeFeature2: 'Temel stil kategorileri',
+    freeFeature3: 'Sınırlı geçmiş (5 öğe)',
+    freeFeature4: 'Standart destek',
+
+    basicFeature1: 'Günde 15 kıyafet analizi',
+    basicFeature2: 'Tüm stil kategorileri',
+    basicFeature3: 'Genişletilmiş geçmiş (25 öğe)',
+    basicFeature4: 'E-posta desteği',
+    basicFeature5: 'Analiz sonuçlarını dışa aktar',
+
+    premiumFeature1: 'Sınırsız kıyafet analizi',
+    premiumFeature2: 'Tüm kategoriler + Özel stiller',
+    premiumFeature3: 'Sınırsız geçmiş',
+    premiumFeature4: 'Gelişmiş AI Analizi',
+    premiumFeature5: 'Öncelikli destek',
+    premiumFeature6: 'Detaylı iyileştirme önerileri',
+    premiumFeature7: 'Stil trend içgörüleri',
+
+    ultimateFeature1: 'Premium’daki her şey',
+    ultimateFeature2: 'Kişisel stil danışmanı sohbeti',
+    ultimateFeature3: 'Özel kıyafet önerileri',
+    ultimateFeature4: 'Gardırop planlama araçları',
+    ultimateFeature5: 'Stil mücadeleleri ve ödüller',
+    ultimateFeature6: 'Yeni özelliklere erken erişim',
+    ultimateFeature7: 'VIP topluluk erişimi',
     whyPremium: 'Neden L4F Premium?',
     benefitAdvancedAI: 'Gelişmiş AI Analizi',
     benefitAdvancedAIDesc: 'En gelişmiş AI modellerimizle detaylı içgörüler alın',

@@ -1629,7 +1629,7 @@ export default function OutfitRatingScreen() {
                 onPress={() => pickImage(true)}
               >
                 <Camera size={20} color="white" />
-                <Text style={styles.buttonText}>Take Photo</Text>
+                <Text style={styles.buttonText}>{t('takePhoto')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -1638,7 +1638,7 @@ export default function OutfitRatingScreen() {
               >
                 <Upload size={20} color="#1a1a1a" />
                 <Text style={[styles.buttonText, styles.galleryButtonText]}>
-                  Choose from Gallery
+                  {t('chooseFromGallery')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -1677,9 +1677,9 @@ export default function OutfitRatingScreen() {
           
           {showCategorySelection ? (
             <View style={styles.categorySection}>
-              <Text style={styles.categoryTitle}>Choose Your Style Category</Text>
+              <Text style={styles.categoryTitle}>{t('chooseStyleCategory')}</Text>
               <Text style={styles.categorySubtitle}>
-                Select the style you&apos;re aiming for to get a more targeted analysis
+                {t('categorySubtitle')}
               </Text>
               
               <View style={styles.categoriesGrid}>
@@ -2048,7 +2048,7 @@ export default function OutfitRatingScreen() {
                 }}
               >
                 <Text style={[styles.buttonText, styles.secondaryButtonText]}>
-                  Back to Categories
+                  {t('backToCategories')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -2078,7 +2078,7 @@ export default function OutfitRatingScreen() {
                   <Sparkles size={20} color="white" />
                 )}
                 <Text style={styles.buttonText}>
-                  {isAnalyzing ? 'Analyzing...' : 'Rate My Outfit'}
+                  {isAnalyzing ? t('analyzing') : t('rateMyOutfit')}
                 </Text>
               </TouchableOpacity>
               
@@ -2087,7 +2087,7 @@ export default function OutfitRatingScreen() {
                 onPress={selectedCategory === 'rate' ? goBackToRateOptions : goBackToCategories}
               >
                 <Text style={[styles.buttonText, styles.secondaryButtonText]}>
-                  {selectedCategory === 'rate' ? 'Change Rating Category' : 'Change Style Category'}
+                  {selectedCategory === 'rate' ? t('changeRatingCategory') : t('changeStyleCategory')}
                 </Text>
               </TouchableOpacity>
               
