@@ -2163,12 +2163,12 @@ export default function OutfitRatingScreen() {
                                 {result.suggestions && Array.isArray(result.suggestions) ? result.suggestions.map((suggestion, suggestionIndex) => (
                                   <View key={suggestionIndex} style={styles.suggestionItem}>
                                     <View style={styles.suggestionBullet} />
-                                    <Text style={styles.suggestionText}>{suggestion}</Text>
+                                    <Text style={[styles.suggestionText, { color: getTextColor(result.category as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
                                   </View>
                                 )) : (
                                   <View style={styles.suggestionItem}>
                                     <View style={styles.suggestionBullet} />
-                                    <Text style={styles.suggestionText}>No suggestions available</Text>
+                                    <Text style={[styles.suggestionText, { color: getTextColor(result.category as StyleCategory), fontWeight: '700' }]}>No suggestions available</Text>
                                   </View>
                                 )}
                               </View>
@@ -2236,7 +2236,7 @@ export default function OutfitRatingScreen() {
                       {(analysis as OutfitAnalysis).suggestions?.map((suggestion, index) => (
                         <View key={index} style={styles.suggestionItem}>
                           <View style={styles.suggestionBullet} />
-                          <Text style={styles.suggestionText}>{suggestion}</Text>
+                          <Text style={[styles.suggestionText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
                         </View>
                       ))}
                     </View>
