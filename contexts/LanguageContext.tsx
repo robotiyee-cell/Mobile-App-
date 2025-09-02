@@ -158,6 +158,23 @@ const translations = {
     subscribe: 'Subscribe',
     loadingPlans: 'Loading subscription plans...',
 
+    // Checkout / Payments
+    payment: 'Payment',
+    paymentMethod: 'Payment Method',
+    email: 'Email',
+    password: 'Password',
+    cardNumber: 'Card Number',
+    expiry: 'Expiry (MM/YY)',
+    cvc: 'CVC',
+    payNow: 'Pay Now',
+    continue: 'Continue',
+    applePay: 'Apple Pay',
+    googlePay: 'Google Pay',
+    creditDebitCard: 'Credit/Debit Card',
+    cancelAction: 'Cancel',
+    notAvailableOnWeb: 'Not available on web preview',
+    notAvailableInExpoGo: 'This method requires a store build and is not available in Expo Go. Use card as a demo.',
+
     // Plan Feature texts
     freeFeature1: '3 outfit analyses per day',
     freeFeature2: 'Basic style categories',
@@ -356,6 +373,23 @@ const translations = {
     downgrade: 'Düşür',
     subscribe: 'Abone Ol',
     loadingPlans: 'Abonelik planları yükleniyor...',
+
+    // Checkout / Payments
+    payment: 'Ödeme',
+    paymentMethod: 'Ödeme Yöntemi',
+    email: 'E-posta',
+    password: 'Şifre',
+    cardNumber: 'Kart Numarası',
+    expiry: 'Son Kullanma (AA/YY)',
+    cvc: 'CVC',
+    payNow: 'Şimdi Öde',
+    continue: 'Devam Et',
+    applePay: 'Apple Pay',
+    googlePay: 'Google Pay',
+    creditDebitCard: 'Kredi/Banka Kartı',
+    cancelAction: 'İptal',
+    notAvailableOnWeb: 'Web önizlemesinde kullanılamaz',
+    notAvailableInExpoGo: 'Bu yöntem mağaza derlemesi gerektirir ve Expo Go’da kullanılamaz. Demo için kartı kullanın.',
 
     // Plan Feature texts
     freeFeature1: 'Günde 3 kıyafet analizi',

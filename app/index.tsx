@@ -1299,7 +1299,7 @@ export default function OutfitRatingScreen() {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>Terms and Conditions</Text>
+          <Text style={styles.modalTitle}>{t('termsTitle')}</Text>
           {!showInitialTerms && (
             <TouchableOpacity
               style={styles.closeButton}
@@ -1312,51 +1312,46 @@ export default function OutfitRatingScreen() {
         
         <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
           <View style={styles.termsSection}>
-            <Text style={styles.termsTitle}>Copyright Notice</Text>
+            <Text style={styles.termsTitle}>{t('copyrightNoticeTitle')}</Text>
             <Text style={styles.termsText}>
-              Copyright (©) 2024 robotiyee@gmail.com. All rights reserved. Unauthorized copying or distribution is prohibited.
+              {t('copyrightNotice')}
             </Text>
           </View>
           
           <View style={styles.termsSection}>
-            <Text style={styles.termsTitle}>Terms of Use</Text>
+            <Text style={styles.termsTitle}>{t('termsOfUseTitle')}</Text>
             <Text style={styles.termsText}>
-              By using this application (&quot;L4F&quot;), you agree to the following terms and conditions:
+              {t('termsIntro')}
             </Text>
             
-            <Text style={styles.termsSubtitle}>1. Copyright Protection</Text>
+            <Text style={styles.termsSubtitle}>{t('copyrightProtectionTitle')}</Text>
             <Text style={styles.termsText}>
-              This application and all its contents, including but not limited to design, code, graphics, text, and functionality, are protected by copyright law and owned by robotiyee@gmail.com.
+              {t('copyrightProtectionText')}
             </Text>
             
-            <Text style={styles.termsSubtitle}>2. Prohibited Activities</Text>
+            <Text style={styles.termsSubtitle}>{t('prohibitedActivitiesTitle')}</Text>
             <Text style={styles.termsText}>
-              You are strictly prohibited from:
-              {"\n"}• Copying, reproducing, or distributing any part of this application
-              {"\n"}• Reverse engineering or attempting to extract source code
-              {"\n"}• Creating derivative works based on this application
-              {"\n"}• Using this application for commercial purposes without permission
-              {"\n"}• Removing or modifying copyright notices
+              {t('prohibitedActivitiesBullets')}
             </Text>
             
-            <Text style={styles.termsSubtitle}>3. Privacy and Data</Text>
+            <Text style={styles.termsSubtitle}>{t('privacyAndDataTitle')}</Text>
             <Text style={styles.termsText}>
-              Your privacy is important to us. Face masking technology is used to protect your identity during AI analysis. Only outfit data is processed, ensuring your personal information remains secure.
+              {t('privacyAndDataText')}
             </Text>
             
-            <Text style={styles.termsSubtitle}>4. Intellectual Property</Text>
+            <Text style={styles.termsSubtitle}>{t('intellectualPropertyTitle')}</Text>
             <Text style={styles.termsText}>
-              All intellectual property rights in this application remain with robotiyee@gmail.com. No rights are granted to users except for personal, non-commercial use as outlined in these terms.
+              {t('intellectualPropertyText')}
             </Text>
             
-            <Text style={styles.termsSubtitle}>5. Violations</Text>
+            <Text style={styles.termsSubtitle}>{t('violationsTitle')}</Text>
             <Text style={styles.termsText}>
-              Any violation of these terms may result in immediate termination of your access to the application and potential legal action.
+              {t('violationsText')}
             </Text>
             
-            <Text style={styles.termsSubtitle}>6. Contact</Text>
+            <Text style={styles.termsSubtitle}>{t('contactTitle')}</Text>
             <Text style={styles.termsText}>
-              For permissions, licensing inquiries, or questions about these terms, contact: robotiyee@gmail.com
+              {t('contactText')}
             </Text>
           </View>
         </ScrollView>
@@ -1371,7 +1366,7 @@ export default function OutfitRatingScreen() {
                 {termsAccepted && <Check size={16} color="white" />}
               </View>
               <Text style={styles.checkboxText}>
-                I Accept the Terms and Conditions
+                {t('acceptTermsLabel')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -1388,7 +1383,7 @@ export default function OutfitRatingScreen() {
               styles.acceptButtonText,
               !termsAccepted && styles.acceptButtonTextDisabled
             ]}>
-              Continue to App
+              {t('continueToApp')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -1529,15 +1524,15 @@ export default function OutfitRatingScreen() {
         <View style={styles.historySection}>
           <Text style={styles.historyTitle}>{t('yourRatingHistory')}</Text>
           <Text style={styles.historySubtitle}>
-            Your last {savedRatings.length} outfit ratings with privacy protection
+            {(t('historySubtitle') ?? '').replace('{count}', `${savedRatings.length}`)}
           </Text>
           
           {savedRatings.length === 0 ? (
             <View style={styles.emptyHistory}>
               <Star size={48} color="#ccc" />
-              <Text style={styles.emptyHistoryText}>No ratings yet</Text>
+              <Text style={styles.emptyHistoryText}>{t('noRatingsYet')}</Text>
               <Text style={styles.emptyHistorySubtext}>
-                Upload your first outfit to get started!
+                {t('noRatingsSubtext')}
               </Text>
             </View>
           ) : (
@@ -1585,14 +1580,14 @@ export default function OutfitRatingScreen() {
               onPress={clearHistory}
               testID="btn-clear-history"
             >
-              <Text style={[styles.buttonText, styles.resetButtonText]}>Clear History</Text>
+              <Text style={[styles.buttonText, styles.resetButtonText]}>{t('clearHistory')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.newRatingButton]}
               onPress={() => setShowHistory(false)}
               testID="btn-rate-new"
             >
-              <Text style={styles.buttonText}>Rate New Outfit</Text>
+              <Text style={styles.buttonText}>{t('rateNewOutfit')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -1835,7 +1830,7 @@ export default function OutfitRatingScreen() {
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                        category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedCategoryDescription,
                       isDisabled && styles.disabledCategoryDescription
-                    ]}>{isPremiumFeature && !hasAccess ? 'Premium Feature - Upgrade to unlock' : category.description}</Text>
+                    ]}>{isPremiumFeature && !hasAccess ? t('premiumFeatureUnlock') : t(category.id === 'rate' ? 'allCategoriesDesc' : (category.id + 'Desc'))}</Text>
                     {isPremiumFeature && !hasAccess && (
                       <View style={styles.premiumOverlay}>
                         <Crown size={16} color="#FFD700" />
@@ -2055,7 +2050,7 @@ export default function OutfitRatingScreen() {
           ) : !analysis ? (
             <View style={styles.actionContainer}>
               <View style={styles.selectedCategoryDisplay}>
-                <Text style={styles.selectedCategoryLabel}>Selected Style:</Text>
+                <Text style={styles.selectedCategoryLabel}>{t('selectedStyle')}</Text>
                 <View style={styles.selectedCategoryChip}>
                   <View style={[
                     styles.categoryColorDot,
@@ -2213,29 +2208,29 @@ export default function OutfitRatingScreen() {
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>Style Analysis</Text>
+                      <Text style={styles.analysisLabel}>{t('styleAnalysis')}</Text>
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).style}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>Color Coordination</Text>
+                      <Text style={styles.analysisLabel}>{t('colorCoordination')}</Text>
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).colorCoordination}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>Accessories</Text>
+                      <Text style={styles.analysisLabel}>{t('accessories')}</Text>
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).accessories}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>Overall Harmony</Text>
+                      <Text style={styles.analysisLabel}>{t('overallHarmony')}</Text>
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).harmony}</Text>
                     </View>
                     
                     <View style={styles.suggestionsSection}>
                       <View style={styles.suggestionsHeader}>
                         <Lightbulb size={20} color="#FFD700" />
-                        <Text style={styles.suggestionsTitle}>Improvement Suggestions</Text>
+                        <Text style={styles.suggestionsTitle}>{t('improvementSuggestions')}</Text>
                       </View>
                       {(analysis as OutfitAnalysis).suggestions?.map((suggestion, index) => (
                         <View key={index} style={styles.suggestionItem}>
@@ -2260,9 +2255,9 @@ export default function OutfitRatingScreen() {
               
               {/* Style Category Selection Below Rate Another Outfit Button */}
               <View style={styles.styleCategorySection}>
-                <Text style={styles.styleCategoryTitle}>Choose Different Style Category</Text>
+                <Text style={styles.styleCategoryTitle}>{t('chooseDifferentStyleCategory')}</Text>
                 <Text style={styles.styleCategorySubtitle}>
-                  Rate this same outfit with a different style category
+                  {t('rateThisOutfitDifferentCategory')}
                 </Text>
                 
                 <View style={styles.categoriesGrid}>

@@ -49,7 +49,7 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'basic',
     name: 'Basic',
-    price: 19.96,
+    price: 8,
     period: 'month',
     features: [
       '15 outfit analyses per day',
@@ -68,7 +68,7 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'premium',
     name: 'Premium',
-    price: 39.96,
+    price: 16,
     period: 'month',
     features: [
       'Unlimited outfit analyses',
@@ -90,7 +90,7 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'ultimate',
     name: 'Ultimate',
-    price: 79.96,
+    price: 64,
     period: 'month',
     features: [
       'Everything in Premium',
