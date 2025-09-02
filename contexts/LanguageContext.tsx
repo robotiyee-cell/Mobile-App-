@@ -49,6 +49,7 @@ const translations = {
     trendy: 'Trendy',
     anime: 'Anime',
     sixties: '60\'s',
+    sarcastic: 'Designer Roast',
     allCategories: 'All Categories',
     
     // Category descriptions
@@ -59,6 +60,7 @@ const translations = {
     trendyDesc: 'Fashion-forward, current, stylish',
     animeDesc: 'Kawaii, colorful, playful',
     sixtiesDesc: 'Retro, mod, vintage vibes',
+    sarcasticDesc: 'Sarcastic critique in a famed designer tone',
     custom: 'Custom',
     customDesc: 'Define your own style (e.g., "Bohemian", "Y2K", "K-Pop")',
     enterCustomStyle: 'Enter Custom Style',
@@ -275,6 +277,7 @@ const translations = {
     trendy: 'Trendy',
     anime: 'Anime',
     sixties: '60\'lar',
+    sarcastic: 'Tasarımcı İğnelemesi',
     allCategories: 'Tüm Kategoriler',
     
     // Category descriptions
@@ -285,6 +288,7 @@ const translations = {
     trendyDesc: 'Moda öncüsü, güncel, şık',
     animeDesc: 'Kawaii, renkli, eğlenceli',
     sixtiesDesc: 'Retro, mod, vintage',
+    sarcasticDesc: 'Ünlü bir tasarımcının alaycı üslubunda eleştiri',
     custom: 'Özel',
     customDesc: 'Kendi stilinizi tanımlayın (örn. "Bohem", "Y2K", "K-Pop")',
     enterCustomStyle: 'Özel Stili Girin',

@@ -18,7 +18,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings } from 'lucide-react-native';
+import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings, Scissors } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
@@ -57,7 +57,7 @@ interface SavedRating {
   timestamp: number;
 }
 
-type StyleCategory = 'sexy' | 'elegant' | 'casual' | 'naive' | 'trendy' | 'anime' | 'sixties' | 'rate';
+type StyleCategory = 'sexy' | 'elegant' | 'casual' | 'naive' | 'trendy' | 'anime' | 'sixties' | 'sarcastic' | 'rate';
 
 interface CategoryOption {
   id: StyleCategory;
@@ -74,6 +74,7 @@ const STYLE_CATEGORIES: CategoryOption[] = [
   { id: 'trendy', label: 'Trendy', description: 'Fashion-forward, current, stylish', color: '#98D8C8' },
   { id: 'anime', label: 'Anime', description: 'Kawaii, colorful, playful', color: '#FF69B4' },
   { id: 'sixties', label: '60\'s', description: 'Retro, mod, vintage vibes', color: '#9B59B6' },
+  { id: 'sarcastic', label: 'Designer Roast', description: 'Sarcastic critique in a famed designer tone', color: '#FF3D00' },
   { id: 'rate', label: 'All', description: 'All categories with 7 results', color: '#FFD700' },
 ];
 
@@ -85,6 +86,7 @@ const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
   trendy: '#1E90FF',
   anime: '#C2185B',
   sixties: '#6A1B9A',
+  sarcastic: '#FF3D00',
   rate: '#6A1B9A',
 } as const;
 
@@ -527,6 +529,14 @@ export default function OutfitRatingScreen() {
               ${selectedCategory === 'sixties' ? 'For sixties style, prioritize authentic 1960s elements over general fashion appeal. A perfect sixties outfit with authentic mod elements should score 10-12, even if it might not be considered fashionable by today\'s standards.' : ''}
               
               Be constructive but honest in your critique. The SAME OUTFIT should receive DIFFERENT SCORES for different categories. Consider fit, appropriateness for the chosen style, creativity, and overall aesthetic appeal FOR THE ${selectedCategory} STYLE ONLY.
+              
+              ${selectedCategory === 'sarcastic' ? `
+              SPECIAL MODE: DESIGNER ROAST
+              - Deliver the analysis in a witty, sarcastic tone inspired by a famed high-fashion creative director.
+              - Avoid naming specific living individuals; keep it as an archetypal "famous designer" voice.
+              - Keep it sharp but not abusive; playful and stylishly snarky.
+              - Still return the required JSON fields with concise, biting commentary.
+              ` : ''}
               
               ${selectedCategory !== 'rate' ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${selectedCategory} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${selectedCategory}.
               
@@ -1700,6 +1710,7 @@ export default function OutfitRatingScreen() {
                       category.id === 'naive' && styles.naiveCategoryCard,
                       category.id === 'trendy' && styles.trendyCategoryCard,
                       category.id === 'anime' && styles.animeCategoryCard,
+                      category.id === 'sarcastic' && styles.sarcasticCategoryCard,
                       category.id === 'rate' && styles.rateCategoryCard,
                       isDisabled && styles.disabledCategoryCard
                     ]}
@@ -1797,6 +1808,19 @@ export default function OutfitRatingScreen() {
                       </>
                     )}
                     
+                    {/* Sarcastic - Designer Roast */}
+                    {category.id === 'sarcastic' && (
+                      <>
+                        <LinearGradient
+                          colors={['#FF7043', '#FF3D00', '#D84315']}
+                          style={styles.categoryBackgroundGradient}
+                        />
+                        <View style={styles.categoryIconContainer}>
+                          <Scissors size={16} color="white" style={styles.categoryIcon} />
+                        </View>
+                      </>
+                    )}
+                    
                     {/* Rate - Golden Star */}
                     {category.id === 'rate' && (
                       <>
@@ -1815,20 +1839,20 @@ export default function OutfitRatingScreen() {
                       { backgroundColor: category.color },
                       category.id === 'sixties' && styles.sixtiesColorDot,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedColorDot
+                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedColorDot
                     ]} />
                     <Text style={[
                       styles.categoryLabel,
                       category.id === 'sixties' && styles.sixtiesCategoryLabel,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedCategoryLabel,
+                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedCategoryLabel,
                       isDisabled && styles.disabledCategoryLabel
                     ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}{isPremiumFeature && !hasAccess && ' 🔒'}</Text>
                     <Text style={[
                       styles.categoryDescription,
                       category.id === 'sixties' && styles.sixtiesCategoryDescription,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedCategoryDescription,
+                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedCategoryDescription,
                       isDisabled && styles.disabledCategoryDescription
                     ]}>{isPremiumFeature && !hasAccess ? t('premiumFeatureUnlock') : t(category.id === 'rate' ? 'allCategoriesDesc' : (category.id + 'Desc'))}</Text>
                     {isPremiumFeature && !hasAccess && (
@@ -1976,19 +2000,19 @@ export default function OutfitRatingScreen() {
                       { backgroundColor: category.color },
                       category.id === 'sixties' && styles.sixtiesColorDot,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime') && styles.themedColorDot
+                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic') && styles.themedColorDot
                     ]} />
                     <Text style={[
                       styles.categoryLabel,
                       category.id === 'sixties' && styles.sixtiesCategoryLabel,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime') && styles.themedCategoryLabel
+                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic') && styles.themedCategoryLabel
                     ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}</Text>
                     <Text style={[
                       styles.categoryDescription,
                       category.id === 'sixties' && styles.sixtiesCategoryDescription,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime') && styles.themedCategoryDescription
+                       category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic') && styles.themedCategoryDescription
                     ]}>{t(category.id === 'rate' ? 'allCategoriesDesc' : (category.id + 'Desc'))}</Text>
                   </TouchableOpacity>
                 ))}
@@ -2406,21 +2430,21 @@ export default function OutfitRatingScreen() {
                         { backgroundColor: category.color },
                         category.id === 'sixties' && styles.sixtiesColorDot,
                         (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                         category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedColorDot
+                         category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedColorDot
                       ]} />
                       <Text style={[
                         styles.categoryLabel,
                         styles.compactCategoryLabel,
                         category.id === 'sixties' && styles.sixtiesCategoryLabel,
                         (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                         category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedCategoryLabel
+                         category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedCategoryLabel
                       ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}</Text>
                       <Text style={[
                         styles.categoryDescription,
                         styles.compactCategoryDescription,
                         category.id === 'sixties' && styles.sixtiesCategoryDescription,
                         (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
-                         category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedCategoryDescription
+                         category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedCategoryDescription
                       ]}>{t(category.id === 'rate' ? 'allCategoriesDesc' : (category.id + 'Desc'))}</Text>
                     </TouchableOpacity>
                   ))}
@@ -3196,6 +3220,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   animeCategoryCard: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  sarcasticCategoryCard: {
     position: 'relative',
     overflow: 'hidden',
   },
