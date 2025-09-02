@@ -95,6 +95,7 @@ export default function OutfitRatingScreen() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
+  const [shouldResume, setShouldResume] = useState<boolean>(false);
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t } = useLanguage();
 
@@ -105,22 +106,40 @@ export default function OutfitRatingScreen() {
 
   useEffect(() => {
     isMountedRef.current = true;
+
+    const isAnalyzingRef = { current: isAnalyzing } as React.MutableRefObject<boolean> & { current: boolean };
+
     const handleStateChange = (nextState: AppStateStatus) => {
       const active = nextState === 'active';
       setIsAppActive(active);
       ignoreResponsesRef.current = !active;
-      if (!active && currentAbortRef.current) {
-        try {
-          currentAbortRef.current.abort();
-        } catch {}
+
+      if (!active) {
+        if (isAnalyzingRef.current) {
+          setShouldResume(true);
+          if (currentAbortRef.current) {
+            try { currentAbortRef.current.abort(); } catch {}
+          }
+        }
+      } else if (active) {
+        if (shouldResume && selectedImage && selectedCategory && !isAnalyzing) {
+          setShouldResume(false);
+          setTimeout(() => {
+            if (isMountedRef.current && !isAnalyzing) {
+              analyzeOutfit();
+            }
+          }, 250);
+        }
       }
     };
+
     const sub = AppState.addEventListener('change', handleStateChange);
+
     return () => {
       isMountedRef.current = false;
       sub.remove();
     };
-  }, []);
+  }, [isAnalyzing, shouldResume, selectedImage, selectedCategory]);
 
   const checkTermsAcceptance = async () => {
     try {
@@ -619,8 +638,14 @@ export default function OutfitRatingScreen() {
           }
         }
       }
-    } catch {
-      Alert.alert('Error', 'Failed to analyze outfit. Please try again.');
+    } catch (err: unknown) {
+      const e = err as { name?: string; message?: string } | undefined;
+      const aborted = e?.name === 'AbortError' || (e?.message ?? '').toLowerCase().includes('abort');
+      if (aborted) {
+        console.log('Analysis request aborted due to app going to background. Will resume on return.');
+      } else {
+        Alert.alert('Error', 'Failed to analyze outfit. Please try again.');
+      }
     } finally {
       if (isMountedRef.current) setIsAnalyzing(false);
       if (currentAbortRef.current) currentAbortRef.current = null;
