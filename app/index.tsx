@@ -226,7 +226,7 @@ export default function OutfitRatingScreen() {
       if (useCamera) {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
-          Alert.alert('Permission needed', 'Camera permission is required to take photos.');
+          Alert.alert(t('permissionNeeded'), t('cameraPermissionRequired'));
           return;
         }
         result = await ImagePicker.launchCameraAsync({
@@ -258,7 +258,7 @@ export default function OutfitRatingScreen() {
         setShowHistory(false);
       }
     } catch {
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
+      Alert.alert(t('error'), t('failedToPickImage'));
     }
   };
 
@@ -272,12 +272,12 @@ export default function OutfitRatingScreen() {
     // Check if user can analyze
     if (!canAnalyze()) {
       Alert.alert(
-        'Analysis Limit Reached',
-        `You've reached your daily limit of ${subscription.tier === 'free' ? '3' : '15'} analyses. Upgrade to Premium for unlimited analyses!`,
+        t('analysisLimitReached'),
+        t('analysisLimitMessage').replace('{limit}', `${subscription.tier === 'free' ? '3' : '15'}`),
         [
-          { text: 'Maybe Later', style: 'cancel' },
+          { text: t('maybeLater'), style: 'cancel' },
           { 
-            text: 'Upgrade Now', 
+            text: t('upgradeNow'), 
             onPress: () => router.push('/subscription')
           }
         ]
@@ -672,7 +672,7 @@ export default function OutfitRatingScreen() {
       if (aborted) {
         console.log('Analysis request aborted due to app going to background. Will resume on return.');
       } else {
-        Alert.alert('Error', 'Failed to analyze outfit. Please try again.');
+        Alert.alert(t('error'), t('failedToAnalyze'));
       }
     } finally {
       if (isMountedRef.current) setIsAnalyzing(false);
@@ -712,20 +712,20 @@ export default function OutfitRatingScreen() {
 
   const clearHistory = async () => {
     Alert.alert(
-      'Clear History',
-      'This will delete all saved ratings. Are you sure?',
+      t('clearHistoryTitle'),
+      t('clearHistoryConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'Clear',
+          text: t('clear'),
           style: 'destructive',
           onPress: async () => {
             try {
               await AsyncStorage.removeItem('outfitRatings');
               setSavedRatings([]);
-              Alert.alert('Cleared', 'Your rating history was cleared.');
+              Alert.alert(t('cleared'), t('historyCleared'));
             } catch {
-              Alert.alert('Error', 'Could not clear history. Please try again.');
+              Alert.alert(t('error'), t('couldNotClearHistory'));
             }
           },
         },
@@ -748,12 +748,12 @@ export default function OutfitRatingScreen() {
       // Check if user has premium access for "All category"
       if (subscription.tier === 'free' || subscription.tier === 'basic') {
         Alert.alert(
-          'Premium Feature',
-          'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 7 style categories!',
+          t('premiumFeatureTitle'),
+          t('premiumAllMessage'),
           [
-            { text: 'Maybe Later', style: 'cancel' },
+            { text: t('maybeLater'), style: 'cancel' },
             { 
-              text: 'Upgrade Now', 
+              text: t('upgradeNow'), 
               onPress: () => router.push('/subscription')
             }
           ]
@@ -772,12 +772,12 @@ export default function OutfitRatingScreen() {
       // Check if user has premium access for "All category"
       if (subscription.tier === 'free' || subscription.tier === 'basic') {
         Alert.alert(
-          'Premium Feature',
-          'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 7 style categories!',
+          t('premiumFeatureTitle'),
+          t('premiumAllMessage'),
           [
-            { text: 'Maybe Later', style: 'cancel' },
+            { text: t('maybeLater'), style: 'cancel' },
             { 
-              text: 'Upgrade Now', 
+              text: t('upgradeNow'), 
               onPress: () => router.push('/subscription')
             }
           ]
@@ -1609,7 +1609,7 @@ export default function OutfitRatingScreen() {
               >
                 <View style={styles.headerTitleContainer}>
                   <Sparkles size={28} color="#9B59B6" style={styles.headerTitleIcon} />
-                  <Text style={styles.headerTitle}>Look4Fun</Text>
+                  <Text style={styles.headerTitle}>{t('appName')}</Text>
                   <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
                 </View>
               </LinearGradient>

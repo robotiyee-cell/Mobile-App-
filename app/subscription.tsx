@@ -27,9 +27,11 @@ import {
 } from 'lucide-react-native';
 import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
 import { router } from 'expo-router';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function SubscriptionScreen() {
   const { subscription, plans, isLoading, subscribeTo } = useSubscription();
+  const { t } = useLanguage();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier | null>(null);
   const [isSubscribing, setIsSubscribing] = useState(false);
 
@@ -46,20 +48,20 @@ export default function SubscriptionScreen() {
       const success = await subscribeTo(planId);
       if (success) {
         Alert.alert(
-          'Success! 🎉',
-          `Welcome to L4F ${plans.find(p => p.id === planId)?.name}! Your subscription is now active.`,
+          t('successTitle'),
+          t('successWelcome').replace('{plan}', plans.find(p => p.id === planId)?.name ?? ''),
           [
             {
-              text: 'Start Analyzing',
+              text: t('startAnalyzing'),
               onPress: () => router.back()
             }
           ]
         );
       } else {
-        Alert.alert('Error', 'Failed to process subscription. Please try again.');
+        Alert.alert(t('error'), t('failedSubscription'));
       }
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+      Alert.alert(t('error'), t('failedSubscription'));
     } finally {
       setIsSubscribing(false);
       setSelectedPlan(null);
@@ -147,7 +149,7 @@ export default function SubscriptionScreen() {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#FF69B4" />
-        <Text style={styles.loadingText}>Loading subscription plans...</Text>
+        <Text style={styles.loadingText}>{t('loadingPlans')}</Text>
       </View>
     );
   }
@@ -161,9 +163,9 @@ export default function SubscriptionScreen() {
         >
           <View style={styles.headerContent}>
             <Crown size={48} color="white" />
-            <Text style={styles.headerTitle}>Upgrade to L4F Premium</Text>
+            <Text style={styles.headerTitle}>{t('upgradeToPremiumHeader')}</Text>
             <Text style={styles.headerSubtitle}>
-              Unlock unlimited style analysis and premium features
+              {t('upgradeToPremiumSub')}
             </Text>
           </View>
         </LinearGradient>
@@ -171,9 +173,9 @@ export default function SubscriptionScreen() {
         {renderCurrentPlan()}
 
         <View style={styles.plansContainer}>
-          <Text style={styles.plansTitle}>Choose Your Plan</Text>
+          <Text style={styles.plansTitle}>{t('chooseYourPlan')}</Text>
           <Text style={styles.plansSubtitle}>
-            Select the perfect plan for your style journey
+            {t('chooseYourPlanSub')}
           </Text>
 
           <View style={styles.plansGrid}>
@@ -190,7 +192,7 @@ export default function SubscriptionScreen() {
               >
                 {plan.popular && (
                   <View style={styles.popularBadge}>
-                    <Text style={styles.popularBadgeText}>MOST POPULAR</Text>
+                    <Text style={styles.popularBadgeText}>{t('mostPopular')}</Text>
                   </View>
                 )}
 
@@ -212,7 +214,7 @@ export default function SubscriptionScreen() {
                   <Text style={styles.planName}>{plan.name}</Text>
                   <View style={styles.planPricing}>
                     <Text style={styles.planPrice}>
-                      {plan.price === 0 ? 'Free' : `$${plan.price}`}
+                      {plan.price === 0 ? t('priceFree') : `${plan.price}`}
                     </Text>
                     {plan.price > 0 && (
                       <Text style={styles.planPeriod}>/{plan.period}</Text>
@@ -250,10 +252,10 @@ export default function SubscriptionScreen() {
                         )}
                         <Text style={styles.subscribeButtonText}>
                           {subscription.tier === plan.id 
-                            ? 'Current Plan' 
+                            ? t('currentPlanCta') 
                             : plan.id === 'free' 
-                            ? 'Downgrade' 
-                            : 'Subscribe'}
+                            ? t('downgrade') 
+                            : t('subscribe')}
                         </Text>
                       </>
                     )}
@@ -265,7 +267,7 @@ export default function SubscriptionScreen() {
         </View>
 
         <View style={styles.benefitsSection}>
-          <Text style={styles.benefitsTitle}>Why Choose L4F Premium?</Text>
+          <Text style={styles.benefitsTitle}>{t('whyPremium')}</Text>
           
           <View style={styles.benefitsList}>
             <View style={styles.benefitItem}>
@@ -273,9 +275,9 @@ export default function SubscriptionScreen() {
                 <Sparkles size={24} color="#FF9800" />
               </View>
               <View style={styles.benefitContent}>
-                <Text style={styles.benefitTitle}>Advanced AI Analysis</Text>
+                <Text style={styles.benefitTitle}>{t('benefitAdvancedAI')}</Text>
                 <Text style={styles.benefitDescription}>
-                  Get detailed insights with our most sophisticated AI models
+                  {t('benefitAdvancedAIDesc')}
                 </Text>
               </View>
             </View>
@@ -285,9 +287,9 @@ export default function SubscriptionScreen() {
                 <Infinity size={24} color="#4CAF50" />
               </View>
               <View style={styles.benefitContent}>
-                <Text style={styles.benefitTitle}>Unlimited Analyses</Text>
+                <Text style={styles.benefitTitle}>{t('benefitUnlimited')}</Text>
                 <Text style={styles.benefitDescription}>
-                  Analyze as many outfits as you want, whenever you want
+                  {t('benefitUnlimitedDesc')}
                 </Text>
               </View>
             </View>
@@ -297,9 +299,9 @@ export default function SubscriptionScreen() {
                 <Shield size={24} color="#2196F3" />
               </View>
               <View style={styles.benefitContent}>
-                <Text style={styles.benefitTitle}>Privacy Protected</Text>
+                <Text style={styles.benefitTitle}>{t('benefitPrivacy')}</Text>
                 <Text style={styles.benefitDescription}>
-                  Your photos are always protected with face masking technology
+                  {t('benefitPrivacyDesc')}
                 </Text>
               </View>
             </View>
@@ -309,9 +311,9 @@ export default function SubscriptionScreen() {
                 <Heart size={24} color="#E91E63" />
               </View>
               <View style={styles.benefitContent}>
-                <Text style={styles.benefitTitle}>Personal Style Growth</Text>
+                <Text style={styles.benefitTitle}>{t('benefitGrowth')}</Text>
                 <Text style={styles.benefitDescription}>
-                  Track your style evolution with unlimited history and insights
+                  {t('benefitGrowthDesc')}
                 </Text>
               </View>
             </View>
@@ -320,10 +322,10 @@ export default function SubscriptionScreen() {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            • Cancel anytime • No hidden fees • Secure payments
+            {t('footerBullets')}
           </Text>
           <Text style={styles.footerSubtext}>
-            Subscriptions auto-renew unless cancelled 24 hours before renewal
+            {t('footerRenew')}
           </Text>
         </View>
       </ScrollView>
