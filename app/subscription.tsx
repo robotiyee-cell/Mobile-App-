@@ -47,15 +47,15 @@ export default function SubscriptionScreen() {
 
   const getPlanFeatures = (planId: SubscriptionTier): string[] => {
     if (planId === 'free') {
-      return [t('freeFeature1'), t('freeFeature2'), t('freeFeature3'), t('freeFeature4')];
+      return [t('freeFeature1'), t('freeFeature2'), t('freeFeature3'), t('freeFeature4')].filter(f => (f ?? '').toString().trim() !== '—');
     }
     if (planId === 'basic') {
-      return [t('basicFeature1'), t('basicFeature2'), t('basicFeature3'), t('basicFeature4'), t('basicFeature5')];
+      return [t('basicFeature1'), t('basicFeature2'), t('basicFeature3'), t('basicFeature4'), t('basicFeature5')].filter(f => (f ?? '').toString().trim() !== '—');
     }
     if (planId === 'premium') {
-      return [t('premiumFeature1'), t('premiumFeature2'), t('premiumFeature3'), t('premiumFeature4'), t('premiumFeature5'), t('premiumFeature6'), t('premiumFeature7')];
+      return [t('premiumFeature1'), t('premiumFeature2'), t('premiumFeature3'), t('premiumFeature4'), t('premiumFeature5'), t('premiumFeature6'), t('premiumFeature7')].filter(f => (f ?? '').toString().trim() !== '—');
     }
-    return [t('ultimateFeature1'), t('ultimateFeature2'), t('ultimateFeature3'), t('ultimateFeature4'), t('ultimateFeature5'), t('ultimateFeature6'), t('ultimateFeature7')];
+    return [t('ultimateFeature1'), t('ultimateFeature2'), t('ultimateFeature3'), t('ultimateFeature4'), t('ultimateFeature5'), t('ultimateFeature6'), t('ultimateFeature7')].filter(f => (f ?? '').toString().trim() !== '—');
   };
 
   const validateCheckout = useCallback((): boolean => {
@@ -280,7 +280,7 @@ export default function SubscriptionScreen() {
                       {plan.price === 0 ? t('priceFree') : `${plan.price}`}
                     </Text>
                     {plan.price > 0 && (
-                      <Text style={styles.planPeriod}>/{plan.period}</Text>
+                      <Text style={styles.planPeriod}>/{t(plan.period)}</Text>
                     )}
                   </View>
                 </LinearGradient>
