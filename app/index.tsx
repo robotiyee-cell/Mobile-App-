@@ -2108,7 +2108,7 @@ export default function OutfitRatingScreen() {
                     
                     <View style={styles.analysisItem}>
                       <Text style={styles.analysisLabel}>Overall Analysis</Text>
-                      <Text style={styles.analysisText}>{analysis.overallAnalysis}</Text>
+                      <Text style={[styles.analysisText, styles.overallAnalysisText]}>{analysis.overallAnalysis}</Text>
                     </View>
                     
                     <View style={styles.allCategoriesResults}>
@@ -2848,6 +2848,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     paddingRight: 8,
   },
+  overallAnalysisText: {
+    fontWeight: '800',
+    color: '#2A2A2A',
+  },
   // Header styles
   headerBrand: {
     width: '100%',
@@ -3536,14 +3540,14 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   allCategoriesTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#6A1B9A',
     marginBottom: 16,
     textAlign: 'center',
   },
   categoryResultCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'transparent',
     borderRadius: 20,
     padding: 32,
     marginBottom: 20,
@@ -3551,9 +3555,9 @@ const styles = StyleSheet.create({
     width: '100%',
     shadowColor: '#FF69B4',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOpacity: 0.0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   categoryResultHeader: {
     flexDirection: 'row',
