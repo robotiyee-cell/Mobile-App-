@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Modal,
+  TextInput,
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,6 +35,16 @@ export default function SubscriptionScreen() {
   const { subscription, plans, isLoading, subscribeTo } = useSubscription();
   const { t } = useLanguage();
 
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier | null>(null);
+  const [isSubscribing, setIsSubscribing] = useState<boolean>(false);
+  const [checkoutVisible, setCheckoutVisible] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [cardNumber, setCardNumber] = useState<string>('');
+  const [expiry, setExpiry] = useState<string>('');
+  const [cvc, setCvc] = useState<string>('');
+  const [fieldError, setFieldError] = useState<string | null>(null);
+
   const getPlanFeatures = (planId: SubscriptionTier): string[] => {
     if (planId === 'free') {
       return [t('freeFeature1'), t('freeFeature2'), t('freeFeature3'), t('freeFeature4')];
@@ -45,12 +57,49 @@ export default function SubscriptionScreen() {
     }
     return [t('ultimateFeature1'), t('ultimateFeature2'), t('ultimateFeature3'), t('ultimateFeature4'), t('ultimateFeature5'), t('ultimateFeature6'), t('ultimateFeature7')];
   };
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier | null>(null);
-  const [isSubscribing, setIsSubscribing] = useState(false);
+
+  const validateCheckout = useCallback((): boolean => {
+    if (!email || !email.includes('@')) {
+      setFieldError(t('email'));
+      return false;
+    }
+    if (!password || password.length < 6) {
+      setFieldError(t('password'));
+      return false;
+    }
+    if (!cardNumber || cardNumber.replace(/\s/g, '').length < 12) {
+      setFieldError(t('cardNumber'));
+      return false;
+    }
+    if (!expiry || !/^(0[1-9]|1[0-2])\/(\d{2})$/.test(expiry)) {
+      setFieldError(t('expiry'));
+      return false;
+    }
+    if (!cvc || cvc.length < 3) {
+      setFieldError(t('cvc'));
+      return false;
+    }
+    setFieldError(null);
+    return true;
+  }, [email, password, cardNumber, expiry, cvc, t]);
+
+  const openCheckout = useCallback((planId: SubscriptionTier) => {
+    if (planId === 'free') {
+      router.back();
+      return;
+    }
+    setSelectedPlan(planId);
+    setCheckoutVisible(true);
+  }, []);
 
   const handleSubscribe = async (planId: SubscriptionTier) => {
     if (planId === 'free') {
       router.back();
+      return;
+    }
+
+    if (!validateCheckout()) {
+      Alert.alert(t('error'), t('failedSubscription'));
       return;
     }
 
@@ -78,6 +127,7 @@ export default function SubscriptionScreen() {
     } finally {
       setIsSubscribing(false);
       setSelectedPlan(null);
+      setCheckoutVisible(false);
     }
   };
 
@@ -200,7 +250,7 @@ export default function SubscriptionScreen() {
                   plan.popular && styles.popularPlan,
                   subscription.tier === plan.id && styles.currentPlanCard
                 ]}
-                onPress={() => handleSubscribe(plan.id)}
+                onPress={() => openCheckout(plan.id)}
                 disabled={isSubscribing}
               >
                 {plan.popular && (
@@ -251,7 +301,7 @@ export default function SubscriptionScreen() {
                       subscription.tier === plan.id && styles.currentPlanButton,
                       { backgroundColor: plan.color }
                     ]}
-                    onPress={() => handleSubscribe(plan.id)}
+                    onPress={() => openCheckout(plan.id)}
                     disabled={isSubscribing || subscription.tier === plan.id}
                   >
                     {isSubscribing && selectedPlan === plan.id ? (
@@ -341,6 +391,102 @@ export default function SubscriptionScreen() {
             {t('footerRenew')}
           </Text>
         </View>
+        <Modal visible={checkoutVisible} animationType="slide" transparent>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{t('payment')}</Text>
+              <Text style={styles.modalSubtitle}>{t('paymentMethod')}</Text>
+
+              <View style={styles.payRow}>
+                <TouchableOpacity style={[styles.payMethodButton, styles.apple, styles.disabledMethod]} disabled>
+                  <Text style={styles.payMethodText}>{t('applePay')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.payMethodButton, styles.google, styles.disabledMethod]} disabled>
+                  <Text style={styles.payMethodText}>{t('googlePay')}</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.methodNote}>{t('notAvailableInExpoGo')}</Text>
+
+              <View style={styles.divider} />
+
+              <Text style={styles.sectionLabel}>{t('creditDebitCard')}</Text>
+              <TextInput
+                placeholder={t('email')}
+                placeholderTextColor="#999"
+                style={styles.input}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+                testID="emailInput"
+              />
+              <TextInput
+                placeholder={t('password')}
+                placeholderTextColor="#999"
+                style={styles.input}
+                autoCapitalize="none"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+                testID="passwordInput"
+              />
+              <TextInput
+                placeholder={t('cardNumber')}
+                placeholderTextColor="#999"
+                style={styles.input}
+                keyboardType="number-pad"
+                value={cardNumber}
+                onChangeText={setCardNumber}
+                testID="cardInput"
+              />
+              <View style={styles.row}>
+                <TextInput
+                  placeholder={t('expiry')}
+                  placeholderTextColor="#999"
+                  style={[styles.input, styles.inputHalf]}
+                  keyboardType="numbers-and-punctuation"
+                  value={expiry}
+                  onChangeText={setExpiry}
+                  maxLength={5}
+                  testID="expiryInput"
+                />
+                <TextInput
+                  placeholder={t('cvc')}
+                  placeholderTextColor="#999"
+                  style={[styles.input, styles.inputHalf]}
+                  keyboardType="number-pad"
+                  value={cvc}
+                  onChangeText={setCvc}
+                  maxLength={4}
+                  testID="cvcInput"
+                />
+              </View>
+
+              {fieldError ? (
+                <Text style={styles.errorText}>{t('error')}: {fieldError}</Text>
+              ) : null}
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  onPress={() => { setCheckoutVisible(false); setSelectedPlan(null); }}
+                  style={[styles.actionButton, styles.cancelButton]}
+                >
+                  <Text style={styles.actionButtonText}>{t('cancelAction')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => selectedPlan ? handleSubscribe(selectedPlan) : null}
+                  style={[styles.actionButton, styles.payButton]}
+                >
+                  {isSubscribing ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>{t('payNow')}</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </View>
   );
@@ -613,4 +759,62 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 16,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  payRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  payMethodButton: {
+    flex: 1,
+    backgroundColor: '#111',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  apple: { backgroundColor: '#000' },
+  google: { backgroundColor: '#1a73e8' },
+  disabledMethod: { opacity: 0.4 },
+  payMethodText: { color: '#fff', fontWeight: '600' },
+  methodNote: { color: '#999', fontSize: 12, marginTop: 8 },
+  divider: { height: 1, backgroundColor: '#eee', marginVertical: 16 },
+  sectionLabel: { fontSize: 14, fontWeight: '600', color: '#1a1a1a', marginBottom: 8 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    marginBottom: 12,
+    fontSize: 16,
+    color: '#1a1a1a',
+  },
+  row: { flexDirection: 'row', gap: 12 },
+  inputHalf: { flex: 1 },
+  errorText: { color: '#e11d48', marginBottom: 8 },
+  modalActions: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  actionButton: { flex: 1, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  cancelButton: { backgroundColor: '#f3f4f6' },
+  payButton: { backgroundColor: '#111827' },
+  actionButtonText: { color: '#111', fontWeight: '700' },
 });
