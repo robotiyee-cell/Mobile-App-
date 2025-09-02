@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -9,20 +9,22 @@ import {
 } from 'react-native';
 import { Stack } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Settings, Globe, Check } from 'lucide-react-native';
+import { Settings as SettingsIcon, Globe, Check, Save } from 'lucide-react-native';
 import { useLanguage, Language } from '../contexts/LanguageContext';
 
 export default function SettingsScreen() {
   const { language, setLanguage, t } = useLanguage();
+  const [pendingLanguage, setPendingLanguage] = useState<Language>(language);
+  const [saving, setSaving] = useState<boolean>(false);
 
-  const handleLanguageChange = async (lang: Language) => {
-    await setLanguage(lang);
+  const handleLanguageChange = (lang: Language) => {
+    setPendingLanguage(lang);
   };
 
-  const languages = [
+  const languages = useMemo(() => ([
     { code: 'en' as Language, name: t('english'), flag: '🇺🇸', shortCode: 'EN' },
     { code: 'tr' as Language, name: t('turkish'), flag: '🇹🇷', shortCode: 'TR' },
-  ];
+  ]), [t]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,16 +38,14 @@ export default function SettingsScreen() {
       />
       
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
-        {/* Header */}
         <LinearGradient
           colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
           style={styles.header}
         >
-          <Settings size={32} color="white" />
+          <SettingsIcon size={32} color="white" />
           <Text style={styles.headerTitle}>{t('settings')}</Text>
         </LinearGradient>
 
-        {/* Language Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Globe size={24} color="#FF69B4" />
@@ -60,29 +60,30 @@ export default function SettingsScreen() {
                 key={lang.code}
                 style={[
                   styles.languageOption,
-                  language === lang.code && styles.selectedLanguageOption
+                  pendingLanguage === lang.code && styles.selectedLanguageOption
                 ]}
                 onPress={() => handleLanguageChange(lang.code)}
+                testID={`language-option-${lang.code}`}
               >
                 <View style={styles.languageInfo}>
                   <Text style={styles.languageFlag}>{lang.flag}</Text>
                   <View style={styles.languageText}>
                     <Text style={[
                       styles.languageName,
-                      language === lang.code && styles.selectedLanguageName
+                      pendingLanguage === lang.code && styles.selectedLanguageName
                     ]}>
                       {lang.name}
                     </Text>
                     <Text style={[
                       styles.languageCode,
-                      language === lang.code && styles.selectedLanguageCode
+                      pendingLanguage === lang.code && styles.selectedLanguageCode
                     ]}>
                       {lang.shortCode}
                     </Text>
                   </View>
                 </View>
                 
-                {language === lang.code && (
+                {pendingLanguage === lang.code && (
                   <View style={styles.checkContainer}>
                     <Check size={20} color="#FF69B4" />
                   </View>
@@ -91,6 +92,25 @@ export default function SettingsScreen() {
             ))}
           </View>
         </View>
+
+        <TouchableOpacity
+          style={[styles.button, styles.commitButton]}
+          onPress={async () => {
+            try {
+              setSaving(true);
+              await setLanguage(pendingLanguage);
+            } catch (e) {
+              console.log('Failed to apply language', e);
+            } finally {
+              setSaving(false);
+            }
+          }}
+          disabled={saving || pendingLanguage === language}
+          testID="btn-commit-language"
+        >
+          <Save size={20} color="white" />
+          <Text style={styles.buttonText}>{saving ? '...' : t('apply')}</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -197,5 +217,24 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 105, 180, 0.1)',
     borderRadius: 20,
     padding: 8,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    gap: 8,
+  },
+  commitButton: {
+    backgroundColor: '#FF1493',
+    marginHorizontal: 20,
+    marginBottom: 32,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
   },
 });

@@ -4,7 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SubscriptionProvider } from "../contexts/SubscriptionContext";
-import { LanguageProvider } from "../contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "../contexts/LanguageContext";
 import { trpc, trpcClient } from "../lib/trpc";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -13,17 +13,18 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
+  const { t } = useLanguage();
   return (
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="subscription" options={{ 
-        title: "L4F Premium",
+        title: t('premiumPlan') ?? 'L4F Premium',
         headerTransparent: true,
         headerTintColor: 'white',
         headerTitleStyle: { fontWeight: 'bold' }
       }} />
       <Stack.Screen name="settings" options={{ 
-        title: "Settings",
+        title: t('settings'),
         headerTransparent: true,
         headerTintColor: 'white',
         headerTitleStyle: { fontWeight: 'bold' }

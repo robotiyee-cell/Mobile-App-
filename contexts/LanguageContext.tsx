@@ -8,6 +8,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => Promise<void>;
   t: (key: string) => string;
+  languageLabel: string;
 }
 
 const translations = {
@@ -22,6 +23,8 @@ const translations = {
     selectLanguage: 'Select Language',
     english: 'English',
     turkish: 'Turkish',
+    apply: 'Apply',
+    changesSaved: 'Changes saved',
     
     // Upload Section
     uploadYourOutfit: 'Upload Your Outfit',
@@ -120,6 +123,8 @@ const translations = {
     selectLanguage: 'Dil Seçin',
     english: 'İngilizce',
     turkish: 'Türkçe',
+    apply: 'Uygula',
+    changesSaved: 'Değişiklikler kaydedildi',
     
     // Upload Section
     uploadYourOutfit: 'Kıyafetinizi Yükleyin',
@@ -251,9 +256,12 @@ export const [LanguageProvider, useLanguage] = createContextHook(() => {
     return typeof value === 'string' ? value : key;
   };
 
+  const languageLabel = language === 'tr' ? 'Türkçe' : 'English';
+
   return {
     language,
     setLanguage,
     t,
+    languageLabel,
   };
 });

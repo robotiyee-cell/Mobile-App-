@@ -114,7 +114,7 @@ export default function OutfitRatingScreen() {
   const [showInitialTerms, setShowInitialTerms] = useState(true);
   const [shouldResume, setShouldResume] = useState<boolean>(false);
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     loadSavedRatings();
@@ -541,11 +541,15 @@ export default function OutfitRatingScreen() {
               }` : ''}`
             },
             {
+              role: 'system',
+              content: `All outputs MUST be in ${language === 'tr' ? 'Turkish' : 'English'}. Use this language for every field and sentence.`
+            },
+            {
               role: 'user',
               content: [
                 {
                   type: 'text',
-                  text: `Please analyze this outfit for the "${selectedCategory}" style category and rate it out of 12. The image has been privacy-protected with face masking.`
+                  text: `Please analyze this outfit for the "${selectedCategory}" style category and rate it out of 12. The image has been privacy-protected with face masking. Respond in ${language === 'tr' ? 'Turkish' : 'English'} only.`
                 },
                 {
                   type: 'image',
