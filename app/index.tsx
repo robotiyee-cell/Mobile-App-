@@ -77,6 +77,23 @@ const STYLE_CATEGORIES: CategoryOption[] = [
   { id: 'rate', label: 'All', description: 'All categories with 7 results', color: '#FFD700' },
 ];
 
+const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
+  sexy: '#E91E63',
+  elegant: '#6A1B9A',
+  casual: '#0EA5E9',
+  naive: '#FF1493',
+  trendy: '#1E90FF',
+  anime: '#C2185B',
+  sixties: '#6A1B9A',
+  rate: '#6A1B9A',
+} as const;
+
+const getTextColor = (category: StyleCategory | string | null | undefined): string => {
+  if (!category) return '#6A1B9A';
+  const key = category as StyleCategory;
+  return TEXT_COLOR_MAP[key] ?? '#6A1B9A';
+};
+
 export default function OutfitRatingScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [maskedImage, setMaskedImage] = useState<string | null>(null);
@@ -2140,7 +2157,7 @@ export default function OutfitRatingScreen() {
                                   </View>
                                 </View>
                               </View>
-                              <Text style={styles.categoryResultAnalysis}>{result.analysis || 'No analysis available'}</Text>
+                              <Text style={[styles.categoryResultAnalysis, { color: getTextColor(result.category as StyleCategory), fontWeight: '800' }]}>{result.analysis || 'No analysis available'}</Text>
                               <View style={styles.categorySuggestions}>
                                 <Text style={styles.suggestionsSubtitle}>Suggestions for {categoryInfo?.label || result.category || 'this category'}:</Text>
                                 {result.suggestions && Array.isArray(result.suggestions) ? result.suggestions.map((suggestion, suggestionIndex) => (
@@ -2193,22 +2210,22 @@ export default function OutfitRatingScreen() {
                     
                     <View style={styles.analysisItem}>
                       <Text style={styles.analysisLabel}>Style Analysis</Text>
-                      <Text style={styles.analysisText}>{(analysis as OutfitAnalysis).style}</Text>
+                      <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).style}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
                       <Text style={styles.analysisLabel}>Color Coordination</Text>
-                      <Text style={styles.analysisText}>{(analysis as OutfitAnalysis).colorCoordination}</Text>
+                      <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).colorCoordination}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
                       <Text style={styles.analysisLabel}>Accessories</Text>
-                      <Text style={styles.analysisText}>{(analysis as OutfitAnalysis).accessories}</Text>
+                      <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).accessories}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
                       <Text style={styles.analysisLabel}>Overall Harmony</Text>
-                      <Text style={styles.analysisText}>{(analysis as OutfitAnalysis).harmony}</Text>
+                      <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).harmony}</Text>
                     </View>
                     
                     <View style={styles.suggestionsSection}>
@@ -2849,8 +2866,8 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   overallAnalysisText: {
-    fontWeight: '800',
-    color: '#2A2A2A',
+    fontWeight: '900',
+    color: '#6A1B9A',
   },
   // Header styles
   headerBrand: {
