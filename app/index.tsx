@@ -74,7 +74,7 @@ const STYLE_CATEGORIES: CategoryOption[] = [
   { id: 'trendy', label: 'Trendy', description: 'Fashion-forward, current, stylish', color: '#98D8C8' },
   { id: 'anime', label: 'Anime', description: 'Kawaii, colorful, playful', color: '#FF69B4' },
   { id: 'sixties', label: '60\'s', description: 'Retro, mod, vintage vibes', color: '#9B59B6' },
-  { id: 'rate', label: 'All', description: 'All categories with 6 results', color: '#FFD700' },
+  { id: 'rate', label: 'All', description: 'All categories with 7 results', color: '#FFD700' },
 ];
 
 export default function OutfitRatingScreen() {
@@ -434,16 +434,16 @@ export default function OutfitRatingScreen() {
               The outfit in the image appears to be a colorful floral dress which could score HIGH if it has authentic sixties characteristics like the right silhouette, pattern style, and overall mod aesthetic.` : ''}
               ${selectedCategory === 'rate' ? `
               ALL CATEGORIES ANALYSIS - CRITICAL INSTRUCTIONS:
-              You MUST analyze this outfit for ALL 6 style categories and provide 6 completely separate and distinct results.
+              You MUST analyze this outfit for ALL 7 style categories and provide 6 completely separate and distinct results.
               
-              For EACH of the 6 categories (sexy, elegant, casual, naive, trendy, anime), you must provide:
+              For EACH of the 7 categories (sexy, elegant, casual, naive, trendy, anime, sixties), you must provide:
               - Individual score out of 12 based on how well the outfit fits that SPECIFIC category
               - Detailed analysis of how the outfit performs in that SPECIFIC category
               - 2-3 category-specific suggestions for improvement
               
               IMPORTANT: Each category should have DIFFERENT scores and DIFFERENT analysis based on how the outfit fits that particular style aesthetic.
               
-              You MUST return results in this EXACT JSON format with ALL 6 categories:
+              You MUST return results in this EXACT JSON format with ALL 7 categories:
               {
                 "results": [
                   {
@@ -483,11 +483,11 @@ export default function OutfitRatingScreen() {
                     "suggestions": ["specific anime style suggestion 1", "specific anime style suggestion 2", "specific anime style suggestion 3"]
                   }
                 ],
-                "overallScore": average_of_all_6_scores,
+                "overallScore": average_of_all_7_scores,
                 "overallAnalysis": "comprehensive summary analyzing how this outfit performs across all 6 different style categories, highlighting strengths and areas for improvement"
               }
               
-              CRITICAL: You must provide exactly 6 category results. Do not skip any categories. Each result must be unique and tailored to that specific style category.` : ''}
+              CRITICAL: You must provide exactly 7 category results. Do not skip any categories. Each result must be unique and tailored to that specific style category.` : ''}
               
               Analyze the outfit with focus on how well it achieves the ${selectedCategory} aesthetic and provide detailed feedback on:
               1. Style - Evaluate how well the outfit embodies the "${selectedCategory}" style and elaborate on the specific elements that contribute to or detract from this aesthetic
@@ -607,6 +607,13 @@ export default function OutfitRatingScreen() {
                 analysis: "The outfit needs more colorful and playful elements to achieve the anime aesthetic.",
                 suggestions: ["Add bright colors", "Include kawaii accessories", "Try playful patterns"]
               }
+            ,
+              {
+                category: "sixties",
+                score: 7,
+                analysis: "The look hints at 1960s vibes; stronger mod elements like a shift silhouette or bold geometric prints would enhance authenticity.",
+                suggestions: ["Try a shift or A-line mini dress", "Introduce geometric or pop floral patterns", "Consider white go-go boots or a headband"]
+              }
             ],
             overallScore: 7,
             overallAnalysis: "The outfit performs well across different categories, with particular strength in casual and elegant styles. There's room for improvement in more expressive categories like anime and naive styles."
@@ -721,7 +728,7 @@ export default function OutfitRatingScreen() {
       if (subscription.tier === 'free' || subscription.tier === 'basic') {
         Alert.alert(
           'Premium Feature',
-          'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 6 style categories!',
+          'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 7 style categories!',
           [
             { text: 'Maybe Later', style: 'cancel' },
             { 
@@ -745,7 +752,7 @@ export default function OutfitRatingScreen() {
       if (subscription.tier === 'free' || subscription.tier === 'basic') {
         Alert.alert(
           'Premium Feature',
-          'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 6 style categories!',
+          'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 7 style categories!',
           [
             { text: 'Maybe Later', style: 'cancel' },
             { 
@@ -2002,7 +2009,7 @@ export default function OutfitRatingScreen() {
                     styles.categoryDescription, 
                     styles.themedCategoryDescription,
                     (subscription.tier === 'free' || subscription.tier === 'basic') && styles.disabledCategoryDescription
-                  ]}>{(subscription.tier === 'free' || subscription.tier === 'basic') ? 'Premium Feature - Upgrade to unlock' : 'Get results for all 6 categories'}</Text>
+                  ]}>{(subscription.tier === 'free' || subscription.tier === 'basic') ? 'Premium Feature - Upgrade to unlock' : 'Get results for all 7 categories'}</Text>
                   {(subscription.tier === 'free' || subscription.tier === 'basic') && (
                     <View style={styles.premiumOverlay}>
                       <Crown size={16} color="#FFD700" />
@@ -2094,7 +2101,7 @@ export default function OutfitRatingScreen() {
                           { backgroundColor: STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.color }
                         ]} />
                         <Text style={styles.selectedCategoryText}>
-                          All Categories (6 Results)
+                          All Categories (7 Results)
                         </Text>
                       </View>
                     </View>
@@ -2105,7 +2112,7 @@ export default function OutfitRatingScreen() {
                     </View>
                     
                     <View style={styles.allCategoriesResults}>
-                      <Text style={styles.allCategoriesTitle}>Category Breakdown - 6 Separate Results</Text>
+                      <Text style={styles.allCategoriesTitle}>Category Breakdown - 7 Separate Results</Text>
                       {analysis.results && Array.isArray(analysis.results) && analysis.results.length > 0 ? (
                         analysis.results.map((result, index) => {
                           if (!result || typeof result !== 'object') {
@@ -2258,7 +2265,7 @@ export default function OutfitRatingScreen() {
                         if (category.id === 'rate' && (subscription.tier === 'free' || subscription.tier === 'basic')) {
                           Alert.alert(
                             'Premium Feature',
-                            'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 6 style categories!',
+                            'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 7 style categories!',
                             [
                               { text: 'Maybe Later', style: 'cancel' },
                               { 
