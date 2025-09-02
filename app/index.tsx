@@ -1563,7 +1563,7 @@ export default function OutfitRatingScreen() {
                             styles.categoryColorDot,
                             { backgroundColor: categoryInfo?.color }
                           ]} />
-                          <Text style={styles.historyCategoryText}>{categoryInfo?.label}</Text>
+                          <Text style={styles.historyCategoryText}>{t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? '')))}</Text>
                         </View>
                         <Text style={styles.historyDate}>{formatDate(rating.timestamp)}</Text>
                       </View>
@@ -1828,7 +1828,7 @@ export default function OutfitRatingScreen() {
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                        category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedCategoryLabel,
                       isDisabled && styles.disabledCategoryLabel
-                    ]}>{category.label}{isPremiumFeature && !hasAccess && ' 🔒'}</Text>
+                    ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}{isPremiumFeature && !hasAccess && ' 🔒'}</Text>
                     <Text style={[
                       styles.categoryDescription,
                       category.id === 'sixties' && styles.sixtiesCategoryDescription,
@@ -1988,13 +1988,13 @@ export default function OutfitRatingScreen() {
                       category.id === 'sixties' && styles.sixtiesCategoryLabel,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                        category.id === 'naive' || category.id === 'trendy' || category.id === 'anime') && styles.themedCategoryLabel
-                    ]}>{category.label}</Text>
+                    ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}</Text>
                     <Text style={[
                       styles.categoryDescription,
                       category.id === 'sixties' && styles.sixtiesCategoryDescription,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                        category.id === 'naive' || category.id === 'trendy' || category.id === 'anime') && styles.themedCategoryDescription
-                    ]}>{category.description}</Text>
+                    ]}>{t(category.id === 'rate' ? 'allCategoriesDesc' : (category.id + 'Desc'))}</Text>
                   </TouchableOpacity>
                 ))}
                 
@@ -2025,12 +2025,12 @@ export default function OutfitRatingScreen() {
                     styles.categoryLabel, 
                     styles.themedCategoryLabel,
                     (subscription.tier === 'free' || subscription.tier === 'basic') && styles.disabledCategoryLabel
-                  ]}>All Categories{(subscription.tier === 'free' || subscription.tier === 'basic') && ' 🔒'}</Text>
+                  ]}>{t('allCategories')}{(subscription.tier === 'free' || subscription.tier === 'basic') && ' 🔒'}</Text>
                   <Text style={[
                     styles.categoryDescription, 
                     styles.themedCategoryDescription,
                     (subscription.tier === 'free' || subscription.tier === 'basic') && styles.disabledCategoryDescription
-                  ]}>{(subscription.tier === 'free' || subscription.tier === 'basic') ? 'Premium Feature - Upgrade to unlock' : 'Get results for all 7 categories'}</Text>
+                  ]}>{(subscription.tier === 'free' || subscription.tier === 'basic') ? t('premiumFeatureUnlock') : t('allCategoriesDesc')}</Text>
                   {(subscription.tier === 'free' || subscription.tier === 'basic') && (
                     <View style={styles.premiumOverlay}>
                       <Crown size={16} color="#FFD700" />
@@ -2163,7 +2163,7 @@ export default function OutfitRatingScreen() {
                               </View>
                               <Text style={[styles.categoryResultAnalysis, { color: getTextColor(result.category as StyleCategory), fontWeight: '800' }]}>{result.analysis || 'No analysis available'}</Text>
                               <View style={styles.categorySuggestions}>
-                                <Text style={styles.suggestionsSubtitle}>Suggestions for {categoryInfo?.label || result.category || 'this category'}:</Text>
+                                <Text style={styles.suggestionsSubtitle}>{(t('suggestionsFor') ?? '').replace('{category}', t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? (result.category || '')))))}</Text>
                                 {result.suggestions && Array.isArray(result.suggestions) ? result.suggestions.map((suggestion, suggestionIndex) => (
                                   <View key={suggestionIndex} style={styles.suggestionItem}>
                                     <View style={styles.suggestionBullet} />
@@ -2419,14 +2419,14 @@ export default function OutfitRatingScreen() {
                         category.id === 'sixties' && styles.sixtiesCategoryLabel,
                         (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                          category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedCategoryLabel
-                      ]}>{category.label}</Text>
+                      ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}</Text>
                       <Text style={[
                         styles.categoryDescription,
                         styles.compactCategoryDescription,
                         category.id === 'sixties' && styles.sixtiesCategoryDescription,
                         (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                          category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'rate') && styles.themedCategoryDescription
-                      ]}>{category.description}</Text>
+                      ]}>{t(category.id === 'rate' ? 'allCategoriesDesc' : (category.id + 'Desc'))}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>

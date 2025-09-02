@@ -58,7 +58,7 @@ const translations = {
     trendyDesc: 'Fashion-forward, current, stylish',
     animeDesc: 'Kawaii, colorful, playful',
     sixtiesDesc: 'Retro, mod, vintage vibes',
-    allCategoriesDesc: 'Get results for all 6 categories',
+    allCategoriesDesc: 'Get results for all 7 categories',
     
     // Analysis
     analyzing: 'Analyzing...',
@@ -85,12 +85,29 @@ const translations = {
     changeRatingCategory: 'Change Rating Category',
     backToCategories: 'Back to Categories',
     rateNewOutfit: 'Rate New Outfit',
-    
+
+    // Extra action copy
+    rateThisOutfit: 'Rate This Outfit',
+    chooseCategoryForTargetedAnalysis: 'Choose a category to get a targeted analysis, or select general rating',
+    allCategories7Results: 'All Categories (7 Results)',
+    categoryBreakdown7: 'Category Breakdown - 7 Separate Results',
+    suggestionsFor: 'Suggestions for {category}:',
+    noCategoryResults: 'No category results available',
+    rateThisOutfitDifferentCategory: 'Rate this same outfit with a different style category',
+    clearHistory: 'Clear History',
+
     // History
     yourRatingHistory: 'Your Rating History',
     historySubtitle: 'Your last {count} outfit ratings with privacy protection',
     noRatingsYet: 'No ratings yet',
     noRatingsSubtext: 'Upload your first outfit to get started!',
+    clearHistoryTitle: 'Clear History',
+    clearHistoryConfirm: 'This will delete all saved ratings. Are you sure?',
+    cancel: 'Cancel',
+    clear: 'Clear',
+    cleared: 'Cleared',
+    historyCleared: 'Your rating history was cleared.',
+    couldNotClearHistory: 'Could not clear history. Please try again.',
     
     // Subscription
     freePlan: 'Free Plan',
@@ -100,6 +117,9 @@ const translations = {
     manage: 'Manage',
     analysesRemaining: '{count} analyses remaining today',
     unlimitedAnalyses: 'Unlimited analyses remaining',
+    premiumFeatureTitle: 'Premium Feature',
+    premiumAllMessage: 'The "All Categories" analysis is available for Premium and Ultimate subscribers only. Upgrade now to analyze your outfit across all 7 style categories!',
+    premiumFeatureUnlock: 'Premium Feature - Upgrade to unlock',
     
     // Errors
     permissionNeeded: 'Permission needed',
@@ -158,7 +178,7 @@ const translations = {
     trendyDesc: 'Moda öncüsü, güncel, şık',
     animeDesc: 'Kawaii, renkli, eğlenceli',
     sixtiesDesc: 'Retro, mod, vintage',
-    allCategoriesDesc: '6 kategori için sonuç alın',
+    allCategoriesDesc: '7 kategori için sonuç alın',
     
     // Analysis
     analyzing: 'Analiz ediliyor...',
@@ -185,12 +205,29 @@ const translations = {
     changeRatingCategory: 'Değerlendirme Kategorisini Değiştir',
     backToCategories: 'Kategorilere Dön',
     rateNewOutfit: 'Yeni Kıyafet Değerlendir',
-    
+
+    // Extra action copy
+    rateThisOutfit: 'Bu Kıyafeti Puanla',
+    chooseCategoryForTargetedAnalysis: 'Hedefli analiz için bir kategori seçin veya genel puanlamayı seçin',
+    allCategories7Results: 'Tüm Kategoriler (7 Sonuç)',
+    categoryBreakdown7: 'Kategori Dökümü - 7 Ayrı Sonuç',
+    suggestionsFor: '{category} için Öneriler:',
+    noCategoryResults: 'Kategori sonuçları mevcut değil',
+    rateThisOutfitDifferentCategory: 'Aynı kıyafeti farklı bir stil kategorisiyle değerlendir',
+    clearHistory: 'Geçmişi Temizle',
+
     // History
     yourRatingHistory: 'Değerlendirme Geçmişiniz',
     historySubtitle: 'Gizlilik koruması ile son {count} kıyafet değerlendirmeniz',
     noRatingsYet: 'Henüz değerlendirme yok',
     noRatingsSubtext: 'Başlamak için ilk kıyafetinizi yükleyin!',
+    clearHistoryTitle: 'Geçmişi Temizle',
+    clearHistoryConfirm: 'Bu işlem tüm kayıtlı değerlendirmeleri silecek. Emin misiniz?',
+    cancel: 'İptal',
+    clear: 'Temizle',
+    cleared: 'Temizlendi',
+    historyCleared: 'Değerlendirme geçmişiniz temizlendi.',
+    couldNotClearHistory: 'Geçmiş temizlenemedi. Lütfen tekrar deneyin.',
     
     // Subscription
     freePlan: 'Ücretsiz Plan',
@@ -200,6 +237,9 @@ const translations = {
     manage: 'Yönet',
     analysesRemaining: 'Bugün {count} analiz hakkınız kaldı',
     unlimitedAnalyses: 'Sınırsız analiz hakkınız var',
+    premiumFeatureTitle: 'Premium Özellik',
+    premiumAllMessage: '"Tüm Kategoriler" analizi yalnızca Premium ve Ultimate abonelere açıktır. Tüm 7 stil kategorisinde analiz için şimdi yükseltin!',
+    premiumFeatureUnlock: 'Premium Özellik - Açmak için yükseltin',
     
     // Errors
     permissionNeeded: 'İzin gerekli',
