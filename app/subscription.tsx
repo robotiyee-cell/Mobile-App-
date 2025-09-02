@@ -123,21 +123,21 @@ export default function SubscriptionScreen() {
         >
           <View style={styles.currentPlanHeader}>
             <Shield size={24} color="white" />
-            <Text style={styles.currentPlanTitle}>Current Plan</Text>
+            <Text style={styles.currentPlanTitle}>{t('currentPlan')}</Text>
           </View>
           <View style={styles.currentPlanInfo}>
             <Text style={styles.currentPlanName}>{currentPlan.name}</Text>
             {subscription.tier !== 'free' && subscription.expiresAt && (
               <Text style={styles.currentPlanExpiry}>
-                Expires: {subscription.expiresAt.toLocaleDateString()}
+                {t('expires')} {subscription.expiresAt.toLocaleDateString()}
               </Text>
             )}
           </View>
           <View style={styles.usageInfo}>
             <Text style={styles.usageText}>
               {subscription.tier === 'premium' || subscription.tier === 'ultimate' 
-                ? 'Unlimited analyses remaining' 
-                : `${subscription.analysesRemaining} analyses remaining today`}
+                ? t('unlimitedAnalyses') 
+                : (t('analysesRemaining') ?? '').replace('{count}', `${subscription.analysesRemaining}`)}
             </Text>
           </View>
         </LinearGradient>
