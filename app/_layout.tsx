@@ -15,19 +15,30 @@ const queryClient = new QueryClient();
 function RootLayoutNav() {
   const { t } = useLanguage();
   return (
-    <Stack screenOptions={{ headerBackTitle: t('backToCategories') }}>
+    <Stack screenOptions={{
+          headerBackTitle: t('backToCategories'),
+          headerTransparent: false,
+          headerStyle: { backgroundColor: '#111827' },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: { fontWeight: '700', fontSize: 18 },
+          headerShadowVisible: true,
+        }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="subscription" options={{ 
         title: t('premiumPlan') ?? 'L4F Premium',
-        headerTransparent: true,
-        headerTintColor: 'white',
-        headerTitleStyle: { fontWeight: 'bold' }
+        headerTransparent: false,
+        headerStyle: { backgroundColor: '#111827' },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: { fontWeight: '700', fontSize: 18 },
+        headerShadowVisible: true
       }} />
       <Stack.Screen name="settings" options={{ 
         title: t('settings'),
-        headerTransparent: true,
-        headerTintColor: 'white',
-        headerTitleStyle: { fontWeight: 'bold' }
+        headerTransparent: false,
+        headerStyle: { backgroundColor: '#111827' },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: { fontWeight: '700', fontSize: 18 },
+        headerShadowVisible: true
       }} />
     </Stack>
   );
