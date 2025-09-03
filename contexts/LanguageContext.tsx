@@ -89,6 +89,7 @@ const translations = {
     viewTrendInsights: 'View Trend Insights',
     generatingTrends: 'Generating trend insights...',
     emailSupport: 'Email Support',
+    export: 'Export',
     exportAnalysis: 'Export Analysis',
     
     // Buttons
@@ -319,6 +320,7 @@ const translations = {
     viewTrendInsights: 'Trend İçgörülerini Görüntüle',
     generatingTrends: 'Trend içgörüleri oluşturuluyor...',
     emailSupport: 'E-posta Desteği',
+    export: 'Export',
     exportAnalysis: 'Analizi Dışa Aktar',
     
     // Buttons

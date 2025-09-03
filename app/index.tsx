@@ -2742,6 +2742,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
+    textAlign: 'center',
   },
   galleryButtonText: {
     color: '#FF1493',
@@ -3392,11 +3393,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   exportButton: {
-    backgroundColor: '#111827',
+    backgroundColor: '#4C1D95',
     flex: 1,
   },
   emailButton: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#87CEEB',
     flex: 1,
   },
   
