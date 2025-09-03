@@ -957,23 +957,6 @@ export default function OutfitRatingScreen() {
 
       if (Platform.OS === 'web') {
         try {
-          const base = process.env.EXPO_PUBLIC_RORK_API_BASE_URL ?? '';
-          const apiUrl = `${base}/api/export/html`;
-          const res = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ html: asHtml }),
-          });
-          const payload = await res.json();
-          if (payload?.url) {
-            window.open(payload.url, '_blank');
-            Alert.alert(t('exported') ?? 'Exported', t('htmlDownloaded') ?? 'HTML opened in new tab. You can print or save it.');
-            return;
-          }
-        } catch (e) {
-          console.log('Remote HTML upload failed on web, fallback to download', e);
-        }
-        try {
           const blob = new Blob([asHtml], { type: 'text/html;charset=utf-8' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -990,31 +973,14 @@ export default function OutfitRatingScreen() {
         return;
       }
 
-      try {
-        const base = process.env.EXPO_PUBLIC_RORK_API_BASE_URL ?? '';
-        const apiUrl = `${base}/api/export/html`;
-        const res = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ html: asHtml }),
-        });
-        const payload = await res.json();
-        const shareUrl: string | undefined = payload?.url;
-        if (shareUrl) {
-          await Share.share({ url: shareUrl, message: shareUrl });
-          return;
-        }
-      } catch (e) {
-        console.log('Remote HTML upload failed, falling back to local share', e);
-      }
       const dir = FileSystem.documentDirectory ?? FileSystem.cacheDirectory ?? undefined;
       if (!dir) {
-        await Share.share({ message: asHtml });
+        await Share.share({ message: t('htmlDownloaded') ?? 'Attach the generated HTML file to your email.' });
         return;
       }
-      const path = `${dir}outfit-analysis-${Date.now()}.html`;
-      await FileSystem.writeAsStringAsync(path, asHtml, { encoding: FileSystem.EncodingType.UTF8 });
-      await Share.share({ url: path });
+      const htmlPath = `${dir}outfit-analysis-${Date.now()}.html`;
+      await FileSystem.writeAsStringAsync(htmlPath, asHtml, { encoding: FileSystem.EncodingType.UTF8 });
+      await Share.share({ url: htmlPath, message: `${t('appName')} - ${t('selectedStyle')}: ${heading}` });
     } catch {
       Alert.alert(t('error'), 'Email failed');
     }
