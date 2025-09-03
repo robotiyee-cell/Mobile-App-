@@ -270,9 +270,54 @@ export default function OutfitRatingScreen() {
     }
   };
 
-  const analyzeOutfit = async () => {
-    console.log('analyzeOutfit called with:', { selectedImage: !!selectedImage, selectedCategory });
-    if (!selectedImage || !selectedCategory) {
+  function validateTextQuality(text: unknown, minChars: number): boolean {
+    if (typeof text !== 'string') return false;
+    const cleaned = text.replace(/\s+/g, ' ').trim();
+    return cleaned.length >= minChars;
+  }
+
+  function validateAnalysis(
+    data: unknown,
+    category: StyleCategory | null,
+  ): { ok: boolean; reason?: string } {
+    try {
+      if (!data || typeof data !== 'object') return { ok: false, reason: 'no_object' };
+
+      const minChars = subscription.tier === 'ultimate' ? 350 : subscription.tier === 'premium' ? 250 : subscription.tier === 'basic' ? 140 : 80;
+
+      if (category === 'rate') {
+        const a = data as AllCategoriesAnalysis;
+        if (!Array.isArray(a.results) || a.results.length !== 7) return { ok: false, reason: 'invalid_results_count' };
+        for (const r of a.results) {
+          if (!r || typeof r !== 'object') return { ok: false, reason: 'result_not_object' };
+          if (typeof (r as CategoryResult).category !== 'string') return { ok: false, reason: 'missing_category' };
+          const sc = Number((r as CategoryResult).score);
+          if (!Number.isFinite(sc) || sc <= 0 || sc > 12) return { ok: false, reason: 'invalid_score' };
+          if (!validateTextQuality((r as CategoryResult).analysis, minChars)) return { ok: false, reason: 'analysis_too_short' };
+        }
+        const overall = Number((a as AllCategoriesAnalysis).overallScore);
+        if (!Number.isFinite(overall) || overall <= 0) return { ok: false, reason: 'overall_invalid' };
+        if (!validateTextQuality((a as AllCategoriesAnalysis).overallAnalysis, Math.max(120, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'overall_too_short' };
+        return { ok: true };
+      }
+
+      const a = data as OutfitAnalysis;
+      const sc = Number(a.score);
+      if (!Number.isFinite(sc) || sc <= 0 || sc > 12) return { ok: false, reason: 'invalid_score' };
+      if (!validateTextQuality(a.style, minChars)) return { ok: false, reason: 'style_short' };
+      if (!validateTextQuality(a.colorCoordination, Math.max(80, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'color_short' };
+      if (!validateTextQuality(a.accessories, Math.max(80, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'accessories_short' };
+      if (!validateTextQuality(a.harmony, Math.max(80, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'harmony_short' };
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, reason: 'exception' };
+    }
+  }
+
+  const analyzeOutfit = async (categoryOverride?: StyleCategory, retry: boolean = false) => {
+    const categoryToUse = categoryOverride ?? selectedCategory;
+    console.log('analyzeOutfit called with:', { selectedImage: !!selectedImage, categoryToUse, categoryOverride, stateCategory: selectedCategory });
+    if (!selectedImage || !categoryToUse) {
       console.log('Missing required data:', { selectedImage: !!selectedImage, selectedCategory });
       return;
     }
@@ -292,7 +337,7 @@ export default function OutfitRatingScreen() {
     setIsAnalyzing(true);
     const thisReq = ++requestIdRef.current;
     try {
-      const categoryInfo = STYLE_CATEGORIES.find(cat => cat.id === selectedCategory);
+      const categoryInfo = STYLE_CATEGORIES.find(cat => cat.id === categoryToUse);
 
       const imageToAnalyze = maskedImage || selectedImage;
       let base64Image: string;
@@ -330,18 +375,18 @@ export default function OutfitRatingScreen() {
           messages: [
             {
               role: 'system',
-              content: `You are a professional fashion stylist and outfit critic. The user has indicated they want their outfit analyzed specifically for the "${selectedCategory}" style category (${categoryInfo?.description}).
+              content: `You are a professional fashion stylist and outfit critic. The user has indicated they want their outfit analyzed specifically for the "${categoryToUse}" style category (${categoryInfo?.description}).
               
               IMPORTANT: This image has been privacy-protected with face masking before being shared with you. Focus only on the clothing, accessories, and overall styling.
               
-              CRITICAL: You MUST analyze this outfit specifically for the "${selectedCategory}" style. Do NOT give generic fashion advice. Your entire analysis should be focused on how well this outfit achieves the specific "${selectedCategory}" aesthetic.
+              CRITICAL: You MUST analyze this outfit specifically for the "${categoryToUse}" style. Do NOT give generic fashion advice. Your entire analysis should be focused on how well this outfit achieves the specific "${categoryToUse}" aesthetic.
               
               IMPORTANT: Each category has DIFFERENT scoring criteria. The same outfit should receive DIFFERENT scores for different categories based on how well it fits that specific aesthetic.
               
               OUTPUT LENGTH POLICY: Keep your explanations ${lengthPolicy} in length. Targets by plan: Free=2-3 sentences, Basic=3-4 sentences, Premium=5-6 sentences, Ultimate=7+ sentences. Apply this to every analysis field and to each category in ALL CATEGORIES mode.
               
-              For the "${selectedCategory}" style specifically:
-              ${selectedCategory === 'sexy' ? `
+              For the "${categoryToUse}" style specifically:
+              ${categoryToUse === 'sexy' ? `
               SEXY STYLE SCORING CRITERIA:
               HIGH SCORES (9-12): Perfect sexy elements like:
               - Form-fitting, body-conscious silhouettes
@@ -357,7 +402,7 @@ export default function OutfitRatingScreen() {
               - Some body-conscious styling
               
               LOW SCORES (1-5): Conservative, loose-fitting, or overly modest pieces` : ''}
-              ${selectedCategory === 'elegant' ? `
+              ${categoryToUse === 'elegant' ? `
               ELEGANT STYLE SCORING CRITERIA:
               HIGH SCORES (9-12): Perfect elegant elements like:
               - Sophisticated tailoring and refined cuts
@@ -373,7 +418,7 @@ export default function OutfitRatingScreen() {
               - Refined styling
               
               LOW SCORES (1-5): Casual, overly trendy, or loud patterns/colors` : ''}
-              ${selectedCategory === 'casual' ? `
+              ${categoryToUse === 'casual' ? `
               CASUAL STYLE SCORING CRITERIA:
               HIGH SCORES (9-12): Perfect casual elements like:
               - Comfortable, relaxed fit pieces
@@ -388,7 +433,7 @@ export default function OutfitRatingScreen() {
               - Mix of casual and dressy elements
               
               LOW SCORES (1-5): Overly formal, structured, or high-maintenance pieces` : ''}
-              ${selectedCategory === 'naive' ? `
+              ${categoryToUse === 'naive' ? `
               NAIVE STYLE SCORING CRITERIA:
               HIGH SCORES (9-12): Perfect naive elements like:
               - Sweet, innocent, and youthful styling
@@ -404,7 +449,7 @@ export default function OutfitRatingScreen() {
               - Youthful elements
               
               LOW SCORES (1-5): Dark colors, edgy styling, or overly mature/sophisticated pieces` : ''}
-              ${selectedCategory === 'trendy' ? `
+              ${categoryToUse === 'trendy' ? `
               TRENDY STYLE SCORING CRITERIA:
               HIGH SCORES (9-12): Perfect trendy elements like:
               - Current fashion trends and modern cuts
@@ -419,7 +464,7 @@ export default function OutfitRatingScreen() {
               - Some current trends incorporated
               
               LOW SCORES (1-5): Outdated, classic, or overly conservative styling` : ''}
-              ${selectedCategory === 'anime' ? `
+              ${categoryToUse === 'anime' ? `
               ANIME STYLE SCORING CRITERIA:
               HIGH SCORES (9-12): Perfect anime elements like:
               - Kawaii (cute) elements and styling
@@ -434,7 +479,7 @@ export default function OutfitRatingScreen() {
               - Playful styling
               
               LOW SCORES (1-5): Muted colors, serious styling, or lack of playful elements` : ''}
-              ${selectedCategory === 'sixties' ? `
+              ${categoryToUse === 'sixties' ? `
               SIXTIES STYLE SCORING CRITERIA:
               HIGH SCORES (10-12): Perfect sixties elements like:
               - A-line or shift dresses (especially mini length)
@@ -457,7 +502,7 @@ export default function OutfitRatingScreen() {
               LOW SCORES (1-6): Modern styles with minimal sixties influence
               
               The outfit in the image appears to be a colorful floral dress which could score HIGH if it has authentic sixties characteristics like the right silhouette, pattern style, and overall mod aesthetic.` : ''}
-              ${selectedCategory === 'rate' ? `
+              ${categoryToUse === 'rate' ? `
               ALL CATEGORIES ANALYSIS - CRITICAL INSTRUCTIONS:
               You MUST analyze this outfit for ALL 7 style categories and provide 7 completely separate and distinct results.
               
@@ -485,13 +530,13 @@ export default function OutfitRatingScreen() {
               
               CRITICAL: You must provide exactly 7 category results. Do not skip any categories. Each result must be unique and tailored to that specific style category.` : ''}
               
-              Analyze the outfit with focus on how well it achieves the ${selectedCategory} aesthetic and provide detailed feedback on:
-              1. Style - Evaluate how well the outfit embodies the "${selectedCategory}" style and elaborate on the specific elements that contribute to or detract from this aesthetic
-              2. Color coordination - How the colors work together for the ${selectedCategory} look specifically
-              3. Use of accessories - How accessories enhance or diminish the ${selectedCategory} vibe
-              4. Overall harmony - How cohesive the outfit is in achieving the desired ${selectedCategory} aesthetic
+              Analyze the outfit with focus on how well it achieves the ${categoryToUse} aesthetic and provide detailed feedback on:
+              1. Style - Evaluate how well the outfit embodies the "${categoryToUse}" style and elaborate on the specific elements that contribute to or detract from this aesthetic
+              2. Color coordination - How the colors work together for the ${categoryToUse} look specifically
+              3. Use of accessories - How accessories enhance or diminish the ${categoryToUse} vibe
+              4. Overall harmony - How cohesive the outfit is in achieving the desired ${categoryToUse} aesthetic
               
-              Rate the outfit's relevancy to the chosen "${selectedCategory}" category. Give a score out of 12 based on how successfully the outfit achieves the ${selectedCategory} style. 
+              Rate the outfit's relevancy to the chosen "${categoryToUse}" category. Give a score out of 12 based on how successfully the outfit achieves the ${categoryToUse} style. 
               
               SCORING GUIDELINES BY CATEGORY:
               - SEXY: Focus on how alluring, confident, and body-conscious the outfit is
@@ -503,11 +548,11 @@ export default function OutfitRatingScreen() {
               - SIXTIES: Focus on authentic 1960s mod elements and retro aesthetics
               - ALL: Analyze across all categories and provide comprehensive results
               
-              ${selectedCategory === 'sixties' ? 'For sixties style, prioritize authentic 1960s elements over general fashion appeal. A perfect sixties outfit with authentic mod elements should score 10-12, even if it might not be considered fashionable by today\'s standards.' : ''}
+              ${categoryToUse === 'sixties' ? 'For sixties style, prioritize authentic 1960s elements over general fashion appeal. A perfect sixties outfit with authentic mod elements should score 10-12, even if it might not be considered fashionable by today\'s standards.' : ''}
               
-              Be constructive but honest in your critique. The SAME OUTFIT should receive DIFFERENT SCORES for different categories. Consider fit, appropriateness for the chosen style, creativity, and overall aesthetic appeal FOR THE ${selectedCategory} STYLE ONLY.
+              Be constructive but honest in your critique. The SAME OUTFIT should receive DIFFERENT SCORES for different categories. Consider fit, appropriateness for the chosen style, creativity, and overall aesthetic appeal FOR THE ${categoryToUse} STYLE ONLY.
               
-              ${selectedCategory === 'sarcastic' ? `
+              ${categoryToUse === 'sarcastic' ? `
               SPECIAL MODE: DESIGNER ROAST
               - Lean into playful, witty, couture-level humor with vivid metaphors and unapologetic critique.
               - Be more critical: call out mismatches, fit issues, cheap-looking textures, and styling misses with a cheeky, clever tone.
@@ -518,23 +563,23 @@ export default function OutfitRatingScreen() {
               - Keep it concise per OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
-              ${selectedCategory !== 'rate' ? `${isPremiumLike ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${selectedCategory} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${selectedCategory}.` : `Do NOT include improvement suggestions in the output.`}
+              ${categoryToUse !== 'rate' ? `${isPremiumLike ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}.` : `Do NOT include improvement suggestions in the output.`}
               
               Format your response as JSON:
               {
-                "style": "detailed analysis (respect the OUTPUT LENGTH POLICY) of how well the outfit achieves the ${selectedCategory} aesthetic with specific references to ${selectedCategory} style elements",
-                "colorCoordination": "analysis (respect the OUTPUT LENGTH POLICY) of colors and their harmony for the ${selectedCategory} style specifically",
-                "accessories": "commentary (respect the OUTPUT LENGTH POLICY) on accessories and their contribution to the ${selectedCategory} look specifically",
-                "harmony": "overall harmony (respect the OUTPUT LENGTH POLICY) and cohesiveness assessment for the ${selectedCategory} aesthetic specifically",
+                "style": "detailed analysis (respect the OUTPUT LENGTH POLICY) of how well the outfit achieves the ${categoryToUse} aesthetic with specific references to ${categoryToUse} style elements",
+                "colorCoordination": "analysis (respect the OUTPUT LENGTH POLICY) of colors and their harmony for the ${categoryToUse} style specifically",
+                "accessories": "commentary (respect the OUTPUT LENGTH POLICY) on accessories and their contribution to the ${categoryToUse} look specifically",
+                "harmony": "overall harmony (respect the OUTPUT LENGTH POLICY) and cohesiveness assessment for the ${categoryToUse} aesthetic specifically",
                 "score": number_out_of_12${isPremiumLike ? `,
-                "suggestions": ["specific ${selectedCategory}-focused improvement suggestion 1", "specific ${selectedCategory}-focused improvement suggestion 2", "specific ${selectedCategory}-focused improvement suggestion 3"]` : ''}
+                "suggestions": ["specific ${categoryToUse}-focused improvement suggestion 1", "specific ${categoryToUse}-focused improvement suggestion 2", "specific ${categoryToUse}-focused improvement suggestion 3"]` : ''}
               }` : ''}`
             },
             { role: 'system', content: `All outputs MUST be in ${language === 'tr' ? 'Turkish' : 'English'}. Use this language for every field and sentence.` },
             {
               role: 'user',
               content: [
-                { type: 'text', text: `Please analyze this outfit for the "${selectedCategory}" style category and rate it out of 12. The image has been privacy-protected with face masking. Respond in ${language === 'tr' ? 'Turkish' : 'English'} only.` },
+                { type: 'text', text: `Please analyze this outfit for the "${categoryToUse}" style category and rate it out of 12. The image has been privacy-protected with face masking. Respond in ${language === 'tr' ? 'Turkish' : 'English'} only.` },
                 { type: 'image', image: `data:image/jpeg;base64,${base64Image}` }
               ]
             }
@@ -558,7 +603,7 @@ export default function OutfitRatingScreen() {
             id: Date.now().toString(),
             imageUri: selectedImage,
             maskedImageUri: maskedImage || undefined,
-            category: selectedCategory,
+            category: categoryToUse,
             analysis: analysisData,
             timestamp: Date.now()
           };
@@ -600,7 +645,7 @@ export default function OutfitRatingScreen() {
               id: Date.now().toString(),
               imageUri: selectedImage,
               maskedImageUri: maskedImage || undefined,
-              category: selectedCategory,
+              category: categoryToUse,
               analysis: fallbackAnalysis,
               timestamp: Date.now()
             };
@@ -2188,7 +2233,7 @@ export default function OutfitRatingScreen() {
               
               <TouchableOpacity
                 style={[styles.button, styles.analyzeButton]}
-                onPress={analyzeOutfit}
+                onPress={() => analyzeOutfit()}
                 disabled={isAnalyzing}
               >
                 {isAnalyzing ? (
@@ -2456,7 +2501,7 @@ export default function OutfitRatingScreen() {
                         }
                         setSelectedCategory(category.id);
                         setAnalysis(null);
-                        analyzeOutfit();
+                        analyzeOutfit(category.id);
                       }}
                     >
                       {/* Sixties - Retro Pattern */}
