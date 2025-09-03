@@ -137,20 +137,26 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
       // Load subscription info
       const savedSubscription = await AsyncStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
       if (savedSubscription) {
-        const parsed = JSON.parse(savedSubscription);
-        const sub: UserSubscription = {
-          ...parsed,
-          expiresAt: parsed.expiresAt ? new Date(parsed.expiresAt) : null
-        };
+        try {
+          const parsed = JSON.parse(savedSubscription);
+          const sub: UserSubscription = {
+            ...parsed,
+            expiresAt: parsed.expiresAt ? new Date(parsed.expiresAt) : null
+          };
         
-        // Check if subscription is still active
-        if (sub.expiresAt && sub.expiresAt < new Date()) {
-          sub.tier = 'free';
-          sub.isActive = false;
-          sub.expiresAt = null;
+          // Check if subscription is still active
+          if (sub.expiresAt && sub.expiresAt < new Date()) {
+            sub.tier = 'free';
+            sub.isActive = false;
+            sub.expiresAt = null;
+          }
+          
+          setSubscription(sub);
+        } catch (parseError) {
+          console.error('Error parsing subscription data:', parseError);
+          // Clear corrupted data and reset to default
+          await AsyncStorage.removeItem(STORAGE_KEYS.SUBSCRIPTION);
         }
-        
-        setSubscription(sub);
       }
       
       // Load daily analysis count

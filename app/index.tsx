@@ -190,7 +190,20 @@ export default function OutfitRatingScreen() {
     try {
       const saved = await AsyncStorage.getItem('outfitRatings');
       if (saved) {
-        setSavedRatings(JSON.parse(saved));
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            setSavedRatings(parsed);
+          } else {
+            console.log('Invalid saved ratings format, resetting');
+            setSavedRatings([]);
+          }
+        } catch (parseError) {
+          console.log('Error parsing saved ratings JSON:', parseError);
+          setSavedRatings([]);
+          // Clear corrupted data
+          await AsyncStorage.removeItem('outfitRatings');
+        }
       }
     } catch (error) {
       console.log('Error loading saved ratings:', error);
@@ -590,7 +603,18 @@ export default function OutfitRatingScreen() {
         if (ignoreResponsesRef.current || thisReq !== requestIdRef.current || !isMountedRef.current) {
           return;
         }
-        const analysisData = JSON.parse(data.completion);
+        
+        let analysisData;
+        try {
+          if (!data || !data.completion) {
+            throw new Error('No completion data received');
+          }
+          analysisData = JSON.parse(data.completion);
+        } catch (parseError) {
+          console.log('Error parsing analysis response JSON:', parseError, 'Raw data:', data);
+          throw parseError;
+        }
+        
         setAnalysis(analysisData);
 
         await incrementAnalysisCount();
