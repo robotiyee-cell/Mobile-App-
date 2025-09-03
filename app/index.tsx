@@ -906,74 +906,81 @@ export default function OutfitRatingScreen() {
       const imageUri = maskedImage || selectedImage || '';
       const catColor = getTextColor(selectedCategory ?? 'rate');
       const heading = selectedCategory ? (selectedCategory === 'rate' ? t('allCategories') : t(selectedCategory)) : t('analysisType');
+
+      let inlineBase64 = '';
+      try {
+        if (imageUri) {
+          if (imageUri.startsWith('data:')) {
+            inlineBase64 = imageUri.split(',')[1] ?? '';
+          } else {
+            const base64 = await FileSystem.readAsStringAsync(imageUri, { encoding: FileSystem.EncodingType.Base64 });
+            inlineBase64 = base64;
+          }
+        }
+      } catch (e) {
+        console.log('Failed to embed image base64 for email', e);
+      }
+
       const asHtml = (() => {
         const safe = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         let inner = '';
         if (!analysis) return `<p>${safe(t('noCategoryResults') ?? 'No results')}</p>`;
         if ('results' in (analysis as AllCategoriesAnalysis)) {
           const a = analysis as AllCategoriesAnalysis;
-          inner += `<h2 style="margin:0 0 12px 0;color:${catColor};font-weight:900;">${safe(t('overallStyleScore'))}: ${formatScore(a.overallScore)}/12</h2>`;
-          inner += `<p style="color:${catColor};font-weight:800;line-height:1.6;">${safe(a.overallAnalysis)}</p>`;
-          inner += `<h3 style="margin:16px 0 8px 0;color:#6A1B9A;font-weight:900;">${safe(t('categoryBreakdown7') ?? 'Category breakdown')}</h3>`;
+          inner += `<h2 style=\"margin:0 0 12px 0;color:${catColor};font-weight:900;\">${safe(t('overallStyleScore'))}: ${formatScore(a.overallScore)}/12</h2>`;
+          inner += `<p style=\"color:${catColor};font-weight:800;line-height:1.6;\">${safe(a.overallAnalysis)}</p>`;
+          inner += `<h3 style=\"margin:16px 0 8px 0;color:#6A1B9A;font-weight:900;\">${safe(t('categoryBreakdown7') ?? 'Category breakdown')}</h3>`;
           inner += a.results.map((r) => {
             const rc = getTextColor(r.category as StyleCategory);
-            return `<div style="margin:12px 0 18px 0;">
-              <div style="display:flex;align-items:baseline;gap:6px;">
-                <span style="display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===r.category as any)?.color ?? '#999'}"></span>
-                <span style="font-weight:900;color:${rc};">${safe(t(r.category as string))}</span>
-                <span style="margin-left:auto;color:#FFD700;font-weight:bold;">${formatScore(r.score)}/12</span>
-              </div>
-              <p style="margin:8px 0 0 0;color:${rc};font-weight:800;line-height:1.6;">${safe(r.analysis)}</p>
-              ${Array.isArray(r.suggestions) ? `<ul style="margin:8px 0 0 16px;color:${rc};font-weight:700;">${r.suggestions.map(s=>`<li>${safe(s)}</li>`).join('')}</ul>` : ''}
-            </div>`
+            return `<div style=\"margin:12px 0 18px 0;\">\n              <div style=\"display:flex;align-items:baseline;gap:6px;\">\n                <span style=\"display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===r.category as any)?.color ?? '#999'}\"></span>\n                <span style=\"font-weight:900;color:${rc};\">${safe(t(r.category as string))}</span>\n                <span style=\"margin-left:auto;color:#FFD700;font-weight:bold;\">${formatScore(r.score)}/12</span>\n              </div>\n              <p style=\"margin:8px 0 0 0;color:${rc};font-weight:800;line-height:1.6;\">${safe(r.analysis)}</p>\n              ${Array.isArray(r.suggestions) ? `<ul style=\"margin:8px 0 0 16px;color:${rc};font-weight:700;\">${r.suggestions.map(s=>`<li>${safe(s)}</li>`).join('')}</ul>` : ''}\n            </div>`
           }).join('');
         } else {
           const a = analysis as OutfitAnalysis;
           const rc = getTextColor(selectedCategory as StyleCategory);
-          inner += `<div style="margin:0 0 12px 0;display:flex;align-items:baseline;gap:6px;">
-            <h2 style="margin:0;color:${rc};font-weight:900;">${safe(t('yourStyleScore'))}</h2>
-            <span style="color:#FFD700;font-weight:bold;font-size:20px;">${formatScore(a.score)}/12</span>
-          </div>`;
-          inner += `<h3 style="margin:8px 0 4px 0;color:${rc};font-weight:900;">${safe(t('styleAnalysis'))}</h3>`;
-          inner += `<p style="margin:0;color:${rc};font-weight:700;line-height:1.6;">${safe(a.style)}</p>`;
-          inner += `<h3 style="margin:12px 0 4px 0;color:${rc};font-weight:900;">${safe(t('colorCoordination'))}</h3>`;
-          inner += `<p style="margin:0;color:${rc};font-weight:700;line-height:1.6;">${safe(a.colorCoordination)}</p>`;
-          inner += `<h3 style="margin:12px 0 4px 0;color:${rc};font-weight:900;">${safe(t('accessories'))}</h3>`;
-          inner += `<p style="margin:0;color:${rc};font-weight:700;line-height:1.6;">${safe(a.accessories)}</p>`;
-          inner += `<h3 style="margin:12px 0 4px 0;color:${rc};font-weight:900;">${safe(t('overallHarmony'))}</h3>`;
-          inner += `<p style="margin:0;color:${rc};font-weight:700;line-height:1.6;">${safe(a.harmony)}</p>`;
+          inner += `<div style=\"margin:0 0 12px 0;display:flex;align-items:baseline;gap:6px;\">\n            <h2 style=\"margin:0;color:${rc};font-weight:900;\">${safe(t('yourStyleScore'))}</h2>\n            <span style=\"color:#FFD700;font-weight:bold;font-size:20px;\">${formatScore(a.score)}/12</span>\n          </div>`;
+          inner += `<h3 style=\"margin:8px 0 4px 0;color:${rc};font-weight:900;\">${safe(t('styleAnalysis'))}</h3>`;
+          inner += `<p style=\"margin:0;color:${rc};font-weight:700;line-height:1.6;\">${safe(a.style)}</p>`;
+          inner += `<h3 style=\"margin:12px 0 4px 0;color:${rc};font-weight:900;\">${safe(t('colorCoordination'))}</h3>`;
+          inner += `<p style=\"margin:0;color:${rc};font-weight:700;line-height:1.6;\">${safe(a.colorCoordination)}</p>`;
+          inner += `<h3 style=\"margin:12px 0 4px 0;color:${rc};font-weight:900;\">${safe(t('accessories'))}</h3>`;
+          inner += `<p style=\"margin:0;color:${rc};font-weight:700;line-height:1.6;\">${safe(a.accessories)}</p>`;
+          inner += `<h3 style=\"margin:12px 0 4px 0;color:${rc};font-weight:900;\">${safe(t('overallHarmony'))}</h3>`;
+          inner += `<p style=\"margin:0;color:${rc};font-weight:700;line-height:1.6;\">${safe(a.harmony)}</p>`;
           if (Array.isArray(a.suggestions)) {
-            inner += `<h3 style="margin:16px 0 8px 0;color:#1a1a1a;font-weight:900;">${safe(t('improvementSuggestions'))}</h3>`;
-            inner += `<ul style="margin:0 0 0 16px;color:${rc};font-weight:700;">${a.suggestions.map(s=>`<li>${safe(s)}</li>`).join('')}</ul>`;
+            inner += `<h3 style=\"margin:16px 0 8px 0;color:#1a1a1a;font-weight:900;\">${safe(t('improvementSuggestions'))}</h3>`;
+            inner += `<ul style=\"margin:0 0 0 16px;color:${rc};font-weight:700;\">${a.suggestions.map(s=>`<li>${safe(s)}</li>`).join('')}</ul>`;
           }
         }
-        const imgHtml = imageUri ? `<div style="margin:16px 0;"><em style="color:#999;">${safe(t('faceProtected') ?? '')}</em><br/><a href="${safe(imageUri)}" style="color:#FF1493;">${safe(t('viewImage') ?? 'View image')}</a></div>` : '';
-        return `<!doctype html><html><body style="font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; background:#FFE4E6; padding:16px;">
-          <div style="max-width:720px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;">
-            <h1 style="margin:0 0 4px 0;color:#9B59B6;font-style:italic;font-weight:900;">${safe(t('appName'))}</h1>
-            <div style="display:inline-flex;align-items:center;gap:8px;margin:4px 0 16px 0;background:rgba(255,215,0,0.2);padding:4px 8px;border-radius:12px;color:#FFD700;font-weight:900;font-size:12px;">
-              <span>${safe(t('currentPlan') ?? 'Current Plan')}</span>
-              <span>${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-              <span style="display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===selectedCategory)?.color ?? '#FFD700'}"></span>
-              <span style="font-weight:700;color:#1a1a1a;">${safe(t('selectedStyle'))}: ${safe(heading)}</span>
-            </div>
-            ${inner}
-            ${imgHtml}
-          </div>
-        </body></html>`;
+        const imgHtml = inlineBase64 ? `<div style=\"margin:16px 0;\"><em style=\"color:#999;\">${safe(t('faceProtected') ?? '')}</em><br/><img alt=\"analyzed-outfit\" src=\"data:image/jpeg;base64,${inlineBase64}\" style=\"max-width:100%;border-radius:12px;border:1px solid #eee;\"/></div>` : '';
+        return `<!doctype html><html><body style=\"font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; background:#FFE4E6; padding:16px;\">\n          <div style=\"max-width:720px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;\">\n            <h1 style=\"margin:0 0 4px 0;color:#9B59B6;font-style:italic;font-weight:900;\">${safe(t('appName'))}</h1>\n            <div style=\"display:inline-flex;align-items:center;gap:8px;margin:4px 0 16px 0;background:rgba(255,215,0,0.2);padding:4px 8px;border-radius:12px;color:#FFD700;font-weight:900;font-size:12px;\">\n              <span>${safe(t('currentPlan') ?? 'Current Plan')}</span>\n              <span>${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</span>\n            </div>\n            <div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px;\">\n              <span style=\"display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===selectedCategory)?.color ?? '#FFD700'}\"></span>\n              <span style=\"font-weight:700;color:#1a1a1a;\">${safe(t('selectedStyle'))}: ${safe(heading)}</span>\n            </div>\n            ${inner}\n            ${imgHtml}\n          </div>\n        </body></html>`;
       })();
 
-      const subject = encodeURIComponent('Outfit AI Analysis');
-      const body = encodeURIComponent(asHtml);
-      const mailto = `mailto:robotiyee@gmail.com?subject=${subject}&body=${body}`;
-      const can = await Linking.canOpenURL(mailto);
-      if (can) {
-        await Linking.openURL(mailto);
-      } else {
-        Alert.alert(t('error'), 'Unable to open email client');
+      if (Platform.OS === 'web') {
+        try {
+          const blob = new Blob([asHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `outfit-analysis-${Date.now()}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          Alert.alert(t('exported') ?? 'Exported', t('htmlDownloaded') ?? 'HTML downloaded. Attach it to your email.');
+        } catch (e) {
+          Alert.alert(t('error'), 'Web export failed');
+        }
+        return;
       }
+
+      const dir = FileSystem.documentDirectory ?? FileSystem.cacheDirectory ?? undefined;
+      if (!dir) {
+        await Share.share({ message: asHtml });
+        return;
+      }
+      const path = `${dir}outfit-analysis-${Date.now()}.html`;
+      await FileSystem.writeAsStringAsync(path, asHtml, { encoding: FileSystem.EncodingType.UTF8 });
+      await Share.share({ url: path });
     } catch {
       Alert.alert(t('error'), 'Email failed');
     }
@@ -2511,6 +2518,7 @@ export default function OutfitRatingScreen() {
                         category.id === 'naive' && styles.naiveCategoryCard,
                         category.id === 'trendy' && styles.trendyCategoryCard,
                         category.id === 'anime' && styles.animeCategoryCard,
+                        category.id === 'sarcastic' && styles.sarcasticCategoryCard,
                         category.id === 'rate' && styles.rateCategoryCard
                       ]}
                       onPress={() => {
@@ -2620,6 +2628,19 @@ export default function OutfitRatingScreen() {
                           />
                           <View style={styles.categoryIconContainer}>
                             <Gamepad2 size={14} color="white" style={styles.categoryIcon} />
+                          </View>
+                        </>
+                      )}
+
+                      {/* Sarcastic - Designer Roast */}
+                      {category.id === 'sarcastic' && (
+                        <>
+                          <LinearGradient
+                            colors={['#39FF14', '#00FF7F', '#00E676']}
+                            style={styles.categoryBackgroundGradient}
+                          />
+                          <View style={styles.categoryIconContainer}>
+                            <Scissors size={14} color="white" style={styles.categoryIcon} />
                           </View>
                         </>
                       )}
