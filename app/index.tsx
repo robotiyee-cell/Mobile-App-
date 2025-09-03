@@ -20,7 +20,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings, Scissors, TrendingUp } from 'lucide-react-native';
+import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings, Scissors, TrendingUp, Home } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
@@ -315,7 +315,7 @@ export default function OutfitRatingScreen() {
       const controller = new AbortController();
       currentAbortRef.current = controller;
 
-      const lengthPolicy = subscription.tier === 'ultimate' ? 'long' : subscription.tier === 'premium' ? 'medium' : 'short';
+      const lengthPolicy = subscription.tier === 'ultimate' ? 'very long' : subscription.tier === 'premium' ? 'long' : subscription.tier === 'basic' ? 'medium' : 'short';
 
       const response = await fetch('https://toolkit.rork.com/text/llm/', {
         method: 'POST',
@@ -1572,6 +1572,13 @@ export default function OutfitRatingScreen() {
             testID="btn-history"
           >
             <History size={20} color="#1a1a1a" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => { resetApp(); setShowHistory(false); }}
+            testID="btn-home"
+          >
+            <Home size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}

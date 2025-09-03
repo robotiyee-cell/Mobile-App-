@@ -323,7 +323,7 @@ const translations = {
     viewTrendInsights: 'Trend İçgörülerini Görüntüle',
     generatingTrends: 'Trend içgörüleri oluşturuluyor...',
     emailSupport: 'E-Posta',
-    export: 'Export',
+    export: 'Dışa Aktar',
     exportAnalysis: 'Analizi Dışa Aktar',
     
     // Buttons
