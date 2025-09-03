@@ -122,6 +122,7 @@ export default function OutfitRatingScreen() {
   const [trendText, setTrendText] = useState<string>('');
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t, language } = useLanguage();
+  const isPremiumLike = subscription.tier === 'premium' || subscription.tier === 'ultimate';
 
   useEffect(() => {
     loadSavedRatings();
@@ -457,20 +458,20 @@ export default function OutfitRatingScreen() {
               For EACH of the 7 categories (sexy, elegant, casual, naive, trendy, anime, sixties), you must provide:
               - Individual score out of 12 based on how well the outfit fits that SPECIFIC category
               - Detailed analysis of how the outfit performs in that SPECIFIC category (respect the OUTPUT LENGTH POLICY)
-              - 2-3 category-specific suggestions for improvement
+
               
               IMPORTANT: Each category should have DIFFERENT scores and DIFFERENT analysis based on how the outfit fits that particular style aesthetic.
               
               You MUST return results in this EXACT JSON format with ALL 7 categories:
               {
                 "results": [
-                  { "category": "sexy", "score": number_out_of_12, "analysis": "...", "suggestions": ["...","...","..."] },
-                  { "category": "elegant", "score": number_out_of_12, "analysis": "...", "suggestions": ["...","...","..."] },
-                  { "category": "casual", "score": number_out_of_12, "analysis": "...", "suggestions": ["...","...","..."] },
-                  { "category": "naive", "score": number_out_of_12, "analysis": "...", "suggestions": ["...","...","..."] },
-                  { "category": "trendy", "score": number_out_of_12, "analysis": "...", "suggestions": ["...","...","..."] },
-                  { "category": "anime", "score": number_out_of_12, "analysis": "...", "suggestions": ["...","...","..."] },
-                  { "category": "sixties", "score": number_out_of_12, "analysis": "...", "suggestions": ["...","...","..."] }
+                  { "category": "sexy", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "elegant", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "casual", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "naive", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "trendy", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "anime", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "sixties", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} }
                 ],
                 "overallScore": average_of_all_7_scores,
                 "overallAnalysis": "comprehensive summary respecting the OUTPUT LENGTH POLICY"
@@ -510,7 +511,7 @@ export default function OutfitRatingScreen() {
               - Keep it concise per OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
-              ${selectedCategory !== 'rate' ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${selectedCategory} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${selectedCategory}.
+              ${selectedCategory !== 'rate' ? `${isPremiumLike ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${selectedCategory} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${selectedCategory}.` : `Do NOT include improvement suggestions in the output.`}
               
               Format your response as JSON:
               {
@@ -518,8 +519,8 @@ export default function OutfitRatingScreen() {
                 "colorCoordination": "analysis (respect the OUTPUT LENGTH POLICY) of colors and their harmony for the ${selectedCategory} style specifically",
                 "accessories": "commentary (respect the OUTPUT LENGTH POLICY) on accessories and their contribution to the ${selectedCategory} look specifically",
                 "harmony": "overall harmony (respect the OUTPUT LENGTH POLICY) and cohesiveness assessment for the ${selectedCategory} aesthetic specifically",
-                "score": number_out_of_12,
-                "suggestions": ["specific ${selectedCategory}-focused improvement suggestion 1", "specific ${selectedCategory}-focused improvement suggestion 2", "specific ${selectedCategory}-focused improvement suggestion 3"]
+                "score": number_out_of_12${isPremiumLike ? `,
+                "suggestions": ["specific ${selectedCategory}-focused improvement suggestion 1", "specific ${selectedCategory}-focused improvement suggestion 2", "specific ${selectedCategory}-focused improvement suggestion 3"]` : ''}
               }` : ''}`
             },
             { role: 'system', content: `All outputs MUST be in ${language === 'tr' ? 'Turkish' : 'English'}. Use this language for every field and sentence.` },
@@ -2248,20 +2249,17 @@ export default function OutfitRatingScreen() {
                                 </View>
                               </View>
                               <Text style={[styles.categoryResultAnalysis, { color: getTextColor(result.category as StyleCategory), fontWeight: '800' }]}>{result.analysis || 'No analysis available'}</Text>
-                              <View style={styles.categorySuggestions}>
-                                <Text style={styles.suggestionsSubtitle}>{(t('suggestionsFor') ?? '').replace('{category}', t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? (result.category || '')))))}</Text>
-                                {result.suggestions && Array.isArray(result.suggestions) ? result.suggestions.map((suggestion, suggestionIndex) => (
-                                  <View key={suggestionIndex} style={styles.suggestionItem}>
-                                    <View style={styles.suggestionBullet} />
-                                    <Text style={[styles.suggestionText, { color: getTextColor(result.category as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
-                                  </View>
-                                )) : (
-                                  <View style={styles.suggestionItem}>
-                                    <View style={styles.suggestionBullet} />
-                                    <Text style={[styles.suggestionText, { color: getTextColor(result.category as StyleCategory), fontWeight: '700' }]}>No suggestions available</Text>
-                                  </View>
-                                )}
-                              </View>
+                              {isPremiumLike ? (
+                                <View style={styles.categorySuggestions}>
+                                  <Text style={styles.suggestionsSubtitle}>{(t('suggestionsFor') ?? '').replace('{category}', t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? (result.category || '')))))}</Text>
+                                  {result.suggestions && Array.isArray(result.suggestions) ? result.suggestions.map((suggestion: string, suggestionIndex: number) => (
+                                    <View key={suggestionIndex} style={styles.suggestionItem}>
+                                      <View style={styles.suggestionBullet} />
+                                      <Text style={[styles.suggestionText, { color: getTextColor(result.category as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
+                                    </View>
+                                  )) : null}
+                                </View>
+                              ) : null}
                             </View>
                           );
                         }).filter(Boolean)
@@ -2318,18 +2316,20 @@ export default function OutfitRatingScreen() {
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).harmony}</Text>
                     </View>
                     
-                    <View style={styles.suggestionsSection}>
-                      <View style={styles.suggestionsHeader}>
-                        <Lightbulb size={20} color="#FFD700" />
-                        <Text style={styles.suggestionsTitle}>{t('improvementSuggestions')}</Text>
-                      </View>
-                      {(analysis as OutfitAnalysis).suggestions?.map((suggestion, index) => (
-                        <View key={index} style={styles.suggestionItem}>
-                          <View style={styles.suggestionBullet} />
-                          <Text style={[styles.suggestionText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
+                    {isPremiumLike ? (
+                      <View style={styles.suggestionsSection}>
+                        <View style={styles.suggestionsHeader}>
+                          <Lightbulb size={20} color="#FFD700" />
+                          <Text style={styles.suggestionsTitle}>{t('improvementSuggestions')}</Text>
                         </View>
-                      ))}
-                    </View>
+                        {(analysis as OutfitAnalysis).suggestions?.map && (analysis as OutfitAnalysis).suggestions?.map((suggestion: string, index: number) => (
+                          <View key={index} style={styles.suggestionItem}>
+                            <View style={styles.suggestionBullet} />
+                            <Text style={[styles.suggestionText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : null}
                   </View>
                 </>
               )}
