@@ -319,7 +319,7 @@ const translations = {
     trendInsights: 'Trend İçgörüleri',
     viewTrendInsights: 'Trend İçgörülerini Görüntüle',
     generatingTrends: 'Trend içgörüleri oluşturuluyor...',
-    emailSupport: 'E-posta Desteği',
+    emailSupport: 'E-Posta',
     export: 'Export',
     exportAnalysis: 'Analizi Dışa Aktar',
     
