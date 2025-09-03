@@ -2374,7 +2374,7 @@ export default function OutfitRatingScreen() {
                   testID="btn-email-support"
                 >
                   <Upload size={20} color="white" />
-                  <Text style={styles.buttonText}>{t('emailSupport')}</Text>
+                  <Text style={[styles.buttonText, styles.emailButtonText]} numberOfLines={2}>{t('emailSupport')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.newPhotoButton]}
@@ -3399,6 +3399,12 @@ const styles = StyleSheet.create({
   emailButton: {
     backgroundColor: '#87CEEB',
     flex: 1,
+  },
+  emailButtonText: {
+    fontSize: 14,
+    lineHeight: 16,
+    textAlign: 'center',
+    paddingHorizontal: 4,
   },
   
   // Style category section below results
