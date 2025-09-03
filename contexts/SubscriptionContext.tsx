@@ -234,21 +234,26 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     try {
       setIsLoading(true);
       
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const current = SUBSCRIPTION_PLANS.find(p => p.id === subscription.tier);
+      const target = SUBSCRIPTION_PLANS.find(p => p.id === planId);
+      if (!target) return false;
+
+      const isDowngradeOrSame = current && current.price >= target.price;
+
+      if (!isDowngradeOrSame) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
       
-      // In a real app, this would integrate with payment providers like Stripe, Apple Pay, etc.
-      const plan = SUBSCRIPTION_PLANS.find(p => p.id === planId);
-      if (!plan) return false;
+      const plan = target;
       
-      const expiresAt = planId === 'free' ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+      const expiresAt = planId === 'free' ? null : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
       
       const newSubscription: UserSubscription = {
         tier: planId,
         expiresAt,
         isActive: true,
-        analysesUsed: 0,
-        analysesRemaining: plan.maxAnalyses === -1 ? -1 : plan.maxAnalyses
+        analysesUsed: subscription.analysesUsed,
+        analysesRemaining: plan.maxAnalyses === -1 ? -1 : Math.max(0, plan.maxAnalyses - subscription.analysesUsed)
       };
       
       setSubscription(newSubscription);
@@ -261,7 +266,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     } finally {
       setIsLoading(false);
     }
-  }, [saveSubscriptionData]);
+  }, [saveSubscriptionData, subscription.analysesUsed, subscription.tier]);
 
   const cancelSubscription = useCallback(async () => {
     try {

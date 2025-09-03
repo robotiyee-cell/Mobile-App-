@@ -2224,7 +2224,7 @@ export default function OutfitRatingScreen() {
               <View style={styles.subscriptionStatusCard}>
                 <View style={styles.subscriptionStatusHeader}>
                   <View style={styles.subscriptionStatusLeft}>
-                    <Crown size={16} color="#FFD700" />
+                    <Crown size={12} color="#FFD700" />
                     <Text style={styles.subscriptionStatusTitle}>{t('currentPlan') ?? 'Current Plan'}</Text>
                   </View>
                   <Text style={styles.subscriptionStatusText}>{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Text>
@@ -2289,7 +2289,9 @@ export default function OutfitRatingScreen() {
                                   </View>
                                 </View>
                               </View>
-                              <Text style={[styles.categoryResultAnalysis, { color: getTextColor(result.category as StyleCategory), fontWeight: '800' }]}>{result.analysis || 'No analysis available'}</Text>
+                              <View style={{ width: '100%' }}>
+                                <Text style={[styles.categoryResultAnalysis, { color: getTextColor(result.category as StyleCategory), fontWeight: '800' }]}>{result.analysis || 'No analysis available'}</Text>
+                              </View>
                               {isPremiumLike ? (
                                 <View style={styles.categorySuggestions}>
                                   <Text style={styles.suggestionsSubtitle}>{(t('suggestionsFor') ?? '').replace('{category}', t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? (result.category || '')))))}</Text>
@@ -3518,7 +3520,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.42)',
     zIndex: 2,
   },
   
@@ -3607,21 +3609,21 @@ const styles = StyleSheet.create({
   
   // Subscription status card
   subscriptionStatusCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    shadowColor: '#FF69B4',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: 'transparent',
+    borderRadius: 0,
+    padding: 4,
+    marginBottom: 8,
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   subscriptionStatusHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 0,
   },
   subscriptionStatusLeft: {
     flexDirection: 'row',
@@ -3629,13 +3631,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   subscriptionStatusTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFD700',
   },
   subscriptionStatusText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 10,
+    color: '#FFD700',
+    fontWeight: '900',
   },
   upgradeButton: {
     backgroundColor: '#FF69B4',
@@ -3776,9 +3779,9 @@ const styles = StyleSheet.create({
   categoryResultCard: {
     backgroundColor: 'transparent',
     borderRadius: 20,
-    padding: 32,
+    padding: 20,
     marginBottom: 20,
-    minHeight: 400,
+    minHeight: 320,
     width: '100%',
     shadowColor: '#FF69B4',
     shadowOffset: { width: 0, height: 4 },
@@ -3856,7 +3859,7 @@ const styles = StyleSheet.create({
     color: '#555',
     lineHeight: 24,
     marginBottom: 18,
-    paddingHorizontal: 6,
+    paddingHorizontal: 0,
     textAlign: 'left',
     width: '100%',
     flexWrap: 'wrap',

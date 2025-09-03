@@ -45,6 +45,8 @@ export default function SubscriptionScreen() {
   const [cardNumber, setCardNumber] = useState<string>('');
   const [expiry, setExpiry] = useState<string>('');
   const [cvc, setCvc] = useState<string>('');
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [rememberedEmail, setRememberedEmail] = useState<string | null>(null);
   const [isRememberedUser, setIsRememberedUser] = useState<boolean>(false);
@@ -73,6 +75,14 @@ export default function SubscriptionScreen() {
         return false;
       }
     }
+    if (!firstName || firstName.trim().length < 2) {
+      setFieldError(t('firstName'));
+      return false;
+    }
+    if (!lastName || lastName.trim().length < 2) {
+      setFieldError(t('lastName'));
+      return false;
+    }
     if (!cardNumber || cardNumber.replace(/\s/g, '').length < 12) {
       setFieldError(t('cardNumber'));
       return false;
@@ -87,7 +97,7 @@ export default function SubscriptionScreen() {
     }
     setFieldError(null);
     return true;
-  }, [email, password, cardNumber, expiry, cvc, t, isRememberedUser]);
+  }, [email, password, firstName, lastName, cardNumber, expiry, cvc, t, isRememberedUser]);
 
   useEffect(() => {
     const loadRemembered = async () => {
@@ -104,14 +114,16 @@ export default function SubscriptionScreen() {
   }, []);
 
   const openCheckout = useCallback(async (planId: SubscriptionTier) => {
-    if (planId === 'free') {
+    const targetPlan = plans.find(p => p.id === planId);
+    const currentPlan = plans.find(p => p.id === subscription.tier);
+    if (planId === 'free' || (targetPlan && currentPlan && targetPlan.price <= currentPlan.price)) {
       try {
         setIsSubscribing(true);
-        const ok = await subscribeTo('free');
+        const ok = await subscribeTo(planId);
         if (ok) {
           Alert.alert(
             t('successTitle'),
-            t('successWelcome').replace('{plan}', t('freePlan')),
+            t('successWelcome').replace('{plan}', t(planId + 'Plan')),
             [{ text: t('continue'), onPress: () => router.back() }]
           );
         } else {
@@ -126,7 +138,7 @@ export default function SubscriptionScreen() {
     }
     setSelectedPlan(planId);
     setCheckoutVisible(true);
-  }, [subscribeTo, t]);
+  }, [plans, subscribeTo, t, subscription.tier]);
 
   const handleSubscribe = async (planId: SubscriptionTier) => {
     if (planId === 'free') {
@@ -518,11 +530,31 @@ export default function SubscriptionScreen() {
                   />
                 </>
               )}
+              <View style={styles.row}>
+                <TextInput
+                  placeholder={t('firstName')}
+                  placeholderTextColor="#999"
+                  style={[styles.input, styles.inputHalf]}
+                  autoCapitalize="words"
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  testID="firstNameInput"
+                />
+                <TextInput
+                  placeholder={t('lastName')}
+                  placeholderTextColor="#999"
+                  style={[styles.input, styles.inputHalf]}
+                  autoCapitalize="words"
+                  value={lastName}
+                  onChangeText={setLastName}
+                  testID="lastNameInput"
+                />
+              </View>
               <TextInput
                 placeholder={t('cardNumber')}
                 placeholderTextColor="#999"
                 style={styles.input}
-                keyboardType="number-pad"
+                keyboardType={Platform.OS === 'web' ? 'default' : 'number-pad'}
                 value={cardNumber}
                 onChangeText={setCardNumber}
                 contextMenuHidden={false}
