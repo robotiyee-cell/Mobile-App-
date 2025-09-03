@@ -76,7 +76,7 @@ const STYLE_CATEGORIES: CategoryOption[] = [
   { id: 'trendy', label: 'Trendy', description: 'Fashion-forward, current, stylish', color: '#98D8C8' },
   { id: 'anime', label: 'Anime', description: 'Kawaii, colorful, playful', color: '#FF69B4' },
   { id: 'sixties', label: '60\'s', description: 'Retro, mod, vintage vibes', color: '#9B59B6' },
-  { id: 'sarcastic', label: 'Designer Roast', description: 'Sarcastic critique in a famed designer tone', color: '#FF3D00' },
+  { id: 'sarcastic', label: 'Designer Roast', description: 'Sarcastic critique in a famed designer tone', color: '#39FF14' },
   { id: 'rate', label: 'All', description: 'All categories with 7 results', color: '#FFD700' },
 ];
 
@@ -88,7 +88,7 @@ const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
   trendy: '#1E90FF',
   anime: '#C2185B',
   sixties: '#6A1B9A',
-  sarcastic: '#FF3D00',
+  sarcastic: '#39FF14',
   rate: '#6A1B9A',
 } as const;
 
@@ -1905,7 +1905,7 @@ export default function OutfitRatingScreen() {
                     {category.id === 'sarcastic' && (
                       <>
                         <LinearGradient
-                          colors={['#FF7043', '#FF3D00', '#D84315']}
+                          colors={['#39FF14', '#00FF7F', '#00E676']}
                           style={styles.categoryBackgroundGradient}
                         />
                         <View style={styles.categoryIconContainer}>
@@ -1940,7 +1940,7 @@ export default function OutfitRatingScreen() {
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                        category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedCategoryLabel,
                       isDisabled && styles.disabledCategoryLabel
-                    ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}{isPremiumFeature && !hasAccess && ' 🔒'}</Text>
+                    ]}>{`${t(category.id === 'rate' ? 'allCategories' : category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}{isPremiumFeature && !hasAccess && ' 🔒'}</Text>
                     <Text style={[
                       styles.categoryDescription,
                       category.id === 'sixties' && styles.sixtiesCategoryDescription,
@@ -2100,7 +2100,7 @@ export default function OutfitRatingScreen() {
                       category.id === 'sixties' && styles.sixtiesCategoryLabel,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                        category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic') && styles.themedCategoryLabel
-                    ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}</Text>
+                    ]}>{`${t(category.id === 'rate' ? 'allCategories' : category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}</Text>
                     <Text style={[
                       styles.categoryDescription,
                       category.id === 'sixties' && styles.sixtiesCategoryDescription,
@@ -2547,7 +2547,7 @@ export default function OutfitRatingScreen() {
                         category.id === 'sixties' && styles.sixtiesCategoryLabel,
                         (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                          category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedCategoryLabel
-                      ]}>{t(category.id === 'rate' ? 'allCategories' : category.id)}</Text>
+                      ]}>{`${t(category.id === 'rate' ? 'allCategories' : category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}</Text>
                       <Text style={[
                         styles.categoryDescription,
                         styles.compactCategoryDescription,
@@ -3336,6 +3336,7 @@ const styles = StyleSheet.create({
   sarcasticCategoryCard: {
     position: 'relative',
     overflow: 'hidden',
+    backgroundColor: 'rgba(57, 255, 20, 0.15)',
   },
   rateCategoryCard: {
     position: 'relative',
