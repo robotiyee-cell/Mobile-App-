@@ -137,14 +137,11 @@ export default function OutfitRatingScreen() {
     const handleStateChange = (nextState: AppStateStatus) => {
       const active = nextState === 'active';
       setIsAppActive(active);
-      ignoreResponsesRef.current = !active;
+      ignoreResponsesRef.current = false;
 
       if (!active) {
         if (isAnalyzingRef.current) {
           setShouldResume(true);
-          if (currentAbortRef.current) {
-            try { currentAbortRef.current.abort(); } catch {}
-          }
         }
       } else if (active) {
         if (shouldResume && selectedImage && selectedCategory && !isAnalyzing) {

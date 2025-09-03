@@ -80,7 +80,7 @@ export default function SubscriptionScreen() {
       return false;
     }
     if (!lastName || lastName.trim().length < 2) {
-      setFieldError(t('lastName'));
+      setFieldError(t('surname'));
       return false;
     }
     if (!cardNumber || cardNumber.replace(/\s/g, '').length < 12) {
@@ -541,7 +541,7 @@ export default function SubscriptionScreen() {
                   testID="firstNameInput"
                 />
                 <TextInput
-                  placeholder={t('lastName')}
+                  placeholder={t('surname')}
                   placeholderTextColor="#999"
                   style={[styles.input, styles.inputHalf]}
                   autoCapitalize="words"
