@@ -22,7 +22,6 @@ import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings, Scissors, TrendingUp, Home } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -904,29 +903,70 @@ export default function OutfitRatingScreen() {
 
   const emailSupport = async () => {
     try {
-      const content = buildExportText();
-      const imageUri = maskedImage || selectedImage;
-      if (Platform.OS !== 'web' && imageUri) {
-        try {
-          await Share.share({
-            message: content || '',
-            url: imageUri,
-          });
-          return;
-        } catch {}
-      }
-      const subject = encodeURIComponent('Outfit AI Support');
-      const bodyParts: string[] = [];
-      if (content) bodyParts.push(content);
-      if (imageUri && Platform.OS === 'web') {
-        bodyParts.push('\n\nImage data URL (paste into browser if needed):');
-        if (imageUri.startsWith('data:')) {
-          bodyParts.push(imageUri);
+      const imageUri = maskedImage || selectedImage || '';
+      const catColor = getTextColor(selectedCategory ?? 'rate');
+      const heading = selectedCategory ? (selectedCategory === 'rate' ? t('allCategories') : t(selectedCategory)) : t('analysisType');
+      const asHtml = (() => {
+        const safe = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let inner = '';
+        if (!analysis) return `<p>${safe(t('noCategoryResults') ?? 'No results')}</p>`;
+        if ('results' in (analysis as AllCategoriesAnalysis)) {
+          const a = analysis as AllCategoriesAnalysis;
+          inner += `<h2 style="margin:0 0 12px 0;color:${catColor};font-weight:900;">${safe(t('overallStyleScore'))}: ${formatScore(a.overallScore)}/12</h2>`;
+          inner += `<p style="color:${catColor};font-weight:800;line-height:1.6;">${safe(a.overallAnalysis)}</p>`;
+          inner += `<h3 style="margin:16px 0 8px 0;color:#6A1B9A;font-weight:900;">${safe(t('categoryBreakdown7') ?? 'Category breakdown')}</h3>`;
+          inner += a.results.map((r) => {
+            const rc = getTextColor(r.category as StyleCategory);
+            return `<div style="margin:12px 0 18px 0;">
+              <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===r.category as any)?.color ?? '#999'}"></span>
+                <span style="font-weight:900;color:${rc};">${safe(t(r.category as string))}</span>
+                <span style="margin-left:auto;color:#FFD700;font-weight:bold;">${formatScore(r.score)}/12</span>
+              </div>
+              <p style="margin:8px 0 0 0;color:${rc};font-weight:800;line-height:1.6;">${safe(r.analysis)}</p>
+              ${Array.isArray(r.suggestions) ? `<ul style="margin:8px 0 0 16px;color:${rc};font-weight:700;">${r.suggestions.map(s=>`<li>${safe(s)}</li>`).join('')}</ul>` : ''}
+            </div>`
+          }).join('');
         } else {
-          bodyParts.push(imageUri);
+          const a = analysis as OutfitAnalysis;
+          const rc = getTextColor(selectedCategory as StyleCategory);
+          inner += `<div style="margin:0 0 12px 0;display:flex;align-items:baseline;gap:6px;">
+            <h2 style="margin:0;color:${rc};font-weight:900;">${safe(t('yourStyleScore'))}</h2>
+            <span style="color:#FFD700;font-weight:bold;font-size:20px;">${formatScore(a.score)}/12</span>
+          </div>`;
+          inner += `<h3 style="margin:8px 0 4px 0;color:${rc};font-weight:900;">${safe(t('styleAnalysis'))}</h3>`;
+          inner += `<p style="margin:0;color:${rc};font-weight:700;line-height:1.6;">${safe(a.style)}</p>`;
+          inner += `<h3 style="margin:12px 0 4px 0;color:${rc};font-weight:900;">${safe(t('colorCoordination'))}</h3>`;
+          inner += `<p style="margin:0;color:${rc};font-weight:700;line-height:1.6;">${safe(a.colorCoordination)}</p>`;
+          inner += `<h3 style="margin:12px 0 4px 0;color:${rc};font-weight:900;">${safe(t('accessories'))}</h3>`;
+          inner += `<p style="margin:0;color:${rc};font-weight:700;line-height:1.6;">${safe(a.accessories)}</p>`;
+          inner += `<h3 style="margin:12px 0 4px 0;color:${rc};font-weight:900;">${safe(t('overallHarmony'))}</h3>`;
+          inner += `<p style="margin:0;color:${rc};font-weight:700;line-height:1.6;">${safe(a.harmony)}</p>`;
+          if (Array.isArray(a.suggestions)) {
+            inner += `<h3 style="margin:16px 0 8px 0;color:#1a1a1a;font-weight:900;">${safe(t('improvementSuggestions'))}</h3>`;
+            inner += `<ul style="margin:0 0 0 16px;color:${rc};font-weight:700;">${a.suggestions.map(s=>`<li>${safe(s)}</li>`).join('')}</ul>`;
+          }
         }
-      }
-      const body = encodeURIComponent(bodyParts.join('\n'));
+        const imgHtml = imageUri ? `<div style="margin:16px 0;"><em style="color:#999;">${safe(t('faceProtected') ?? '')}</em><br/><a href="${safe(imageUri)}" style="color:#FF1493;">${safe(t('viewImage') ?? 'View image')}</a></div>` : '';
+        return `<!doctype html><html><body style="font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; background:#FFE4E6; padding:16px;">
+          <div style="max-width:720px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;">
+            <h1 style="margin:0 0 4px 0;color:#9B59B6;font-style:italic;font-weight:900;">${safe(t('appName'))}</h1>
+            <div style="display:inline-flex;align-items:center;gap:8px;margin:4px 0 16px 0;background:rgba(255,215,0,0.2);padding:4px 8px;border-radius:12px;color:#FFD700;font-weight:900;font-size:12px;">
+              <span>${safe(t('currentPlan') ?? 'Current Plan')}</span>
+              <span>${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===selectedCategory)?.color ?? '#FFD700'}"></span>
+              <span style="font-weight:700;color:#1a1a1a;">${safe(t('selectedStyle'))}: ${safe(heading)}</span>
+            </div>
+            ${inner}
+            ${imgHtml}
+          </div>
+        </body></html>`;
+      })();
+
+      const subject = encodeURIComponent('Outfit AI Analysis');
+      const body = encodeURIComponent(asHtml);
       const mailto = `mailto:robotiyee@gmail.com?subject=${subject}&body=${body}`;
       const can = await Linking.canOpenURL(mailto);
       if (can) {
@@ -1797,13 +1837,13 @@ export default function OutfitRatingScreen() {
             <Image source={{ uri: selectedImage }} style={styles.image} />
             <View style={styles.faceMaskOverlay}>
               {Platform.OS !== 'web' ? (
-                <BlurView intensity={30} style={styles.faceBlurArea}>
+                <View style={styles.faceBlurArea}>
                   <PinkGlasses />
                   <View style={styles.faceProtectionInfo}>
                     <Shield size={16} color="white" />
                     <Text style={styles.faceBlurText}>{t('faceProtected')}</Text>
                   </View>
-                </BlurView>
+                </View>
               ) : (
                 <View style={styles.faceBlurAreaWeb}>
                   <PinkGlasses />
@@ -2432,14 +2472,6 @@ export default function OutfitRatingScreen() {
               )}
 
               <View style={styles.actionButtonsContainer}>
-                <TouchableOpacity
-                  style={[styles.button, styles.exportButton]}
-                  onPress={exportAnalysis}
-                  testID="btn-export-analysis"
-                >
-                  <Upload size={20} color="white" />
-                  <Text style={styles.buttonText}>{t('export')}</Text>
-                </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.emailButton]}
                   onPress={emailSupport}
@@ -3429,7 +3461,7 @@ const styles = StyleSheet.create({
   sarcasticCategoryCard: {
     position: 'relative',
     overflow: 'hidden',
-    backgroundColor: 'rgba(57, 255, 20, 0.15)',
+    backgroundColor: '#39FF14',
   },
   rateCategoryCard: {
     position: 'relative',
