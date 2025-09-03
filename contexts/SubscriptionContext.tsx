@@ -99,17 +99,17 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     period: 'month',
     features: [
       'Everything in Premium',
-      'Custom Style Analysis',
       'Advanced AI Analysis',
       'Priority support',
-      'Style trend insights'
+      'Style trend insights',
+      'Early access to new features'
     ],
     color: '#9C27B0',
     maxAnalyses: -1,
     hasUnlimitedHistory: true,
     hasAdvancedAnalysis: true,
     hasPrioritySupport: true,
-    hasCustomStyles: true,
+    hasCustomStyles: false,
     hasTrendInsights: true
   }
 ];
