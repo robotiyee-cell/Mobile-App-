@@ -88,7 +88,7 @@ const translations = {
     trendInsights: 'Trend Insights',
     viewTrendInsights: 'View Trend Insights',
     generatingTrends: 'Generating trend insights...',
-    emailSupport: 'Email Support',
+    emailSupport: 'E-Mail',
     export: 'Export',
     exportAnalysis: 'Export Analysis',
     
