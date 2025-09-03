@@ -20,7 +20,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings, Scissors } from 'lucide-react-native';
+import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings, Scissors, TrendingUp } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, G } from 'react-native-svg';
@@ -113,10 +113,13 @@ export default function OutfitRatingScreen() {
   const currentAbortRef = useRef<AbortController | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showRateOptions, setShowRateOptions] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showInitialTerms, setShowInitialTerms] = useState(true);
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+  const [showInitialTerms, setShowInitialTerms] = useState<boolean>(true);
   const [shouldResume, setShouldResume] = useState<boolean>(false);
+  const [trendVisible, setTrendVisible] = useState<boolean>(false);
+  const [trendLoading, setTrendLoading] = useState<boolean>(false);
+  const [trendText, setTrendText] = useState<string>('');
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t, language } = useLanguage();
 
@@ -499,11 +502,12 @@ export default function OutfitRatingScreen() {
               
               ${selectedCategory === 'sarcastic' ? `
               SPECIAL MODE: DESIGNER ROAST
-              - Deliver the analysis in a witty, sarcastic tone inspired by a famed high-fashion creative director.
-              - Avoid naming specific living individuals; keep it as an archetypal "famous designer" voice.
-              - Keep it sharp but not abusive; playful and stylishly snarky.
-              - Include crying and dramatic emojis where fitting (e.g., 😭😅💅🔥) in the analysis fields.
-              - Still return the required JSON fields with concise, biting commentary.
+              - Crank up the sarcasm: razor-sharp, runway-snark one-liners with clever metaphors and dramatic flair.
+              - Avoid naming specific living individuals; use an archetypal “famous designer” voice.
+              - Playful, stylishly snarky, never abusive or personal.
+              - Pepper each field with fitting emojis (😭😅💅🔥✨🫠) — about 15–25% density, not every sentence.
+              - End each field with a snappy roast tag line.
+              - Keep it concise per OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
               ${selectedCategory !== 'rate' ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${selectedCategory} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${selectedCategory}.
@@ -795,6 +799,56 @@ export default function OutfitRatingScreen() {
       await Share.share({ url: path, message: content });
     } catch (e) {
       Alert.alert(t('error'), t('couldNotClearHistory'));
+    }
+  };
+
+  const generateTrendInsights = async (): Promise<void> => {
+    if (!selectedImage) {
+      Alert.alert(t('error'), t('failedToAnalyze'));
+      return;
+    }
+    try {
+      setTrendLoading(true);
+      setTrendVisible(true);
+      const imageToAnalyze = maskedImage || selectedImage;
+      let base64Image: string;
+      try {
+        const base64 = await FileSystem.readAsStringAsync(imageToAnalyze, { encoding: FileSystem.EncodingType.Base64 });
+        base64Image = base64;
+      } catch (error) {
+        if (imageToAnalyze.startsWith('data:')) {
+          base64Image = imageToAnalyze.split(',')[1];
+        } else {
+          throw error as Error;
+        }
+      }
+
+      const res = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: `You are a senior fashion trend analyst. Produce "Style trend insights" tailored to the specific outfit photo the user provided. Return a compact, actionable briefing for a power user.
+              Rules:
+              - Language: ${language === 'tr' ? 'Turkish' : 'English'}
+              - Format: 5 ultra-concise bullets prefixed with emojis + a short closing line on what to buy next.
+              - Cover: palette alignment, silhouette relevance, fabric/texture signals, current micro-trends, and platform-ready styling tips.
+              - Tone: expert, punchy, stylish. Avoid fluff.
+            ` },
+            { role: 'user', content: [
+              { type: 'text', text: 'Give me concise, actionable style trend insights for this look.' },
+              { type: 'image', image: `data:image/jpeg;base64,${base64Image}` },
+            ]}
+          ]
+        })
+      });
+      const data = await res.json();
+      const text = typeof data?.completion === 'string' ? data.completion : '';
+      setTrendText(text || (language === 'tr' ? 'Trend içgörüleri oluşturulamadı.' : 'Could not generate trend insights.'));
+    } catch {
+      setTrendText(language === 'tr' ? 'Trend içgörüleri oluşturulamadı.' : 'Could not generate trend insights.');
+    } finally {
+      setTrendLoading(false);
     }
   };
 
@@ -2280,6 +2334,18 @@ export default function OutfitRatingScreen() {
                 </>
               )}
               
+              {subscription.tier === 'ultimate' && (
+                <TouchableOpacity
+                  style={[styles.button, styles.rateAgainButton]}
+                  onPress={generateTrendInsights}
+                  disabled={trendLoading}
+                  testID="btn-view-trends"
+                >
+                  {trendLoading ? <ActivityIndicator color="white" /> : <TrendingUp size={20} color="white" />}
+                  <Text style={styles.buttonText}>{t('viewTrendInsights')}</Text>
+                </TouchableOpacity>
+              )}
+
               <View style={styles.actionButtonsContainer}>
                 <TouchableOpacity
                   style={[styles.button, styles.exportButton]}
@@ -2485,6 +2551,27 @@ export default function OutfitRatingScreen() {
       )}
       </ScrollView>
       
+      {/* Trend Insights Modal */}
+      <Modal visible={trendVisible} animationType="slide" transparent onRequestClose={() => setTrendVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: '#1a1a1a' }}>{t('trendInsights')}</Text>
+              <TouchableOpacity onPress={() => setTrendVisible(false)}>
+                <X size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            <View style={{ marginTop: 12, minHeight: 80 }}>
+              {trendLoading ? (
+                <ActivityIndicator color="#FF69B4" />
+              ) : (
+                <Text style={{ fontSize: 14, color: '#333', lineHeight: 20 }}>{trendText}</Text>
+              )}
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Copyright Notice */}
       <View style={styles.copyrightContainer}>
         <Text style={styles.copyrightText}>

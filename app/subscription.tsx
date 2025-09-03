@@ -351,16 +351,21 @@ export default function SubscriptionScreen() {
                     )}
                   </TouchableOpacity>
 
-                  {plan.id === 'ultimate' && (
-                    <View style={{ marginTop: 8, gap: 8 }}>
-                      {[t('ultimateFeature8'), t('ultimateFeature9'), t('ultimateFeature10')].map((f, i) => (
-                        <View key={i} style={styles.featureItem}>
-                          {getFeatureIcon(f)}
-                          <Text style={styles.featureText}>{f}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
+                  {plan.id === 'ultimate' && (() => {
+                    const extras = [t('ultimateFeature8'), t('ultimateFeature9'), t('ultimateFeature10')]
+                      .filter((f) => (f ?? '').toString().trim() !== '—');
+                    if (extras.length === 0) return null;
+                    return (
+                      <View style={{ marginTop: 8, gap: 8 }}>
+                        {extras.map((f, i) => (
+                          <View key={i} style={styles.featureItem}>
+                            {getFeatureIcon(f)}
+                            <Text style={styles.featureText}>{f}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    );
+                  })()}
                 </View>
               </TouchableOpacity>
             ))}
