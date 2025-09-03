@@ -76,7 +76,7 @@ const STYLE_CATEGORIES: CategoryOption[] = [
   { id: 'trendy', label: 'Trendy', description: 'Fashion-forward, current, stylish', color: '#98D8C8' },
   { id: 'anime', label: 'Anime', description: 'Kawaii, colorful, playful', color: '#FF69B4' },
   { id: 'sixties', label: '60\'s', description: 'Retro, mod, vintage vibes', color: '#9B59B6' },
-  { id: 'sarcastic', label: 'Designer Roast', description: 'Sarcastic critique in a famed designer tone', color: '#39FF14' },
+  { id: 'sarcastic', label: 'Designer Roast', description: 'Playful designer roast in a famed designer tone', color: '#39FF14' },
   { id: 'rate', label: 'All', description: 'All categories with 7 results', color: '#FFD700' },
 ];
 
@@ -88,7 +88,7 @@ const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
   trendy: '#1E90FF',
   anime: '#C2185B',
   sixties: '#6A1B9A',
-  sarcastic: '#2E7D32',
+  sarcastic: '#39FF14',
   rate: '#6A1B9A',
 } as const;
 
@@ -503,11 +503,12 @@ export default function OutfitRatingScreen() {
               
               ${selectedCategory === 'sarcastic' ? `
               SPECIAL MODE: DESIGNER ROAST
-              - Dial the sarcasm UP: razor-sharp, couture-level snark with vivid metaphors and unapologetic critique.
-              - Be more critical: call out mismatches, fit issues, cheap-looking textures, and styling misses with witty edge.
-              - Never abusive or personal; keep it fashion-focused and clever. No real names — use an archetypal “famous designer” voice.
+              - Lean into playful, witty, couture-level humor with vivid metaphors and unapologetic critique.
+              - Be more critical: call out mismatches, fit issues, cheap-looking textures, and styling misses with a cheeky, clever tone.
+              - Never abusive or personal; keep it fashion-focused and smart. No real names — use an archetypal “famous designer” voice.
               - Pepper each field with fitting emojis (😭😅💅🔥✨🫠🙃🧵✂️) — keep density around 20–30%, not every sentence.
               - End each field with a punchy roast tag line.
+              - Do NOT use the word "sarcasm" anywhere.
               - Keep it concise per OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
@@ -856,8 +857,28 @@ export default function OutfitRatingScreen() {
   const emailSupport = async () => {
     try {
       const content = buildExportText();
+      const imageUri = maskedImage || selectedImage;
+      if (Platform.OS !== 'web' && imageUri) {
+        try {
+          await Share.share({
+            message: content || '',
+            url: imageUri,
+          });
+          return;
+        } catch {}
+      }
       const subject = encodeURIComponent('Outfit AI Support');
-      const body = encodeURIComponent(content || '');
+      const bodyParts: string[] = [];
+      if (content) bodyParts.push(content);
+      if (imageUri && Platform.OS === 'web') {
+        bodyParts.push('\n\nImage data URL (paste into browser if needed):');
+        if (imageUri.startsWith('data:')) {
+          bodyParts.push(imageUri);
+        } else {
+          bodyParts.push(imageUri);
+        }
+      }
+      const body = encodeURIComponent(bodyParts.join('\n'));
       const mailto = `mailto:robotiyee@gmail.com?subject=${subject}&body=${body}`;
       const can = await Linking.canOpenURL(mailto);
       if (can) {

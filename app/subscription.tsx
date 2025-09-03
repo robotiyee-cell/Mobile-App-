@@ -469,9 +469,9 @@ export default function SubscriptionScreen() {
             {t('footerRenew')}
           </Text>
         </View>
-        <Modal visible={checkoutVisible} animationType="slide" transparent>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+        <Modal visible={checkoutVisible} animationType="fade" transparent>
+          <View style={[styles.modalOverlay, { justifyContent: 'flex-start' }]}>
+            <View style={[styles.modalContent, { borderTopLeftRadius: 0, borderTopRightRadius: 0, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }]}>
               <Text style={styles.modalTitle}>{t('payment')}</Text>
               <Text style={styles.modalSubtitle}>{t('paymentMethod')}</Text>
 
