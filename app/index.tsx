@@ -586,6 +586,7 @@ export default function OutfitRatingScreen() {
               }` : ''}`
             },
             { role: 'system', content: `All outputs MUST be in ${language === 'tr' ? 'Turkish' : 'English'}. Use this language for every field and sentence.${language === 'tr' ? ' İngilizce kelimeler, argo ya da ödünç sözcükler kullanma. Moda terimlerinde mümkün olduğunca Türkçe karşılıkları kullan ve özellikle Tasarımcı İğnelemesi modunda tamamen doğal Türkçe yaz.' : ''}` },
+
             {
               role: 'user',
               content: [
@@ -613,6 +614,15 @@ export default function OutfitRatingScreen() {
         } catch (parseError) {
           console.log('Error parsing analysis response JSON:', parseError, 'Raw data:', data);
           throw parseError;
+        }
+        
+        const validation = validateAnalysis(analysisData, categoryToUse);
+        if (!validation.ok) {
+          console.log('Validation failed, reason:', validation.reason, 'retry:', retry);
+          if (!retry) {
+            await analyzeOutfit(categoryToUse, true);
+            return;
+          }
         }
         
         setAnalysis(analysisData);
@@ -977,7 +987,7 @@ export default function OutfitRatingScreen() {
           }
         }
         const imgHtml = inlineBase64 ? `<div style=\"margin:16px 0;\"><em style=\"color:#999;\">${safe(t('faceProtected') ?? '')}</em><br/><img alt=\"\" src=\"data:image/jpeg;base64,${inlineBase64}\" style=\"max-width:100%;border-radius:12px;border:1px solid #eee;\"/></div>` : '';
-        return `<!doctype html><html><body style=\"font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; background:#FFE4E6; padding:16px;\">\n          <div style=\"max-width:720px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;\">\n            <h1 style=\"margin:0 0 4px 0;color:#9B59B6;font-style:italic;font-weight:900;\">${safe(t('appName'))}</h1>\n            <div style=\"display:inline-flex;align-items:center;gap:8px;margin:4px 0 16px 0;background:rgba(255,215,0,0.2);padding:4px 8px;border-radius:12px;color:#FFD700;font-weight:900;font-size:12px;\">\n              <span>${safe(t('currentPlan') ?? 'Current Plan')}</span>\n              <span>${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</span>\n            </div>\n            <div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px;\">\n              <span style=\"display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===selectedCategory)?.color ?? '#FFD700'}\"></span>\n              <span style=\"font-weight:700;color:#1a1a1a;\">${safe(t('selectedStyle'))}:: ${safe(heading)}</span>\n            </div>\n            ${inner}\n            ${imgHtml}\n          </div>\n        </body></html>`;
+        return `<!doctype html><html><body style=\"font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; background:#FFE4E6; padding:16px;\">\n          <div style=\"max-width:720px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;\">\n            <h1 style=\"margin:0 0 4px 0;color:#9B59B6;font-style:italic;font-weight:900;\">${safe(t('appName'))}</h1>\n            <div style=\"margin:4px 0 16px 0;color:#FFD700;font-weight:900;font-size:12px;\">\n              <span>${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</span>\n            </div>\n            <div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px;\">\n              <span style=\"display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===selectedCategory)?.color ?? '#FFD700'}\"></span>\n              <span style=\"font-weight:700;color:#1a1a1a;\">${safe(t('selectedStyle'))}:: ${safe(heading)}</span>\n            </div>\n            ${inner}\n            ${imgHtml}\n          </div>\n        </body></html>`;
       })();
 
       if (Platform.OS === 'web') {
@@ -2925,6 +2935,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     textAlign: 'center',
+    fontFamily: Platform.select({ ios: undefined, android: 'sans-serif', web: 'system-ui' }),
   },
   galleryButtonText: {
     color: '#FF1493',
