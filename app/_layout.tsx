@@ -24,14 +24,7 @@ function RootLayoutNav() {
           headerShadowVisible: true,
         }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="subscription" options={{ 
-        title: t('premiumPlan') ?? 'L4F Premium',
-        headerTransparent: false,
-        headerStyle: { backgroundColor: '#111827' },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: { fontWeight: '700', fontSize: 14 },
-        headerShadowVisible: true
-      }} />
+      <Stack.Screen name="subscription" />
       <Stack.Screen name="settings" options={{ 
         title: t('settings'),
         headerTransparent: false,

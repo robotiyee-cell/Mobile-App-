@@ -312,8 +312,8 @@ export default function SubscriptionScreen() {
                   plan.popular && styles.popularPlan,
                   subscription.tier === plan.id && styles.currentPlanCard
                 ]}
-                onPress={() => openCheckout(plan.id)}
-                disabled={isSubscribing}
+                onPress={() => (subscription.tier === plan.id ? null : openCheckout(plan.id))}
+                disabled={isSubscribing || subscription.tier === plan.id}
               >
                 {plan.popular && (
                   <View style={styles.popularBadge}>
@@ -363,7 +363,7 @@ export default function SubscriptionScreen() {
                       subscription.tier === plan.id && styles.currentPlanButton,
                       { backgroundColor: plan.color }
                     ]}
-                    onPress={() => openCheckout(plan.id)}
+                    onPress={() => (subscription.tier === plan.id ? null : openCheckout(plan.id))}
                     disabled={isSubscribing || subscription.tier === plan.id}
                   >
                     {isSubscribing && selectedPlan === plan.id ? (
