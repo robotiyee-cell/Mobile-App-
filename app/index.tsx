@@ -2324,9 +2324,9 @@ export default function OutfitRatingScreen() {
             </View>
           ) : (
             <View style={styles.resultsContainer}>
-              <View style={styles.subscriptionBadge}>
+              <View style={styles.subscriptionBadgePlain}>
                 <Crown size={12} color="#FFD700" />
-                <Text style={styles.subscriptionBadgeText}>
+                <Text style={styles.subscriptionBadgeTextSmall}>
                   {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
                 </Text>
               </View>
@@ -3709,6 +3709,21 @@ const styles = StyleSheet.create({
   },
   subscriptionBadgeText: {
     fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FFD700',
+  },
+  subscriptionBadgePlain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    borderRadius: 0,
+    marginTop: 0,
+    gap: 4,
+  },
+  subscriptionBadgeTextSmall: {
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#FFD700',
   },
