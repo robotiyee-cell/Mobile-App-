@@ -77,6 +77,7 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     period: 'month',
     features: [
       'Unlimited outfit analyses',
+      'All categories (7 results)',
       'Unlimited history',
       'Detailed improvement suggestions',
       'Email support',

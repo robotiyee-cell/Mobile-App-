@@ -15,7 +15,6 @@ import {
   AppStateStatus,
   Share,
   Linking,
-  TextInput,
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -78,7 +77,7 @@ const STYLE_CATEGORIES: CategoryOption[] = [
   { id: 'anime', label: 'Anime', description: 'Kawaii, colorful, playful', color: '#FF69B4' },
   { id: 'sixties', label: '60\'s', description: 'Retro, mod, vintage vibes', color: '#9B59B6' },
   { id: 'sarcastic', label: 'Designer Roast', description: 'Sarcastic critique in a famed designer tone', color: '#39FF14' },
-  { id: 'rate', label: 'All', description: 'All categories with 7 results (Ultimate only)', color: '#FFD700' },
+  { id: 'rate', label: 'All', description: 'All categories with 7 results', color: '#FFD700' },
 ];
 
 const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
@@ -114,8 +113,6 @@ export default function OutfitRatingScreen() {
   const currentAbortRef = useRef<AbortController | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showRateOptions, setShowRateOptions] = useState(false);
-  const [customStyle, setCustomStyle] = useState<string>('');
-  const [includeTrendInsights, setIncludeTrendInsights] = useState<boolean>(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showInitialTerms, setShowInitialTerms] = useState(true);
@@ -331,15 +328,11 @@ export default function OutfitRatingScreen() {
           messages: [
             {
               role: 'system',
-              content: `You are a professional fashion stylist and outfit critic.
-              ${subscription.tier === 'basic' ? 'Write concise, short descriptions (1-2 sentences per field).' : subscription.tier === 'premium' ? 'Write medium-length descriptions (2-3 sentences per field).' : subscription.tier === 'ultimate' ? 'Write detailed, longer descriptions (3-5 sentences per field) with richer nuance.' : ''}
-              The user has indicated they want their outfit analyzed specifically for the "${customStyle && subscription.tier === 'ultimate' ? customStyle : selectedCategory}" style category (${customStyle && subscription.tier === 'ultimate' ? customStyle : (categoryInfo?.description ?? '')}).
+              content: `You are a professional fashion stylist and outfit critic. The user has indicated they want their outfit analyzed specifically for the "${selectedCategory}" style category (${categoryInfo?.description}).
               
               IMPORTANT: This image has been privacy-protected with face masking before being shared with you. Focus only on the clothing, accessories, and overall styling.
               
-              CRITICAL: You MUST analyze this outfit specifically for the "${customStyle && subscription.tier === 'ultimate' ? customStyle : selectedCategory}" style. Do NOT give generic fashion advice. Your entire analysis should be focused on how well this outfit achieves the specific aesthetic.
-              
-              ${includeTrendInsights && subscription.tier === 'ultimate' ? 'Also weave in current style trend insights (micro-trends, colors, silhouettes) within the explanations and suggestions without adding new fields.' : ''}
+              CRITICAL: You MUST analyze this outfit specifically for the "${selectedCategory}" style. Do NOT give generic fashion advice. Your entire analysis should be focused on how well this outfit achieves the specific "${selectedCategory}" aesthetic.
               
               IMPORTANT: Each category has DIFFERENT scoring criteria. The same outfit should receive DIFFERENT scores for different categories based on how well it fits that specific aesthetic.
               
@@ -544,11 +537,10 @@ export default function OutfitRatingScreen() {
               - Deliver the analysis in a witty, sarcastic tone inspired by a famed high-fashion creative director.
               - Avoid naming specific living individuals; keep it as an archetypal "famous designer" voice.
               - Keep it sharp but not abusive; playful and stylishly snarky.
-              - Add appropriate emojis like 😭😢😂🔥💅 where fitting across the descriptions.
-              - Still return the required JSON fields with concise, biting commentary adapted to the requested length.
+              - Still return the required JSON fields with concise, biting commentary.
               ` : ''}
               
-              ${selectedCategory !== 'rate' ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${customStyle && subscription.tier === 'ultimate' ? customStyle : selectedCategory} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${customStyle && subscription.tier === 'ultimate' ? customStyle : selectedCategory}.
+              ${selectedCategory !== 'rate' ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${selectedCategory} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${selectedCategory}.
               
               Format your response as JSON:
               {
@@ -766,10 +758,10 @@ export default function OutfitRatingScreen() {
     console.log('Category selected:', category);
     if (category === 'rate') {
       // Check if user has premium access for "All category"
-      if (subscription.tier !== 'ultimate') {
+      if (subscription.tier === 'free' || subscription.tier === 'basic') {
         Alert.alert(
           t('premiumFeatureTitle'),
-          t('ultimateAllMessage'),
+          t('premiumAllMessage'),
           [
             { text: t('maybeLater'), style: 'cancel' },
             { 
@@ -790,10 +782,10 @@ export default function OutfitRatingScreen() {
   const handleRateOptionSelect = (category: StyleCategory) => {
     if (category === 'rate') {
       // Check if user has premium access for "All category"
-      if (subscription.tier !== 'ultimate') {
+      if (subscription.tier === 'free' || subscription.tier === 'basic') {
         Alert.alert(
           t('premiumFeatureTitle'),
-          t('ultimateAllMessage'),
+          t('premiumAllMessage'),
           [
             { text: t('maybeLater'), style: 'cancel' },
             { 
@@ -1566,7 +1558,7 @@ export default function OutfitRatingScreen() {
           contentFit="cover"
           transition={300}
           recyclingKey={bgCandidates[bgIndex]}
-          style={[styles.mainBackgroundImage, { opacity: analysis ? 0.15 : 0.3 }]}
+          style={[styles.mainBackgroundImage, { opacity: 0.3 }]}
           pointerEvents="none"
           onError={(err) => {
             console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
@@ -1789,9 +1781,9 @@ export default function OutfitRatingScreen() {
               </Text>
               
               <View style={styles.categoriesGrid}>
-                {STYLE_CATEGORIES.filter(cat => subscription.tier === 'ultimate' ? true : cat.id !== 'rate').map((category) => {
+                {STYLE_CATEGORIES.map((category) => {
                   const isPremiumFeature = category.id === 'rate';
-                  const hasAccess = subscription.tier === 'ultimate';
+                  const hasAccess = subscription.tier === 'premium' || subscription.tier === 'ultimate';
                   const isDisabled = isPremiumFeature && !hasAccess;
                   
                   return (
@@ -1959,7 +1951,7 @@ export default function OutfitRatingScreen() {
                     {isPremiumFeature && !hasAccess && (
                       <View style={styles.premiumOverlay}>
                         <Crown size={16} color="#FFD700" />
-                        <Text style={styles.premiumOverlayText}>Ultimate</Text>
+                        <Text style={styles.premiumOverlayText}>{t('premiumPlan')}</Text>
                       </View>
                     )}
                     <CategoryScoreBadge categoryId={category.id} />
@@ -2128,7 +2120,7 @@ export default function OutfitRatingScreen() {
                       backgroundColor: '#FFD700' + '20',
                       borderWidth: 2,
                     },
-                    (subscription.tier !== 'ultimate') && styles.disabledCategoryCard
+                    (subscription.tier === 'free' || subscription.tier === 'basic') && styles.disabledCategoryCard
                   ]}
                   onPress={() => handleRateOptionSelect('rate')}
                   disabled={subscription.tier === 'free' || subscription.tier === 'basic'}
@@ -2145,12 +2137,12 @@ export default function OutfitRatingScreen() {
                     styles.categoryLabel, 
                     styles.themedCategoryLabel,
                     (subscription.tier === 'free' || subscription.tier === 'basic') && styles.disabledCategoryLabel
-                  ]}>{t('allCategories')}{(subscription.tier !== 'ultimate') && ' 🔒'}</Text>
+                  ]}>{t('allCategories')}{(subscription.tier === 'free' || subscription.tier === 'basic') && ' 🔒'}</Text>
                   <Text style={[
                     styles.categoryDescription, 
                     styles.themedCategoryDescription,
                     (subscription.tier === 'free' || subscription.tier === 'basic') && styles.disabledCategoryDescription
-                  ]}>{(subscription.tier !== 'ultimate') ? t('ultimateFeatureUnlock') : t('allCategoriesDesc')}</Text>
+                  ]}>{(subscription.tier === 'free' || subscription.tier === 'basic') ? t('premiumFeatureUnlock') : t('allCategoriesDesc')}</Text>
                   {(subscription.tier === 'free' || subscription.tier === 'basic') && (
                     <View style={styles.premiumOverlay}>
                       <Crown size={16} color="#FFD700" />
@@ -2187,37 +2179,6 @@ export default function OutfitRatingScreen() {
                 </View>
               </View>
               
-              {subscription.tier === 'ultimate' && (
-                <View style={{ gap: 8, marginBottom: 4 }}>
-                  <Text style={{ fontSize: 12, color: '#6A1B9A', fontWeight: '700', textAlign: 'center' }}>Ultimate options</Text>
-                  <TextInput
-                    placeholder={t('customStylePlaceholder')}
-                    placeholderTextColor="#999"
-                    value={customStyle}
-                    onChangeText={setCustomStyle}
-                    style={{
-                      borderWidth: 1,
-                      borderColor: '#E5E7EB',
-                      backgroundColor: 'rgba(255,255,255,0.9)',
-                      borderRadius: 10,
-                      paddingHorizontal: 12,
-                      paddingVertical: 10,
-                    }}
-                    testID="input-custom-style"
-                  />
-                  <TouchableOpacity
-                    onPress={() => setIncludeTrendInsights(!includeTrendInsights)}
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'center' }}
-                    testID="toggle-trend-insights"
-                  >
-                    <View style={{ width: 18, height: 18, borderRadius: 4, borderWidth: 1.5, borderColor: '#9B59B6', alignItems: 'center', justifyContent: 'center', backgroundColor: includeTrendInsights ? '#9B59B6' : 'transparent' }}>
-                      {includeTrendInsights && <Check size={12} color="#fff" />}
-                    </View>
-                    <Text style={{ fontSize: 13, color: '#1a1a1a', fontWeight: '600' }}>{t('includeStyleTrendInsights')}</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
               <TouchableOpacity
                 style={[styles.button, styles.analyzeButton]}
                 onPress={analyzeOutfit}
@@ -2433,7 +2394,7 @@ export default function OutfitRatingScreen() {
                 </Text>
                 
                 <View style={styles.categoriesGrid}>
-                  {STYLE_CATEGORIES.filter(cat => (subscription.tier === 'ultimate' ? true : cat.id !== 'rate') && cat.id !== selectedCategory).map((category) => (
+                  {STYLE_CATEGORIES.filter(cat => cat.id !== selectedCategory).map((category) => (
                     <TouchableOpacity
                       key={category.id}
                       style={[
@@ -2453,7 +2414,7 @@ export default function OutfitRatingScreen() {
                         if (category.id === 'rate' && (subscription.tier === 'free' || subscription.tier === 'basic')) {
                           Alert.alert(
                             t('premiumFeatureTitle'),
-                            t('ultimateAllMessage'),
+                            t('premiumAllMessage'),
                             [
                               { text: t('maybeLater'), style: 'cancel' },
                               { 

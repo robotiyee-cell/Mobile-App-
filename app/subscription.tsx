@@ -434,19 +434,9 @@ export default function SubscriptionScreen() {
                 placeholder={t('cardNumber')}
                 placeholderTextColor="#999"
                 style={styles.input}
-                keyboardType={Platform.select({ ios: 'number-pad', android: 'number-pad', default: 'default' })}
-                inputMode="numeric"
-                contextMenuHidden={false}
-                autoCorrect={false}
-                autoCapitalize="none"
-                textContentType={Platform.OS === 'ios' ? 'creditCardNumber' : 'none'}
-                importantForAutofill="yes"
+                keyboardType="number-pad"
                 value={cardNumber}
-                onChangeText={(text) => {
-                  const digits = text.replace(/[^0-9]/g, '');
-                  const grouped = digits.match(/.{1,4}/g)?.join(' ') ?? digits;
-                  setCardNumber(grouped);
-                }}
+                onChangeText={setCardNumber}
                 testID="cardInput"
               />
               <View style={styles.row}>
