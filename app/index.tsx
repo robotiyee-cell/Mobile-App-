@@ -88,7 +88,7 @@ const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
   trendy: '#1E90FF',
   anime: '#C2185B',
   sixties: '#6A1B9A',
-  sarcastic: '#39FF14',
+  sarcastic: '#FF0000',
   rate: '#6A1B9A',
 } as const;
 
@@ -315,7 +315,13 @@ export default function OutfitRatingScreen() {
       const controller = new AbortController();
       currentAbortRef.current = controller;
 
-      const lengthPolicy = subscription.tier === 'ultimate' ? 'very long' : subscription.tier === 'premium' ? 'long' : subscription.tier === 'basic' ? 'medium' : 'short';
+      const lengthPolicy = subscription.tier === 'ultimate' 
+        ? 'very long (7+ sentences, detailed and thorough)'
+        : subscription.tier === 'premium'
+        ? 'long (5-6 sentences, well-developed)'
+        : subscription.tier === 'basic'
+        ? 'medium (3-4 proper sentences)'
+        : 'short (2-3 proper sentences)';
 
       const response = await fetch('https://toolkit.rork.com/text/llm/', {
         method: 'POST',
@@ -332,7 +338,7 @@ export default function OutfitRatingScreen() {
               
               IMPORTANT: Each category has DIFFERENT scoring criteria. The same outfit should receive DIFFERENT scores for different categories based on how well it fits that specific aesthetic.
               
-              OUTPUT LENGTH POLICY: Keep your explanations ${lengthPolicy} in length (short for Basic/Free, medium for Premium, long for Ultimate). Apply this to every analysis field and to each category in ALL CATEGORIES mode.
+              OUTPUT LENGTH POLICY: Keep your explanations ${lengthPolicy} in length. Targets by plan: Free=2-3 sentences, Basic=3-4 sentences, Premium=5-6 sentences, Ultimate=7+ sentences. Apply this to every analysis field and to each category in ALL CATEGORIES mode.
               
               For the "${selectedCategory}" style specifically:
               ${selectedCategory === 'sexy' ? `
@@ -1714,14 +1720,12 @@ export default function OutfitRatingScreen() {
                   <Flower size={28} color="#FF69B4" style={styles.headerTitleIcon} />
                 </View>
               </LinearGradient>
-              {subscription.tier !== 'free' && (
-                <View style={styles.subscriptionBadge}>
-                  <Crown size={12} color="#FFD700" />
-                  <Text style={styles.subscriptionBadgeText}>
-                    {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-                  </Text>
-                </View>
-              )}
+              <View style={styles.subscriptionBadge}>
+                <Crown size={12} color="#FFD700" />
+                <Text style={styles.subscriptionBadgeText}>
+                  {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+                </Text>
+              </View>
             </View>
             
             <View style={styles.buttonContainer}>
@@ -2217,6 +2221,15 @@ export default function OutfitRatingScreen() {
             </View>
           ) : (
             <View style={styles.resultsContainer}>
+              <View style={styles.subscriptionStatusCard}>
+                <View style={styles.subscriptionStatusHeader}>
+                  <View style={styles.subscriptionStatusLeft}>
+                    <Crown size={16} color="#FFD700" />
+                    <Text style={styles.subscriptionStatusTitle}>{t('currentPlan') ?? 'Current Plan'}</Text>
+                  </View>
+                  <Text style={styles.subscriptionStatusText}>{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Text>
+                </View>
+              </View>
               {selectedCategory === 'rate' && 'results' in analysis ? (
                 // All Categories Results
                 <>
@@ -2243,7 +2256,7 @@ export default function OutfitRatingScreen() {
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>{t('overallAnalysis')}</Text>
+                      <Text style={[styles.analysisLabel, { color: '#6A1B9A', fontWeight: '900' }]}>{t('overallAnalysis')}</Text>
                       <Text style={[styles.analysisText, styles.overallAnalysisText]}>{analysis.overallAnalysis}</Text>
                     </View>
                     
@@ -2266,7 +2279,7 @@ export default function OutfitRatingScreen() {
                                       styles.categoryColorDot,
                                       { backgroundColor: categoryInfo?.color || '#999' }
                                     ]} />
-                                    <Text style={styles.categoryResultName} numberOfLines={1} ellipsizeMode="tail">
+                                    <Text style={[styles.categoryResultName, { color: getTextColor(result.category as StyleCategory), fontWeight: '900' }]} numberOfLines={1} ellipsizeMode="tail">
                                       {t((categoryInfo?.id ?? (result.category || '')))}
                                     </Text>
                                   </View>
@@ -2325,22 +2338,22 @@ export default function OutfitRatingScreen() {
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>{t('styleAnalysis')}</Text>
+                      <Text style={[styles.analysisLabel, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '900' }]}>{t('styleAnalysis')}</Text>
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).style}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>{t('colorCoordination')}</Text>
+                      <Text style={[styles.analysisLabel, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '900' }]}>{t('colorCoordination')}</Text>
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).colorCoordination}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>{t('accessories')}</Text>
+                      <Text style={[styles.analysisLabel, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '900' }]}>{t('accessories')}</Text>
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).accessories}</Text>
                     </View>
                     
                     <View style={styles.analysisItem}>
-                      <Text style={styles.analysisLabel}>{t('overallHarmony')}</Text>
+                      <Text style={[styles.analysisLabel, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '900' }]}>{t('overallHarmony')}</Text>
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).harmony}</Text>
                     </View>
                     
