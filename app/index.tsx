@@ -572,7 +572,7 @@ export default function OutfitRatingScreen() {
                 "suggestions": ["specific ${categoryToUse}-focused improvement suggestion 1", "specific ${categoryToUse}-focused improvement suggestion 2", "specific ${categoryToUse}-focused improvement suggestion 3"]` : ''}
               }` : ''}`
             },
-            { role: 'system', content: `All outputs MUST be in ${language === 'tr' ? 'Turkish' : 'English'}. Use this language for every field and sentence.` },
+            { role: 'system', content: `All outputs MUST be in ${language === 'tr' ? 'Turkish' : 'English'}. Use this language for every field and sentence.${language === 'tr' ? ' İngilizce kelimeler, argo ya da ödünç sözcükler kullanma. Moda terimlerinde mümkün olduğunca Türkçe karşılıkları kullan ve özellikle Tasarımcı İğnelemesi modunda tamamen doğal Türkçe yaz.' : ''}` },
             {
               role: 'user',
               content: [
@@ -952,7 +952,7 @@ export default function OutfitRatingScreen() {
             inner += `<ul style=\"margin:0 0 0 16px;color:${rc};font-weight:700;\">${a.suggestions.map(s=>`<li>${safe(s)}</li>`).join('')}</ul>`;
           }
         }
-        const imgHtml = inlineBase64 ? `<div style=\"margin:16px 0;\"><em style=\"color:#999;\">${safe(t('faceProtected') ?? '')}</em><br/><img alt=\"analyzed-outfit\" src=\"data:image/jpeg;base64,${inlineBase64}\" style=\"max-width:100%;border-radius:12px;border:1px solid #eee;\"/></div>` : '';
+        const imgHtml = inlineBase64 ? `<div style=\"margin:16px 0;\"><em style=\"color:#999;\">${safe(t('faceProtected') ?? '')}</em><br/><img alt=\"\" src=\"data:image/jpeg;base64,${inlineBase64}\" style=\"max-width:100%;border-radius:12px;border:1px solid #eee;\"/></div>` : '';
         return `<!doctype html><html><body style=\"font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; background:#FFE4E6; padding:16px;\">\n          <div style=\"max-width:720px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;\">\n            <h1 style=\"margin:0 0 4px 0;color:#9B59B6;font-style:italic;font-weight:900;\">${safe(t('appName'))}</h1>\n            <div style=\"display:inline-flex;align-items:center;gap:8px;margin:4px 0 16px 0;background:rgba(255,215,0,0.2);padding:4px 8px;border-radius:12px;color:#FFD700;font-weight:900;font-size:12px;\">\n              <span>${safe(t('currentPlan') ?? 'Current Plan')}</span>\n              <span>${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</span>\n            </div>\n            <div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px;\">\n              <span style=\"display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===selectedCategory)?.color ?? '#FFD700'}\"></span>\n              <span style=\"font-weight:700;color:#1a1a1a;\">${safe(t('selectedStyle'))}:: ${safe(heading)}</span>\n            </div>\n            ${inner}\n            ${imgHtml}\n          </div>\n        </body></html>`;
       })();
 
@@ -2324,14 +2324,11 @@ export default function OutfitRatingScreen() {
             </View>
           ) : (
             <View style={styles.resultsContainer}>
-              <View style={styles.subscriptionStatusCard}>
-                <View style={styles.subscriptionStatusHeader}>
-                  <View style={styles.subscriptionStatusLeft}>
-                    <Crown size={12} color="#FFD700" />
-                    <Text style={styles.subscriptionStatusTitle}>{t('currentPlan') ?? 'Current Plan'}</Text>
-                  </View>
-                  <Text style={styles.subscriptionStatusText}>{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Text>
-                </View>
+              <View style={styles.subscriptionBadge}>
+                <Crown size={12} color="#FFD700" />
+                <Text style={styles.subscriptionBadgeText}>
+                  {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+                </Text>
               </View>
               {selectedCategory === 'rate' && 'results' in analysis ? (
                 // All Categories Results
