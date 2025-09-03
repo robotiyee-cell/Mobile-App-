@@ -809,7 +809,8 @@ export default function OutfitRatingScreen() {
   const buildExportText = (): string => {
     try {
       const parts: string[] = [];
-      const header = selectedCategory ? `${t('selectedStyle')}: ${t(selectedCategory)}` : t('analysisType');
+      const headerKey = selectedCategory === 'rate' ? 'allCategories' : (selectedCategory ?? '');
+      const header = selectedCategory ? `${t('selectedStyle')}: ${t(headerKey)}` : t('analysisType');
       parts.push(header);
       if (!analysis) return parts.join('\n');
       if ('results' in (analysis as AllCategoriesAnalysis)) {
@@ -2173,7 +2174,7 @@ export default function OutfitRatingScreen() {
                     { backgroundColor: STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.color }
                   ]} />
                   <Text style={styles.selectedCategoryText}>
-                    {t((selectedCategory ?? ''))}
+                    {t(selectedCategory === 'rate' ? 'allCategories' : (selectedCategory ?? ''))}
                   </Text>
                 </View>
               </View>
