@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -31,6 +31,8 @@ import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionConte
 import { router } from 'expo-router';
 import { useLanguage } from '../contexts/LanguageContext';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export default function SubscriptionScreen() {
   const { subscription, plans, isLoading, subscribeTo } = useSubscription();
   const { t } = useLanguage();
@@ -44,6 +46,8 @@ export default function SubscriptionScreen() {
   const [expiry, setExpiry] = useState<string>('');
   const [cvc, setCvc] = useState<string>('');
   const [fieldError, setFieldError] = useState<string | null>(null);
+  const [rememberedEmail, setRememberedEmail] = useState<string | null>(null);
+  const [isRememberedUser, setIsRememberedUser] = useState<boolean>(false);
 
   const getPlanFeatures = (planId: SubscriptionTier): string[] => {
     if (planId === 'free') {
@@ -59,13 +63,15 @@ export default function SubscriptionScreen() {
   };
 
   const validateCheckout = useCallback((): boolean => {
-    if (!email || !email.includes('@')) {
-      setFieldError(t('email'));
-      return false;
-    }
-    if (!password || password.length < 6) {
-      setFieldError(t('password'));
-      return false;
+    if (!isRememberedUser) {
+      if (!email || !email.includes('@')) {
+        setFieldError(t('email'));
+        return false;
+      }
+      if (!password || password.length < 6) {
+        setFieldError(t('password'));
+        return false;
+      }
     }
     if (!cardNumber || cardNumber.replace(/\s/g, '').length < 12) {
       setFieldError(t('cardNumber'));
@@ -81,7 +87,21 @@ export default function SubscriptionScreen() {
     }
     setFieldError(null);
     return true;
-  }, [email, password, cardNumber, expiry, cvc, t]);
+  }, [email, password, cardNumber, expiry, cvc, t, isRememberedUser]);
+
+  useEffect(() => {
+    const loadRemembered = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('user_email');
+        if (saved && saved.includes('@')) {
+          setRememberedEmail(saved);
+          setEmail(saved);
+          setIsRememberedUser(true);
+        }
+      } catch {}
+    };
+    loadRemembered();
+  }, []);
 
   const openCheckout = useCallback((planId: SubscriptionTier) => {
     if (planId === 'free') {
@@ -109,6 +129,13 @@ export default function SubscriptionScreen() {
     try {
       const success = await subscribeTo(planId);
       if (success) {
+        try {
+          if (email && email.includes('@')) {
+            await AsyncStorage.setItem('user_email', email);
+            setRememberedEmail(email);
+            setIsRememberedUser(true);
+          }
+        } catch {}
         Alert.alert(
           t('successTitle'),
           t('successWelcome').replace('{plan}', plans.find(p => p.id === planId)?.name ?? ''),
@@ -323,6 +350,17 @@ export default function SubscriptionScreen() {
                       </>
                     )}
                   </TouchableOpacity>
+
+                  {plan.id === 'ultimate' && (
+                    <View style={{ marginTop: 8, gap: 8 }}>
+                      {[t('ultimateFeature8'), t('ultimateFeature9'), t('ultimateFeature10')].map((f, i) => (
+                        <View key={i} style={styles.featureItem}>
+                          {getFeatureIcon(f)}
+                          <Text style={styles.featureText}>{f}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
                 </View>
               </TouchableOpacity>
             ))}
@@ -410,26 +448,36 @@ export default function SubscriptionScreen() {
               <View style={styles.divider} />
 
               <Text style={styles.sectionLabel}>{t('creditDebitCard')}</Text>
-              <TextInput
-                placeholder={t('email')}
-                placeholderTextColor="#999"
-                style={styles.input}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-                testID="emailInput"
-              />
-              <TextInput
-                placeholder={t('password')}
-                placeholderTextColor="#999"
-                style={styles.input}
-                autoCapitalize="none"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-                testID="passwordInput"
-              />
+              {isRememberedUser ? (
+                <View style={{ marginBottom: 12 }}>
+                  <Text style={{ color: '#111', fontWeight: '600' }}>{rememberedEmail}</Text>
+                  <Text style={{ color: '#6b7280', fontSize: 12 }}>Signed in</Text>
+                </View>
+              ) : (
+                <>
+                  <TextInput
+                    placeholder={t('email')}
+                    placeholderTextColor="#999"
+                    style={styles.input}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoComplete="email"
+                    testID="emailInput"
+                  />
+                  <TextInput
+                    placeholder={t('password')}
+                    placeholderTextColor="#999"
+                    style={styles.input}
+                    autoCapitalize="none"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    testID="passwordInput"
+                  />
+                </>
+              )}
               <TextInput
                 placeholder={t('cardNumber')}
                 placeholderTextColor="#999"
@@ -437,6 +485,9 @@ export default function SubscriptionScreen() {
                 keyboardType="number-pad"
                 value={cardNumber}
                 onChangeText={setCardNumber}
+                contextMenuHidden={false}
+                autoCorrect={false}
+                autoComplete="cc-number"
                 testID="cardInput"
               />
               <View style={styles.row}>
