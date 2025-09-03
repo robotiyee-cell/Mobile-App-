@@ -28,7 +28,7 @@ import {
   Infinity
 } from 'lucide-react-native';
 import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useLanguage } from '../contexts/LanguageContext';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -103,18 +103,52 @@ export default function SubscriptionScreen() {
     loadRemembered();
   }, []);
 
-  const openCheckout = useCallback((planId: SubscriptionTier) => {
+  const openCheckout = useCallback(async (planId: SubscriptionTier) => {
     if (planId === 'free') {
-      router.back();
+      try {
+        setIsSubscribing(true);
+        const ok = await subscribeTo('free');
+        if (ok) {
+          Alert.alert(
+            t('successTitle'),
+            t('successWelcome').replace('{plan}', t('freePlan')),
+            [{ text: t('continue'), onPress: () => router.back() }]
+          );
+        } else {
+          Alert.alert(t('error'), t('failedSubscription'));
+        }
+      } catch {
+        Alert.alert(t('error'), t('failedSubscription'));
+      } finally {
+        setIsSubscribing(false);
+      }
       return;
     }
     setSelectedPlan(planId);
     setCheckoutVisible(true);
-  }, []);
+  }, [subscribeTo, t]);
 
   const handleSubscribe = async (planId: SubscriptionTier) => {
     if (planId === 'free') {
-      router.back();
+      try {
+        setIsSubscribing(true);
+        const ok = await subscribeTo('free');
+        if (ok) {
+          Alert.alert(
+            t('successTitle'),
+            t('successWelcome').replace('{plan}', t('freePlan')),
+            [{ text: t('continue'), onPress: () => router.back() }]
+          );
+        } else {
+          Alert.alert(t('error'), t('failedSubscription'));
+        }
+      } catch {
+        Alert.alert(t('error'), t('failedSubscription'));
+      } finally {
+        setIsSubscribing(false);
+        setSelectedPlan(null);
+        setCheckoutVisible(false);
+      }
       return;
     }
 
@@ -246,6 +280,7 @@ export default function SubscriptionScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: t(subscription.tier + 'Plan') }} />
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <LinearGradient
           colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}

@@ -502,11 +502,11 @@ export default function OutfitRatingScreen() {
               
               ${selectedCategory === 'sarcastic' ? `
               SPECIAL MODE: DESIGNER ROAST
-              - Crank up the sarcasm: razor-sharp, runway-snark one-liners with clever metaphors and dramatic flair.
-              - Avoid naming specific living individuals; use an archetypal “famous designer” voice.
-              - Playful, stylishly snarky, never abusive or personal.
-              - Pepper each field with fitting emojis (😭😅💅🔥✨🫠) — about 15–25% density, not every sentence.
-              - End each field with a snappy roast tag line.
+              - Dial the sarcasm UP: razor-sharp, couture-level snark with vivid metaphors and unapologetic critique.
+              - Be more critical: call out mismatches, fit issues, cheap-looking textures, and styling misses with witty edge.
+              - Never abusive or personal; keep it fashion-focused and clever. No real names — use an archetypal “famous designer” voice.
+              - Pepper each field with fitting emojis (😭😅💅🔥✨🫠🙃🧵✂️) — keep density around 20–30%, not every sentence.
+              - End each field with a punchy roast tag line.
               - Keep it concise per OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
