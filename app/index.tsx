@@ -88,7 +88,7 @@ const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
   trendy: '#1E90FF',
   anime: '#C2185B',
   sixties: '#6A1B9A',
-  sarcastic: '#39FF14',
+  sarcastic: '#2E7D32',
   rate: '#6A1B9A',
 } as const;
 
@@ -2740,7 +2740,8 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 14,
+    lineHeight: 18,
     fontWeight: '600',
     color: 'white',
     textAlign: 'center',
@@ -3403,8 +3404,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   emailButtonText: {
-    fontSize: 14,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 14,
     textAlign: 'center',
     paddingHorizontal: 4,
   },
