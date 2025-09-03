@@ -20,7 +20,7 @@ function RootLayoutNav() {
           headerTransparent: false,
           headerStyle: { backgroundColor: '#111827' },
           headerTintColor: '#FFFFFF',
-          headerTitleStyle: { fontWeight: '700', fontSize: 18 },
+          headerTitleStyle: { fontWeight: '700', fontSize: 14 },
           headerShadowVisible: true,
         }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -29,7 +29,7 @@ function RootLayoutNav() {
         headerTransparent: false,
         headerStyle: { backgroundColor: '#111827' },
         headerTintColor: '#FFFFFF',
-        headerTitleStyle: { fontWeight: '700', fontSize: 18 },
+        headerTitleStyle: { fontWeight: '700', fontSize: 14 },
         headerShadowVisible: true
       }} />
       <Stack.Screen name="settings" options={{ 
@@ -37,7 +37,7 @@ function RootLayoutNav() {
         headerTransparent: false,
         headerStyle: { backgroundColor: '#111827' },
         headerTintColor: '#FFFFFF',
-        headerTitleStyle: { fontWeight: '700', fontSize: 18 },
+        headerTitleStyle: { fontWeight: '700', fontSize: 14 },
         headerShadowVisible: true
       }} />
     </Stack>
