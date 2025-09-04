@@ -38,7 +38,9 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '3 outfit analyses per day',
       'Basic style categories',
       'Limited history (5 items)',
-      'Standard support'
+      'Standard support',
+      'Email support',
+      'Export analysis results'
     ],
     color: '#9E9E9E',
     maxAnalyses: 3,
