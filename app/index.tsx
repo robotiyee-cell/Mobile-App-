@@ -2524,16 +2524,18 @@ export default function OutfitRatingScreen() {
               )}
 
               <View style={styles.actionButtonsContainer}>
+                {subscription.tier !== 'free' && (
+                  <TouchableOpacity
+                    style={[styles.button, styles.emailButton]}
+                    onPress={emailSupport}
+                    testID="btn-email-support"
+                  >
+                    <Upload size={20} color="white" />
+                    <Text style={[styles.buttonText, styles.emailButtonText]} numberOfLines={2}>{t('emailSupport')}</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
-                  style={[styles.button, styles.emailButton]}
-                  onPress={emailSupport}
-                  testID="btn-email-support"
-                >
-                  <Upload size={20} color="white" />
-                  <Text style={[styles.buttonText, styles.emailButtonText]} numberOfLines={2}>{t('emailSupport')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.button, styles.newPhotoButton]}
+                  style={[styles.button, styles.newPhotoButton, subscription.tier === 'free' && styles.fullWidthButton]}
                   onPress={resetApp}
                 >
                   <Upload size={20} color="white" />
@@ -3593,6 +3595,10 @@ const styles = StyleSheet.create({
   emailButton: {
     backgroundColor: '#87CEEB',
     flex: 1,
+  },
+  fullWidthButton: {
+    flex: 1,
+    width: '100%',
   },
   emailButtonText: {
     fontSize: 12,
