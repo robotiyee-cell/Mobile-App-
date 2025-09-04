@@ -53,7 +53,7 @@ export default function SubscriptionScreen() {
 
   const getPlanFeatures = (planId: SubscriptionTier): string[] => {
     if (planId === 'free') {
-      return [t('freeFeature1'), t('freeFeature2'), t('freeFeature3'), t('freeFeature4')].filter(f => (f ?? '').toString().trim() !== '—');
+      return [t('freeFeature1'), t('freeFeature2'), t('freeFeature3'), t('freeFeature4'), t('freeFeature5'), t('freeFeature6')].filter(f => (f ?? '').toString().trim() !== '—');
     }
     if (planId === 'basic') {
       return [t('basicFeature1'), t('basicFeature2'), t('basicFeature3'), t('basicFeature4'), t('basicFeature5')].filter(f => (f ?? '').toString().trim() !== '—');
