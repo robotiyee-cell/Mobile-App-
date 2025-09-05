@@ -26,7 +26,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 
 interface OutfitAnalysis {
   style: string;
@@ -130,6 +130,16 @@ export default function OutfitRatingScreen() {
   }, []);
 
   useEffect(() => {
+    return () => {
+      try {
+        if (currentAbortRef.current) {
+          currentAbortRef.current.abort();
+        }
+      } catch {}
+    };
+  }, []);
+
+  useEffect(() => {
     isMountedRef.current = true;
 
     const isAnalyzingRef = { current: isAnalyzing } as React.MutableRefObject<boolean> & { current: boolean };
@@ -162,6 +172,29 @@ export default function OutfitRatingScreen() {
       sub.remove();
     };
   }, [isAnalyzing, shouldResume, selectedImage, selectedCategory]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('Screen focused');
+      ignoreResponsesRef.current = false;
+      if (shouldResume && selectedImage && selectedCategory && !isAnalyzing) {
+        setShouldResume(false);
+        setTimeout(() => {
+          if (isMountedRef.current && !isAnalyzing) {
+            analyzeOutfit();
+          }
+        }, 250);
+      }
+      return () => {
+        console.log('Screen blurred, aborting in-flight analysis if any');
+        if (isAnalyzing) {
+          setShouldResume(true);
+        }
+        ignoreResponsesRef.current = true;
+        try { currentAbortRef.current?.abort(); } catch {}
+      };
+    }, [shouldResume, selectedImage, selectedCategory, isAnalyzing])
+  );
 
   const checkTermsAcceptance = async () => {
     try {
