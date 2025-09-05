@@ -610,7 +610,25 @@ export default function OutfitRatingScreen() {
           if (!data || !data.completion) {
             throw new Error('No completion data received');
           }
-          analysisData = JSON.parse(data.completion);
+          const completion = data.completion;
+          if (typeof completion === 'object' && completion !== null) {
+            analysisData = completion;
+          } else if (typeof completion === 'string') {
+            let text = completion.trim();
+            if (text.startsWith('```')) {
+              text = text.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
+            }
+            const firstBrace = text.indexOf('{');
+            const lastBrace = text.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+              const jsonSlice = text.slice(firstBrace, lastBrace + 1);
+              analysisData = JSON.parse(jsonSlice);
+            } else {
+              analysisData = JSON.parse(text);
+            }
+          } else {
+            throw new Error('Invalid completion type');
+          }
         } catch (parseError) {
           console.log('Error parsing analysis response JSON:', parseError, 'Raw data:', data);
           throw parseError;
