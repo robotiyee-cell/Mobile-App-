@@ -88,7 +88,7 @@ const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
   trendy: '#1E90FF',
   anime: '#C2185B',
   sixties: '#6A1B9A',
-  sarcastic: '#FF6600',
+  sarcastic: '#39FF14',
   rate: '#6A1B9A',
 } as const;
 
