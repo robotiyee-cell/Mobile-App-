@@ -88,7 +88,7 @@ const TEXT_COLOR_MAP: Record<StyleCategory, string> = {
   trendy: '#1E90FF',
   anime: '#C2185B',
   sixties: '#6A1B9A',
-  sarcastic: '#FF0000',
+  sarcastic: '#FF6600',
   rate: '#6A1B9A',
 } as const;
 
@@ -326,7 +326,7 @@ export default function OutfitRatingScreen() {
     try {
       if (!data || typeof data !== 'object') return { ok: false, reason: 'no_object' };
 
-      const minChars = subscription.tier === 'ultimate' ? 350 : subscription.tier === 'premium' ? 250 : subscription.tier === 'basic' ? 140 : 80;
+      const minChars = subscription.tier === 'ultimate' ? 350 : subscription.tier === 'premium' ? 250 : subscription.tier === 'basic' ? 100 : 60;
 
       if (category === 'rate') {
         const a = data as AllCategoriesAnalysis;
@@ -408,8 +408,8 @@ export default function OutfitRatingScreen() {
         : subscription.tier === 'premium'
         ? 'long (5-6 sentences, well-developed)'
         : subscription.tier === 'basic'
-        ? 'medium (3-4 proper sentences)'
-        : 'short (2-3 proper sentences)';
+        ? 'short (1-2 sentences, concise)'
+        : 'very short (1-2 sentences, brief)';
 
       const response = await fetch('https://toolkit.rork.com/text/llm/', {
         method: 'POST',
