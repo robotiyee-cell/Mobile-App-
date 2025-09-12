@@ -200,7 +200,7 @@ const translations = {
     freeFeature2: 'Basic style categories',
     freeFeature3: 'Limited history (5 items)',
     freeFeature4: 'Standard support',
-    freeFeature5: 'Export analysis results',
+    freeFeature5: '—',
     freeFeature6: '—',
 
     basicFeature1: '15 outfit analyses per day',
@@ -441,7 +441,7 @@ const translations = {
     freeFeature2: 'Temel stil kategorileri',
     freeFeature3: 'Sınırlı geçmiş (5 öğe)',
     freeFeature4: 'Standart destek',
-    freeFeature5: 'Analiz sonuçlarını dışa aktar',
+    freeFeature5: '—',
     freeFeature6: '—',
 
     basicFeature1: 'Günde 15 kıyafet analizi',
