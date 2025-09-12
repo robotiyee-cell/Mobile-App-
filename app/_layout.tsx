@@ -5,6 +5,8 @@ import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SubscriptionProvider } from "../contexts/SubscriptionContext";
 import { LanguageProvider, useLanguage } from "../contexts/LanguageContext";
+import { CreditsProvider } from "../contexts/CreditsContext";
+import { HistoryProvider } from "../contexts/HistoryContext";
 import { trpc, trpcClient } from "../lib/trpc";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -47,9 +49,13 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
           <SubscriptionProvider>
-            <GestureHandlerRootView>
-              <RootLayoutNav />
-            </GestureHandlerRootView>
+            <CreditsProvider>
+              <HistoryProvider>
+                <GestureHandlerRootView>
+                  <RootLayoutNav />
+                </GestureHandlerRootView>
+              </HistoryProvider>
+            </CreditsProvider>
           </SubscriptionProvider>
         </LanguageProvider>
       </QueryClientProvider>
