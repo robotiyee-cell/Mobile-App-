@@ -191,6 +191,9 @@ const translations = {
     cancelAction: 'Cancel',
     notAvailableOnWeb: 'Not available on web preview',
     notAvailableInExpoGo: 'This method requires a store build and is not available in Expo Go. Use card as a demo.',
+    enableTestMode: 'Enable Test Mode',
+    testModeActive: 'Test Mode (No Card Required)',
+    testModeWarning: 'Test mode enabled - No payment required for testing',
 
     // Plan Feature texts
     freeFeature1: '3 outfit analyses per day',
@@ -427,6 +430,9 @@ const translations = {
     googlePay: 'Google Pay',
     creditDebitCard: 'Kredi/Banka Kartı',
     cancelAction: 'İptal',
+    enableTestMode: 'Test Modunu Etkinleştir',
+    testModeActive: 'Test Modu (Kart Gerekmez)',
+    testModeWarning: 'Test modu etkinleştirildi - Test için ödeme gerekmez',
     notAvailableOnWeb: 'Web önizlemesinde kullanılamaz',
     notAvailableInExpoGo: 'Bu yöntem mağaza derlemesi gerektirir ve Expo Go’da kullanılamaz. Demo için kartı kullanın.',
 

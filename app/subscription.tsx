@@ -512,7 +512,7 @@ export default function SubscriptionScreen() {
                   onPress={() => setTestMode(!testMode)}
                 >
                   <Text style={[styles.testModeText, testMode && styles.testModeTextActive]}>
-                    {testMode ? '✓ Test Mode (No Card Required)' : 'Enable Test Mode'}
+                    {testMode ? `✓ ${t('testModeActive')}` : t('enableTestMode')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -610,7 +610,7 @@ export default function SubscriptionScreen() {
               {testMode && (
                 <View style={styles.testModeInfo}>
                   <Text style={styles.testModeInfoText}>
-                    🧪 Test mode enabled - No payment required for testing
+                    🧪 {t('testModeWarning')}
                   </Text>
                 </View>
               )}
