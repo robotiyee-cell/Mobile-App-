@@ -2576,14 +2576,33 @@ export default function OutfitRatingScreen() {
               )}
 
               <View style={styles.actionButtonsContainer}>
-                <TouchableOpacity
-                  style={[styles.button, styles.emailButton]}
-                  onPress={emailSupport}
-                  testID="btn-email-support"
-                >
-                  <Upload size={20} color="white" />
-                  <Text style={[styles.buttonText, styles.emailButtonText]} numberOfLines={2}>{t('emailSupport')}</Text>
-                </TouchableOpacity>
+                {(() => {
+                  const emailDisabled = subscription.tier === 'free' || subscription.tier === 'basic';
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.button,
+                        styles.emailButton,
+                        emailDisabled && styles.disabledCategoryCard,
+                      ]}
+                      onPress={emailSupport}
+                      disabled={emailDisabled}
+                      testID="btn-email-support"
+                    >
+                      <Upload size={20} color="white" />
+                      <Text
+                        style={[
+                          styles.buttonText,
+                          styles.emailButtonText,
+                          emailDisabled && styles.disabledCategoryLabel,
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {t('emailSupport')}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })()}
                 <TouchableOpacity
                   style={[styles.button, styles.newPhotoButton]}
                   onPress={resetApp}
