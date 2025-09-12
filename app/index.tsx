@@ -186,12 +186,11 @@ export default function OutfitRatingScreen() {
         }, 250);
       }
       return () => {
-        console.log('Screen blurred, aborting in-flight analysis if any');
+        console.log('Screen blurred');
         if (isAnalyzing) {
           setShouldResume(true);
         }
-        ignoreResponsesRef.current = true;
-        try { currentAbortRef.current?.abort(); } catch {}
+        // Do not abort or ignore responses on blur; allow analysis to continue in background or resume gracefully
       };
     }, [shouldResume, selectedImage, selectedCategory, isAnalyzing])
   );
@@ -737,9 +736,11 @@ export default function OutfitRatingScreen() {
       }
     } catch (err: unknown) {
       const e = err as { name?: string; message?: string } | undefined;
-      const aborted = e?.name === 'AbortError' || (e?.message ?? '').toLowerCase().includes('abort');
-      if (aborted) {
-        console.log('Analysis request aborted due to app going to background. Will resume on return.');
+      const msg = (e?.message ?? '').toLowerCase();
+      const aborted = (e?.name === 'AbortError') || msg.includes('abort') || msg.includes('network request failed') || msg.includes('network connection lost');
+      if (aborted || !isAppActive) {
+        console.log('Analysis paused/interrupted; will resume automatically when app is active. Error:', e?.message ?? 'unknown');
+        setShouldResume(true);
       } else {
         Alert.alert(t('error'), t('failedToAnalyze'));
       }
