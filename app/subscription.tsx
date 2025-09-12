@@ -50,6 +50,7 @@ export default function SubscriptionScreen() {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [rememberedEmail, setRememberedEmail] = useState<string | null>(null);
   const [isRememberedUser, setIsRememberedUser] = useState<boolean>(false);
+  const [testMode, setTestMode] = useState<boolean>(false);
 
   const getPlanFeatures = (planId: SubscriptionTier): string[] => {
     if (planId === 'free') {
@@ -65,6 +66,12 @@ export default function SubscriptionScreen() {
   };
 
   const validateCheckout = useCallback((): boolean => {
+    // In test mode, skip all validation
+    if (testMode) {
+      setFieldError(null);
+      return true;
+    }
+
     if (!isRememberedUser) {
       if (!email || !email.includes('@')) {
         setFieldError(t('email'));
@@ -97,7 +104,7 @@ export default function SubscriptionScreen() {
     }
     setFieldError(null);
     return true;
-  }, [email, password, firstName, lastName, cardNumber, expiry, cvc, t, isRememberedUser]);
+  }, [email, password, firstName, lastName, cardNumber, expiry, cvc, t, isRememberedUser, testMode]);
 
   useEffect(() => {
     const loadRemembered = async () => {
@@ -499,6 +506,17 @@ export default function SubscriptionScreen() {
 
               <View style={styles.divider} />
 
+              <View style={styles.testModeContainer}>
+                <TouchableOpacity 
+                  style={[styles.testModeButton, testMode && styles.testModeActive]}
+                  onPress={() => setTestMode(!testMode)}
+                >
+                  <Text style={[styles.testModeText, testMode && styles.testModeTextActive]}>
+                    {testMode ? '✓ Test Mode (No Card Required)' : 'Enable Test Mode'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
               <Text style={styles.sectionLabel}>{t('creditDebitCard')}</Text>
               {isRememberedUser ? (
                 <View style={{ marginBottom: 12 }}>
@@ -550,40 +568,52 @@ export default function SubscriptionScreen() {
                   testID="lastNameInput"
                 />
               </View>
-              <TextInput
-                placeholder={t('cardNumber')}
-                placeholderTextColor="#999"
-                style={styles.input}
-                keyboardType={Platform.OS === 'web' ? 'default' : 'number-pad'}
-                value={cardNumber}
-                onChangeText={setCardNumber}
-                contextMenuHidden={false}
-                autoCorrect={false}
-                autoComplete="cc-number"
-                testID="cardInput"
-              />
-              <View style={styles.row}>
-                <TextInput
-                  placeholder={t('expiry')}
-                  placeholderTextColor="#999"
-                  style={[styles.input, styles.inputHalf]}
-                  keyboardType="numbers-and-punctuation"
-                  value={expiry}
-                  onChangeText={setExpiry}
-                  maxLength={5}
-                  testID="expiryInput"
-                />
-                <TextInput
-                  placeholder={t('cvc')}
-                  placeholderTextColor="#999"
-                  style={[styles.input, styles.inputHalf]}
-                  keyboardType="number-pad"
-                  value={cvc}
-                  onChangeText={setCvc}
-                  maxLength={4}
-                  testID="cvcInput"
-                />
-              </View>
+              {!testMode && (
+                <>
+                  <TextInput
+                    placeholder={t('cardNumber')}
+                    placeholderTextColor="#999"
+                    style={styles.input}
+                    keyboardType={Platform.OS === 'web' ? 'default' : 'number-pad'}
+                    value={cardNumber}
+                    onChangeText={setCardNumber}
+                    contextMenuHidden={false}
+                    autoCorrect={false}
+                    autoComplete="cc-number"
+                    testID="cardInput"
+                  />
+                  <View style={styles.row}>
+                    <TextInput
+                      placeholder={t('expiry')}
+                      placeholderTextColor="#999"
+                      style={[styles.input, styles.inputHalf]}
+                      keyboardType="numbers-and-punctuation"
+                      value={expiry}
+                      onChangeText={setExpiry}
+                      maxLength={5}
+                      testID="expiryInput"
+                    />
+                    <TextInput
+                      placeholder={t('cvc')}
+                      placeholderTextColor="#999"
+                      style={[styles.input, styles.inputHalf]}
+                      keyboardType="number-pad"
+                      value={cvc}
+                      onChangeText={setCvc}
+                      maxLength={4}
+                      testID="cvcInput"
+                    />
+                  </View>
+                </>
+              )}
+
+              {testMode && (
+                <View style={styles.testModeInfo}>
+                  <Text style={styles.testModeInfoText}>
+                    🧪 Test mode enabled - No payment required for testing
+                  </Text>
+                </View>
+              )}
 
               {fieldError ? (
                 <Text style={styles.errorText}>{t('error')}: {fieldError}</Text>
@@ -940,4 +970,42 @@ const styles = StyleSheet.create({
   cancelButton: { backgroundColor: '#f3f4f6' },
   payButton: { backgroundColor: '#111827' },
   actionButtonText: { color: '#111', fontWeight: '700' },
+  testModeContainer: {
+    marginBottom: 16,
+  },
+  testModeButton: {
+    backgroundColor: '#f3f4f6',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  testModeActive: {
+    backgroundColor: '#dcfce7',
+    borderColor: '#16a34a',
+  },
+  testModeText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+  testModeTextActive: {
+    color: '#16a34a',
+  },
+  testModeInfo: {
+    backgroundColor: '#fef3c7',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#f59e0b',
+    marginBottom: 12,
+  },
+  testModeInfoText: {
+    fontSize: 14,
+    color: '#92400e',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
 });
