@@ -129,6 +129,22 @@ export default function OutfitRatingScreen() {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const isPremiumLike = subscription.tier === 'premium' || subscription.tier === 'ultimate';
+  const showSuggestions = subscription.tier !== 'free';
+  const generateShortSuggestions = React.useCallback((category: string, lang: Language): string[] => {
+    const base: Record<string, { en: string[]; tr: string[] }> = {
+      sexy: { en: ['Define the waist and keep lines clean.', 'Choose one bold piece; simplify the rest.'], tr: ['Bel hattını belirginleştirip çizgileri sade tut.', 'Bir iddialı parçayı seç, kalanını sade tut.'] },
+      elegant: { en: ['Opt for refined fabrics and tailored fit.', 'Keep accessories minimal and cohesive.'], tr: ['Rafine kumaşlar ve terzi işi kesim tercih et.', 'Aksesuarları minimal ve uyumlu tut.'] },
+      casual: { en: ['Balance relaxed pieces with one structured layer.', 'Stick to 2–3 colors for an easy look.'], tr: ['Rahat parçaları bir yapılandırılmış katmanla dengele.', 'Kolay bir görünüm için 2–3 renkle sınırla.'] },
+      naive: { en: ['Use soft pastels or small playful details.', 'Choose gentle silhouettes over sharp lines.'], tr: ['Yumuşak pasteller veya küçük eğlenceli detaylar kullan.', 'Keskin hatlar yerine nazik silüetler seç.'] },
+      trendy: { en: ['Anchor the look with one on-trend item.', 'Mix textures; keep proportions modern.'], tr: ['Görünümü tek bir trend parça ile sabitle.', 'Dokuları karıştır; oranları modern tut.'] },
+      anime: { en: ['Add a cute accent in bright color.', 'Layer playful accessories sparingly.'], tr: ['Parlak renkte sevimli bir vurgu ekle.', 'Eğlenceli aksesuarları ölçülü katmanla.'] },
+      sixties: { en: ['Lean into A-line or shift shapes.', 'Use bold geometric or pop florals.'], tr: ['A-hatlı veya shift formlara yönel.', 'Cesur geometrik ya da pop çiçek desenleri kullan.'] },
+      rate: { en: ['Clarify the theme per category.', 'Unify palette; adjust fit slightly.'], tr: ['Her kategori için temayı netleştir.', 'Paleti birleştir; kalıbı hafifçe ayarla.'] },
+    };
+    const key = (category as keyof typeof base) || 'rate';
+    const pack = base[key] ?? base.rate;
+    return (lang === 'tr' ? pack.tr : pack.en).slice(0, 2);
+  }, []);
   const activeAnalysisIdRef = useRef<string | null>(null);
   const savedForActiveIdRef = useRef<boolean>(false);
 
@@ -692,6 +708,21 @@ export default function OutfitRatingScreen() {
           throw parseError;
         }
         
+        if (subscription.tier === 'basic') {
+          try {
+            if (categoryToUse === 'rate' && analysisData && (analysisData as any).results) {
+              (analysisData as any).results = (analysisData as any).results.map((r: any) => ({
+                ...r,
+                suggestions: Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions.slice(0, 2) : generateShortSuggestions(r?.category ?? 'rate', language),
+              }));
+            } else if (analysisData && typeof analysisData === 'object' && (analysisData as any).style !== undefined) {
+              const a: any = analysisData as any;
+              a.suggestions = Array.isArray(a?.suggestions) && a.suggestions.length > 0 ? a.suggestions.slice(0, 2) : generateShortSuggestions(categoryToUse ?? 'rate', language);
+              analysisData = a;
+            }
+          } catch {}
+        }
+
         const validation = validateAnalysis(analysisData, categoryToUse);
         if (!validation.ok) {
           console.log('Validation failed, reason:', validation.reason, 'retry:', retry);
@@ -2582,10 +2613,10 @@ export default function OutfitRatingScreen() {
                               <View style={{ width: '100%' }}>
                                 <Text style={[styles.categoryResultAnalysis, { color: getTextColor(result.category as StyleCategory), fontWeight: '800' }]}>{result.analysis || 'No analysis available'}</Text>
                               </View>
-                              {isPremiumLike ? (
+                              {subscription.tier !== 'free' ? (
                                 <View style={styles.categorySuggestions}>
                                   <Text style={styles.suggestionsSubtitle}>{(t('suggestionsFor') ?? '').replace('{category}', t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? (result.category || '')))))}</Text>
-                                  {result.suggestions && Array.isArray(result.suggestions) ? result.suggestions.map((suggestion: string, suggestionIndex: number) => (
+                                  {result.suggestions && Array.isArray(result.suggestions) ? result.suggestions.slice(0, subscription.tier === 'basic' ? 2 : result.suggestions.length).map((suggestion: string, suggestionIndex: number) => (
                                     <View key={suggestionIndex} style={styles.suggestionItem}>
                                       <View style={styles.suggestionBullet} />
                                       <Text style={[styles.suggestionText, { color: getTextColor(result.category as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
@@ -2649,13 +2680,13 @@ export default function OutfitRatingScreen() {
                       <Text style={[styles.analysisText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{(analysis as OutfitAnalysis).harmony}</Text>
                     </View>
                     
-                    {isPremiumLike ? (
+                    {subscription.tier !== 'free' ? (
                       <View style={styles.suggestionsSection}>
                         <View style={styles.suggestionsHeader}>
                           <Lightbulb size={20} color="#FFD700" />
                           <Text style={styles.suggestionsTitle}>{t('improvementSuggestions')}</Text>
                         </View>
-                        {(analysis as OutfitAnalysis).suggestions?.map && (analysis as OutfitAnalysis).suggestions?.map((suggestion: string, index: number) => (
+                        {(analysis as OutfitAnalysis).suggestions?.map && (analysis as OutfitAnalysis).suggestions?.slice(0, subscription.tier === 'basic' ? 2 : (analysis as OutfitAnalysis).suggestions.length)?.map((suggestion: string, index: number) => (
                           <View key={index} style={styles.suggestionItem}>
                             <View style={styles.suggestionBullet} />
                             <Text style={[styles.suggestionText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
