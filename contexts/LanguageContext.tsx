@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
 
+import { useAuth } from './AuthContext';
+
 export type Language = 'en' | 'tr';
 
 interface LanguageContextType {
@@ -91,6 +93,13 @@ const translations = {
     emailSupport: 'E-Mail',
     export: 'Export',
     exportAnalysis: 'Export Analysis',
+    analysisTakingLong: 'This is taking longer than usual',
+    photoMaybeIrrelevant: 'The photo may not be relevant to the selected style. Do you want to try a different photo?',
+    tryDifferentPhoto: 'Try Different Photo',
+    continue: 'Continue',
+    exported: 'Exported',
+    htmlDownloaded: 'HTML downloaded. Attach it to your email.',
+    premiumPlan: 'Premium Plan',
     
     // Buttons
     newPhoto: 'New Photo',
@@ -333,6 +342,13 @@ const translations = {
     emailSupport: 'E-Posta',
     export: 'Dışa Aktar',
     exportAnalysis: 'Analizi Dışa Aktar',
+    analysisTakingLong: 'Bu işlem beklenenden uzun sürüyor',
+    photoMaybeIrrelevant: 'Fotoğraf seçilen stile uygun olmayabilir. Farklı bir fotoğraf denemek ister misiniz?',
+    tryDifferentPhoto: 'Farklı Fotoğraf Dene',
+    continue: 'Devam Et',
+    exported: 'Dışa aktarıldı',
+    htmlDownloaded: 'HTML indirildi. E-postanıza ekleyin.',
+    premiumPlan: 'Premium Plan',
     
     // Buttons
     newPhoto: 'Yeni Fotoğraf',
@@ -500,15 +516,18 @@ const translations = {
 };
 
 export const [LanguageProvider, useLanguage] = createContextHook(() => {
+  const { user } = useAuth();
   const [language, setLanguageState] = useState<Language>('en');
 
   useEffect(() => {
     loadLanguage();
   }, []);
 
+  const storageKey = `app_language${user?.id ? `_${user.id}` : ''}`;
+
   const loadLanguage = async () => {
     try {
-      const savedLanguage = await AsyncStorage.getItem('app_language');
+      const savedLanguage = await AsyncStorage.getItem(storageKey);
       if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'tr')) {
         setLanguageState(savedLanguage as Language);
       }
@@ -519,7 +538,8 @@ export const [LanguageProvider, useLanguage] = createContextHook(() => {
 
   const setLanguage = async (lang: Language) => {
     try {
-      await AsyncStorage.setItem('app_language', lang);
+      const storageKeyLocal = `app_language${user?.id ? `_${user.id}` : ''}`;
+      await AsyncStorage.setItem(storageKeyLocal, lang);
       setLanguageState(lang);
     } catch (error) {
       console.log('Error saving language:', error);

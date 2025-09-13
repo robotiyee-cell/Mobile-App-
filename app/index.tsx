@@ -26,6 +26,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import { router, useFocusEffect } from 'expo-router';
 
 interface OutfitAnalysis {
@@ -122,6 +123,7 @@ export default function OutfitRatingScreen() {
   const [trendLoading, setTrendLoading] = useState<boolean>(false);
   const [trendText, setTrendText] = useState<string>('');
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
+  const { user } = useAuth();
   const { t, language } = useLanguage();
   const isPremiumLike = subscription.tier === 'premium' || subscription.tier === 'ultimate';
   const activeAnalysisIdRef = useRef<string | null>(null);
@@ -130,7 +132,8 @@ export default function OutfitRatingScreen() {
   useEffect(() => {
     loadSavedRatings();
     checkTermsAcceptance();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   useEffect(() => {
     return () => {
@@ -163,27 +166,18 @@ export default function OutfitRatingScreen() {
   useEffect(() => {
     isMountedRef.current = true;
 
-    const isAnalyzingRef = { current: isAnalyzing } as React.MutableRefObject<boolean> & { current: boolean };
-
     const handleStateChange = (nextState: AppStateStatus) => {
       const active = nextState === 'active';
       setIsAppActive(active);
       ignoreResponsesRef.current = false;
-
-      if (!active) {
-        if (isAnalyzingRef.current) {
-          setShouldResume(true);
-          cancelAnalysis();
-        }
-      } else if (active) {
-        if (shouldResume && selectedImage && selectedCategory && !isAnalyzing) {
-          setShouldResume(false);
-          setTimeout(() => {
-            if (isMountedRef.current && !isAnalyzing) {
-              analyzeOutfit();
-            }
-          }, 250);
-        }
+      // Do not cancel analysis on background; allow request to continue. If it fails, we auto-resume when active.
+      if (active && shouldResume && selectedImage && selectedCategory && !isAnalyzing) {
+        setShouldResume(false);
+        setTimeout(() => {
+          if (isMountedRef.current && !isAnalyzing) {
+            analyzeOutfit();
+          }
+        }, 250);
       }
     };
 
@@ -193,7 +187,7 @@ export default function OutfitRatingScreen() {
       isMountedRef.current = false;
       sub.remove();
     };
-  }, [cancelAnalysis, isAnalyzing, shouldResume, selectedImage, selectedCategory]);
+  }, [shouldResume, selectedImage, selectedCategory, isAnalyzing]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -209,10 +203,7 @@ export default function OutfitRatingScreen() {
       }
       return () => {
         console.log('Screen blurred');
-        if (isAnalyzing) {
-          cancelAnalysis();
-          setShouldResume(true);
-        }
+        // Do not cancel analysis when navigating away; avoid warnings.
       };
     }, [shouldResume, selectedImage, selectedCategory, isAnalyzing])
   );
@@ -240,9 +231,11 @@ export default function OutfitRatingScreen() {
     }
   };
 
+  const storageKey = `outfitRatings${user?.id ? `_${user.id}` : ''}`;
+
   const loadSavedRatings = async () => {
     try {
-      const saved = await AsyncStorage.getItem('outfitRatings');
+      const saved = await AsyncStorage.getItem(storageKey);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -268,7 +261,7 @@ export default function OutfitRatingScreen() {
     try {
       const updatedRatings = [rating, ...savedRatings.slice(0, 9)]; // Keep last 10 ratings
       setSavedRatings(updatedRatings);
-      await AsyncStorage.setItem('outfitRatings', JSON.stringify(updatedRatings));
+      await AsyncStorage.setItem(storageKey, JSON.stringify(updatedRatings));
     } catch (error) {
       console.log('Error saving rating:', error);
     }
@@ -439,6 +432,19 @@ export default function OutfitRatingScreen() {
         : subscription.tier === 'basic'
         ? 'short (1-2 sentences, concise)'
         : 'very short (1-2 sentences, brief)';
+
+      const controller = new AbortController();
+      currentAbortRef.current = controller;
+      const slowTimer = setTimeout(() => {
+        try {
+          if (isAnalyzing) {
+            Alert.alert(t('analysisTakingLong'), t('photoMaybeIrrelevant'), [
+              { text: t('tryDifferentPhoto'), style: 'default' },
+              { text: t('continue'), style: 'cancel' },
+            ]);
+          }
+        } catch {}
+      }, 25000);
 
       const response = await fetch('https://toolkit.rork.com/text/llm/', {
         method: 'POST',
@@ -660,6 +666,7 @@ export default function OutfitRatingScreen() {
         })
       , signal: controller.signal });
 
+      clearTimeout(slowTimer);
       const data = await response.json();
 
       try {

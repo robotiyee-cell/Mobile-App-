@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
 import { useSubscription } from './SubscriptionContext';
+import { useAuth } from './AuthContext';
 
 export type HistoryItemCategory = 'sexy' | 'elegant' | 'casual' | 'naive' | 'trendy' | 'anime' | 'sixties' | 'sarcastic' | 'custom' | 'all';
 
@@ -25,10 +26,11 @@ interface HistoryContextValue {
   maxItems: number | -1;
 }
 
-const STORAGE_KEY = 'l4f_history_items_v1';
+const STORAGE_KEY_BASE = 'l4f_history_items_v1';
 
 export const [HistoryProvider, useHistory] = createContextHook<HistoryContextValue>(() => {
   const { subscription, plans } = useSubscription();
+  const { user } = useAuth();
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -39,10 +41,12 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
     return 5; // free default
   }, [planDef?.hasUnlimitedHistory, subscription.tier]);
 
+  const key = `${STORAGE_KEY_BASE}${user?.id ? `_${user.id}` : ''}`;
+
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
+      const raw = await AsyncStorage.getItem(key);
       if (raw) {
         const parsed: HistoryItem[] = JSON.parse(raw);
         if (Array.isArray(parsed)) {
@@ -58,7 +62,8 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
 
   const persist = useCallback(async (data: HistoryItem[]) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const k = `${STORAGE_KEY_BASE}${user?.id ? `_${user.id}` : ''}`;
+      await AsyncStorage.setItem(k, JSON.stringify(data));
     } catch (e) {
       console.log('History persist error', e);
     }
@@ -66,7 +71,8 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
 
   useEffect(() => {
     load();
-  }, [load]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   useEffect(() => {
     if (maxItems === -1) return;
@@ -97,7 +103,8 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
   const clearHistory = useCallback(async () => {
     setItems([]);
     try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
+      const k = `${STORAGE_KEY_BASE}${user?.id ? `_${user.id}` : ''}`;
+      await AsyncStorage.removeItem(k);
     } catch (e) {
       console.log('History clear error', e);
     }

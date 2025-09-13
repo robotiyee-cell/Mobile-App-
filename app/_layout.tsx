@@ -7,6 +7,7 @@ import { SubscriptionProvider } from "../contexts/SubscriptionContext";
 import { LanguageProvider, useLanguage } from "../contexts/LanguageContext";
 import { CreditsProvider } from "../contexts/CreditsContext";
 import { HistoryProvider } from "../contexts/HistoryContext";
+import { AuthProvider } from "../contexts/AuthContext";
 import { trpc, trpcClient } from "../lib/trpc";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -47,17 +48,19 @@ export default function RootLayout() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <LanguageProvider>
-          <SubscriptionProvider>
-            <CreditsProvider>
-              <HistoryProvider>
-                <GestureHandlerRootView>
-                  <RootLayoutNav />
-                </GestureHandlerRootView>
-              </HistoryProvider>
-            </CreditsProvider>
-          </SubscriptionProvider>
-        </LanguageProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <SubscriptionProvider>
+              <CreditsProvider>
+                <HistoryProvider>
+                  <GestureHandlerRootView>
+                    <RootLayoutNav />
+                  </GestureHandlerRootView>
+                </HistoryProvider>
+              </CreditsProvider>
+            </SubscriptionProvider>
+          </LanguageProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
 
+import { useAuth } from './AuthContext';
+
 export type SubscriptionTier = 'free' | 'basic' | 'premium' | 'ultimate';
 
 export interface SubscriptionPlan {
@@ -114,13 +116,14 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   }
 ];
 
-const STORAGE_KEYS = {
+const STORAGE_KEYS_BASE = {
   SUBSCRIPTION: 'user_subscription',
   ANALYSIS_COUNT: 'daily_analysis_count',
   LAST_RESET_DATE: 'last_reset_date'
 };
 
 export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
+  const { user } = useAuth();
   const [subscription, setSubscription] = useState<UserSubscription>({
     tier: 'free',
     expiresAt: null,
@@ -130,12 +133,14 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  const key = (name: string) => `${name}${user?.id ? `_${user.id}` : ''}`;
+
   const loadSubscriptionData = useCallback(async () => {
     try {
       setIsLoading(true);
       
       // Load subscription info
-      const savedSubscription = await AsyncStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
+      const savedSubscription = await AsyncStorage.getItem(key(STORAGE_KEYS_BASE.SUBSCRIPTION));
       if (savedSubscription) {
         try {
           const parsed = JSON.parse(savedSubscription);
@@ -155,12 +160,12 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
         } catch (parseError) {
           console.error('Error parsing subscription data:', parseError);
           // Clear corrupted data and reset to default
-          await AsyncStorage.removeItem(STORAGE_KEYS.SUBSCRIPTION);
+          await AsyncStorage.removeItem(key(STORAGE_KEYS_BASE.SUBSCRIPTION));
         }
       }
       
       // Load daily analysis count
-      const analysisCount = await AsyncStorage.getItem(STORAGE_KEYS.ANALYSIS_COUNT);
+      const analysisCount = await AsyncStorage.getItem(key(STORAGE_KEYS_BASE.ANALYSIS_COUNT));
       if (analysisCount) {
         const count = parseInt(analysisCount, 10);
         setSubscription(prev => ({
@@ -179,7 +184,8 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const saveSubscriptionData = useCallback(async (newSubscription: UserSubscription) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.SUBSCRIPTION, JSON.stringify(newSubscription));
+      const keyLocal = (name: string) => `${name}${user?.id ? `_${user.id}` : ''}`;
+      await AsyncStorage.setItem(keyLocal(STORAGE_KEYS_BASE.SUBSCRIPTION), JSON.stringify(newSubscription));
     } catch (error) {
       console.error('Error saving subscription data:', error);
     }
@@ -196,23 +202,25 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     };
     
     setSubscription(updatedSubscription);
-    await AsyncStorage.setItem(STORAGE_KEYS.ANALYSIS_COUNT, '0');
+    const k = (name: string) => `${name}${user?.id ? `_${user.id}` : ''}`;
+    await AsyncStorage.setItem(k(STORAGE_KEYS_BASE.ANALYSIS_COUNT), '0');
   }, [subscription]);
 
   // Load subscription data on mount
   useEffect(() => {
     loadSubscriptionData();
-  }, [loadSubscriptionData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Reset daily analysis count at midnight
   useEffect(() => {
     const checkDailyReset = async () => {
       const today = new Date().toDateString();
-      const lastResetDate = await AsyncStorage.getItem(STORAGE_KEYS.LAST_RESET_DATE);
+      const lastResetDate = await AsyncStorage.getItem(key(STORAGE_KEYS_BASE.LAST_RESET_DATE));
       
       if (lastResetDate !== today) {
         await resetAnalysisCount();
-        await AsyncStorage.setItem(STORAGE_KEYS.LAST_RESET_DATE, today);
+        await AsyncStorage.setItem(key(STORAGE_KEYS_BASE.LAST_RESET_DATE), today);
       }
     };
 
@@ -316,7 +324,8 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     };
     
     setSubscription(updatedSubscription);
-    await AsyncStorage.setItem(STORAGE_KEYS.ANALYSIS_COUNT, newCount.toString());
+    const k = (name: string) => `${name}${user?.id ? `_${user.id}` : ''}`;
+    await AsyncStorage.setItem(k(STORAGE_KEYS_BASE.ANALYSIS_COUNT), newCount.toString());
   }, [subscription]);
 
   return useMemo(() => ({

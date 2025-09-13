@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
+import { useAuth } from './AuthContext';
 
 export interface CreditsState {
   totalCredits: number;
@@ -16,16 +17,19 @@ interface CreditsContextValue {
   resetCredits: () => Promise<void>;
 }
 
-const STORAGE_KEY = 'l4f_credits_v1';
+const STORAGE_KEY_BASE = 'l4f_credits_v1';
 
 export const [CreditsProvider, useCredits] = createContextHook<CreditsContextValue>(() => {
+  const { user } = useAuth();
   const [credits, setCredits] = useState<CreditsState>({ totalCredits: 0, usedCredits: 0, lastUpdatedAt: null });
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const key = `${STORAGE_KEY_BASE}${user?.id ? `_${user.id}` : ''}`;
 
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
+      const raw = await AsyncStorage.getItem(key);
       if (raw) {
         const parsed: CreditsState = JSON.parse(raw);
         if (
@@ -48,7 +52,8 @@ export const [CreditsProvider, useCredits] = createContextHook<CreditsContextVal
 
   const persist = useCallback(async (data: CreditsState) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const k = `${STORAGE_KEY_BASE}${user?.id ? `_${user.id}` : ''}`;
+      await AsyncStorage.setItem(k, JSON.stringify(data));
     } catch (e) {
       console.log('Credits persist error', e);
     }
@@ -56,7 +61,8 @@ export const [CreditsProvider, useCredits] = createContextHook<CreditsContextVal
 
   useEffect(() => {
     load();
-  }, [load]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const addCredits = useCallback(async (amount: number) => {
     if (!Number.isFinite(amount) || amount <= 0) return;
