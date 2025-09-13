@@ -122,11 +122,11 @@ const STORAGE_KEYS = {
 
 export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
   const [subscription, setSubscription] = useState<UserSubscription>({
-    tier: 'premium',
+    tier: 'free',
     expiresAt: null,
     isActive: true,
     analysesUsed: 0,
-    analysesRemaining: -1
+    analysesRemaining: 3
   });
   const [isLoading, setIsLoading] = useState(true);
 

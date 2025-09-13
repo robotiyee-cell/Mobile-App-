@@ -487,6 +487,24 @@ export default function SubscriptionScreen() {
           <Text style={styles.footerSubtext}>
             {t('footerRenew')}
           </Text>
+          <TouchableOpacity
+            testID="btn-save-plan"
+            style={styles.saveButton}
+            onPress={() => {
+              if (selectedPlan) {
+                handleSubscribe(selectedPlan);
+              } else {
+                router.back();
+              }
+            }}
+            disabled={isSubscribing}
+          >
+            {isSubscribing ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.saveButtonText}>{t('save') || 'Kaydet'}</Text>
+            )}
+          </TouchableOpacity>
         </View>
         <Modal visible={checkoutVisible} animationType="fade" transparent>
           <View style={[styles.modalOverlay, { justifyContent: 'flex-start' }]}>
@@ -899,6 +917,7 @@ const styles = StyleSheet.create({
   footer: {
     padding: 20,
     alignItems: 'center',
+    gap: 8,
   },
   footerText: {
     fontSize: 14,
@@ -911,6 +930,20 @@ const styles = StyleSheet.create({
     color: '#999',
     textAlign: 'center',
     lineHeight: 16,
+  },
+  saveButton: {
+    marginTop: 8,
+    backgroundColor: '#111827',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
   },
   modalOverlay: {
     flex: 1,
