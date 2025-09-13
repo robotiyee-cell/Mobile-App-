@@ -156,15 +156,9 @@ export default function OutfitRatingScreen() {
 
   const confirmEndAnalysis = React.useCallback(async (): Promise<boolean> => {
     if (!isAnalyzing || !selectedCategory) return true;
-    return new Promise((resolve) => {
-      const title = language === 'tr' ? 'Analiz sona erecektir' : 'Analysis will end';
-      const msg = language === 'tr' ? 'Emin misiniz?' : 'Are you sure?';
-      Alert.alert(title, msg, [
-        { text: language === 'tr' ? 'Vazgeç' : 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-        { text: language === 'tr' ? 'Bitir' : 'End', style: 'destructive', onPress: () => { cancelAnalysis(); resolve(true); } },
-      ]);
-    });
-  }, [cancelAnalysis, isAnalyzing, language, selectedCategory]);
+    cancelAnalysis();
+    return true;
+  }, [cancelAnalysis, isAnalyzing, selectedCategory]);
 
   useEffect(() => {
     isMountedRef.current = true;
