@@ -132,14 +132,86 @@ export default function OutfitRatingScreen() {
   const showSuggestions = subscription.tier !== 'free';
   const generateShortSuggestions = React.useCallback((category: string, lang: Language): string[] => {
     const base: Record<string, { en: string[]; tr: string[] }> = {
-      sexy: { en: ['Define the waist and keep lines clean.', 'Choose one bold piece; simplify the rest.'], tr: ['Bel hattını belirginleştirip çizgileri sade tut.', 'Bir iddialı parçayı seç, kalanını sade tut.'] },
-      elegant: { en: ['Opt for refined fabrics and tailored fit.', 'Keep accessories minimal and cohesive.'], tr: ['Rafine kumaşlar ve terzi işi kesim tercih et.', 'Aksesuarları minimal ve uyumlu tut.'] },
-      casual: { en: ['Balance relaxed pieces with one structured layer.', 'Stick to 2–3 colors for an easy look.'], tr: ['Rahat parçaları bir yapılandırılmış katmanla dengele.', 'Kolay bir görünüm için 2–3 renkle sınırla.'] },
-      naive: { en: ['Use soft pastels or small playful details.', 'Choose gentle silhouettes over sharp lines.'], tr: ['Yumuşak pasteller veya küçük eğlenceli detaylar kullan.', 'Keskin hatlar yerine nazik silüetler seç.'] },
-      trendy: { en: ['Anchor the look with one on-trend item.', 'Mix textures; keep proportions modern.'], tr: ['Görünümü tek bir trend parça ile sabitle.', 'Dokuları karıştır; oranları modern tut.'] },
-      anime: { en: ['Add a cute accent in bright color.', 'Layer playful accessories sparingly.'], tr: ['Parlak renkte sevimli bir vurgu ekle.', 'Eğlenceli aksesuarları ölçülü katmanla.'] },
-      sixties: { en: ['Lean into A-line or shift shapes.', 'Use bold geometric or pop florals.'], tr: ['A-hatlı veya shift formlara yönel.', 'Cesur geometrik ya da pop çiçek desenleri kullan.'] },
-      rate: { en: ['Clarify the theme per category.', 'Unify palette; adjust fit slightly.'], tr: ['Her kategori için temayı netleştir.', 'Paleti birleştir; kalıbı hafifçe ayarla.'] },
+      sexy: { 
+        en: [
+          'Define the waist with a fitted piece and streamline layers. Consider a deeper neckline or a hem adjustment for a confident, body-conscious silhouette.',
+          'Swap muted tones for richer blacks or reds and add one statement heel or cuff. Keep everything else clean to avoid visual clutter.'
+        ], 
+        tr: [
+          'Bel hattını vurgulayan dar bir parça ile katmanları sadeleştir. Daha iddialı bir yaka ya da etek boyu ayarıyla özgüvenli, vücut odaklı bir silüet yakalayabilirsin.',
+          'Soluk tonları daha zengin siyah veya kırmızılarla değiştir ve tek bir iddialı topuklu ya da bileklik ekle. Diğer öğeleri temiz ve sade tut.'
+        ] 
+      },
+      elegant: { 
+        en: [
+          'Upgrade fabrics to something with a finer hand (silk, wool blend) and tailor the shoulder and waist. This instantly sharpens the line and reads polished.',
+          'Keep jewelry minimal and coordinated, then introduce a structured shoe or bag. A restrained palette (navy, cream) will elevate the whole look.'
+        ], 
+        tr: [
+          'Kumaş kalitesini (ipek, yün karışımı) yükseltip omuz ve beli terzi işi daralt. Bu, çizgiyi anında netleştirir ve daha derli toplu görünür.',
+          'Takıları minimal ve uyumlu tut; ardından yapılandırılmış bir ayakkabı veya çanta ekle. Sınırlı bir palet (lacivert, krem) tüm görünümü yükseltir.'
+        ] 
+      },
+      casual: { 
+        en: [
+          'Balance the relaxed base with one structured layer like a light jacket or crisp shirt. Keep the palette to two or three colors to stay effortless.',
+          'Choose breathable textures (cotton, denim) and roll sleeves or hems slightly. A simple sneaker cleans up the look without trying too hard.'
+        ], 
+        tr: [
+          'Rahat temeli hafif bir ceket veya düzgün bir gömlek gibi tek bir yapılandırılmış katmanla dengele. Paleti iki-üç renkle sınırlayıp zahmetsiz kal.',
+          'Nefes alan dokular (pamuk, denim) seç; kol ya da paçayı hafifçe kıvır. Basit bir spor ayakkabı, abartmadan görünümü toparlar.'
+        ] 
+      },
+      naive: { 
+        en: [
+          'Introduce soft pastels or a tiny playful print and choose gentler A-line shapes. Keep hardware and edges rounded to preserve sweetness.',
+          'Swap harsh contrasts for milky tones and add a small bow or delicate hair clip. Light, floaty fabrics will enhance the youthful vibe.'
+        ], 
+        tr: [
+          'Yumuşak pasteller veya minik eğlenceli bir desen ekleyip daha nazik A-hatlı formları seç. Metal detayları ve köşeleri yuvarlayarak tatlılığı koru.',
+          'Sert kontrastlar yerine sütlü tonlara geç ve küçük bir fiyonk ya da zarif bir toka ekle. Hafif, uçuşan kumaşlar genç havayı güçlendirir.'
+        ] 
+      },
+      trendy: { 
+        en: [
+          'Anchor the look with one on-trend hero piece (bag, shoe or jacket) and mix two textures. Keep proportions crisp and modern for a feed-ready finish.',
+          'Introduce a current color accent and edit accessories down. Sharp tailoring with a playful twist will push it into trend territory.'
+        ], 
+        tr: [
+          'Görünümü tek bir trend yıldız parçayla (çanta, ayakkabı veya ceket) sabitle ve iki dokuyu karıştır. Oranları net ve modern tut ki paylaşıma hazır dursun.',
+          'Güncel bir renk vurgusu ekleyip aksesuarları azalt. Oyuncu bir dokunuşla keskin terzilik, görünümü trend seviyesine taşır.'
+        ] 
+      },
+      anime: { 
+        en: [
+          'Add a cute accent in a bright hue and layer playful accessories sparingly. Rounded shapes and glossy finishes keep it kawaii rather than chaotic.',
+          'Consider color-blocked socks or a charm detail on the bag. A micro print or pastel hairpiece will amplify the animated vibe.'
+        ], 
+        tr: [
+          'Parlak bir tonda sevimli bir vurgu ekleyip eğlenceli aksesuarları ölçülü katmanla. Yuvarlak formlar ve parlak dokular kaosu önleyip kawaii havayı korur.',
+          'Renk bloklu çoraplar veya çantada küçük bir süs detayı düşün. Minik bir desen ya da pastel bir saç aksesuarı animasyon etkisini artırır.'
+        ] 
+      },
+      sixties: { 
+        en: [
+          'Lean into an A-line or shift silhouette and choose bold geometrics or pop florals. White boots or a headband will signal authentic mod references.',
+          'Keep the palette saturated and accessories graphic. A short hem with clean lines will make the retro read intentional and fresh.'
+        ], 
+        tr: [
+          'A-hatlı veya shift silüete yönelip cesur geometrikler ya da pop çiçekler seç. Beyaz bot veya bir saç bandı, özgün mod referanslarını güçlendirir.',
+          'Paleti doygun tut ve aksesuarları grafik bırak. Temiz çizgili kısa bir etek boyu, retro etkisini bilinçli ve taze gösterir.'
+        ] 
+      },
+      rate: { 
+        en: [
+          'Clarify the target vibe per category and unify the palette across pieces. Adjust fit slightly where needed so each style reads intentional.',
+          'Elevate cohesion with one bridging accessory and tidy proportions. Minor tailoring plus a focused color story will lift all seven scores.'
+        ], 
+        tr: [
+          'Her kategori için hedef hissi netleştirip parçalar arasında paleti birleştir. Gerekli yerlerde kalıbı hafifçe ayarla ki her stil bilinçli okunsun.',
+          'Tek bir köprüleyici aksesuar ve düzenli oranlarla uyumu yükselt. Ufak terzilik ve odaklı bir renk hikâyesi tüm yedi skoru yukarı çeker.'
+        ] 
+      },
     };
     const key = (category as keyof typeof base) || 'rate';
     const pack = base[key] ?? base.rate;
@@ -437,7 +509,7 @@ export default function OutfitRatingScreen() {
         : subscription.tier === 'premium'
         ? 'long (5-6 sentences, well-developed)'
         : subscription.tier === 'basic'
-        ? 'short (1-2 sentences, concise)'
+        ? 'short (2-3 sentences, concise)'
         : 'very short (1-2 sentences, brief)';
 
       const slowTimer = setTimeout(() => {
@@ -599,13 +671,13 @@ export default function OutfitRatingScreen() {
               You MUST return results in this EXACT JSON format with ALL 7 categories:
               {
                 "results": [
-                  { "category": "sexy", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "elegant", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "casual", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "naive", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "trendy", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "anime", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "sixties", "score": number_out_of_12, "analysis": "..."${isPremiumLike ? ', "suggestions": ["...","...","..."]' : ''} }
+                  { "category": "sexy", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "elegant", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "casual", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "naive", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "trendy", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "anime", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
+                  { "category": "sixties", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} }
                 ],
                 "overallScore": average_of_all_7_scores,
                 "overallAnalysis": "comprehensive summary respecting the OUTPUT LENGTH POLICY"
@@ -646,7 +718,7 @@ export default function OutfitRatingScreen() {
               - Keep it concise per OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
-              ${categoryToUse !== 'rate' ? `${isPremiumLike ? `After the analysis, provide 3-5 specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}.` : `Do NOT include improvement suggestions in the output.`}
+              ${categoryToUse !== 'rate' ? `${subscription.tier !== 'free' ? `After the analysis, provide ${subscription.tier === 'basic' ? '2-3' : '3-5'} specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}. Each suggestion should be ${subscription.tier === 'basic' ? '2-3' : '2-4'} sentences long and concrete.` : `Do NOT include improvement suggestions in the output.`}
               
               Format your response as JSON:
               {
@@ -654,7 +726,7 @@ export default function OutfitRatingScreen() {
                 "colorCoordination": "analysis (respect the OUTPUT LENGTH POLICY) of colors and their harmony for the ${categoryToUse} style specifically",
                 "accessories": "commentary (respect the OUTPUT LENGTH POLICY) on accessories and their contribution to the ${categoryToUse} look specifically",
                 "harmony": "overall harmony (respect the OUTPUT LENGTH POLICY) and cohesiveness assessment for the ${categoryToUse} aesthetic specifically",
-                "score": number_out_of_12${isPremiumLike ? `,
+                "score": number_out_of_12${subscription.tier !== 'free' ? `,
                 "suggestions": ["specific ${categoryToUse}-focused improvement suggestion 1", "specific ${categoryToUse}-focused improvement suggestion 2", "specific ${categoryToUse}-focused improvement suggestion 3"]` : ''}
               }` : ''}`
             },
