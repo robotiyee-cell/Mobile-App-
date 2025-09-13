@@ -206,8 +206,8 @@ const translations = {
     basicFeature1: '15 outfit analyses per day',
     basicFeature2: 'Basic style categories',
     basicFeature3: 'Extended history (25 items)',
-    basicFeature4: 'Email support',
-    basicFeature5: 'Export analysis results',
+    basicFeature4: '\u2014',
+    basicFeature5: '\u2014',
 
     premiumFeature1: 'Unlimited outfit analyses',
     premiumFeature2: 'All categories (7 results)',
@@ -447,8 +447,8 @@ const translations = {
     basicFeature1: 'Günde 15 kıyafet analizi',
     basicFeature2: 'Temel stil kategorileri',
     basicFeature3: 'Genişletilmiş geçmiş (25 öğe)',
-    basicFeature4: 'E-posta desteği',
-    basicFeature5: 'Analiz sonuçlarını dışa aktar',
+    basicFeature4: '\u2014',
+    basicFeature5: '\u2014',
 
     premiumFeature1: 'Sınırsız kıyafet analizi',
     premiumFeature2: 'Tüm kategoriler (7 sonuç)',

@@ -24,7 +24,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings, Scissors, TrendingUp, Home } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
-import { useSubscription } from '../contexts/SubscriptionContext';
+import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { router, useFocusEffect } from 'expo-router';
 
@@ -57,6 +57,7 @@ interface SavedRating {
   category: StyleCategory;
   analysis: OutfitAnalysis | AllCategoriesAnalysis;
   timestamp: number;
+  planTier?: SubscriptionTier;
 }
 
 type StyleCategory = 'sexy' | 'elegant' | 'casual' | 'naive' | 'trendy' | 'anime' | 'sixties' | 'sarcastic' | 'rate';
@@ -686,7 +687,8 @@ export default function OutfitRatingScreen() {
             maskedImageUri: maskedImage || undefined,
             category: categoryToUse,
             analysis: analysisData,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            planTier: subscription.tier
           };
           await saveRating(rating);
         }
@@ -728,7 +730,8 @@ export default function OutfitRatingScreen() {
               maskedImageUri: maskedImage || undefined,
               category: categoryToUse,
               analysis: fallbackAnalysis,
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              planTier: subscription.tier
             };
             await saveRating(rating);
           }
@@ -1861,7 +1864,14 @@ export default function OutfitRatingScreen() {
                           ]} />
                           <Text style={styles.historyCategoryText}>{t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? '')))}</Text>
                         </View>
-                        <Text style={styles.historyDate}>{formatDate(rating.timestamp)}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                          {rating.planTier ? (
+                            <View style={styles.planChip}>
+                              <Text style={styles.planChipText}>{rating.planTier.charAt(0).toUpperCase() + rating.planTier.slice(1)}</Text>
+                            </View>
+                          ) : null}
+                          <Text style={styles.historyDate}>{formatDate(rating.timestamp)}</Text>
+                        </View>
                       </View>
                       <View style={styles.historyScore}>
                         <Text style={styles.historyScoreNumber}>{'score' in rating.analysis ? formatScore(rating.analysis.score) : formatScore(rating.analysis.overallScore)}</Text>
@@ -2373,6 +2383,10 @@ export default function OutfitRatingScreen() {
                     {t(selectedCategory === 'rate' ? 'allCategories' : (selectedCategory ?? ''))}
                   </Text>
                 </View>
+                <View style={styles.planInlineChip}>
+                  <Crown size={12} color="#FFD700" />
+                  <Text style={styles.planInlineChipText}>{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Text>
+                </View>
               </View>
               
               <TouchableOpacity
@@ -2583,7 +2597,7 @@ export default function OutfitRatingScreen() {
                       style={[
                         styles.button,
                         styles.emailButton,
-                        emailDisabled && styles.disabledCategoryCard,
+                        { opacity: emailDisabled ? 0.5 : 1 },
                       ]}
                       onPress={emailSupport}
                       disabled={emailDisabled}
@@ -2594,7 +2608,6 @@ export default function OutfitRatingScreen() {
                         style={[
                           styles.buttonText,
                           styles.emailButtonText,
-                          emailDisabled && styles.disabledCategoryLabel,
                         ]}
                         numberOfLines={2}
                       >
@@ -3384,6 +3397,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  planChip: {
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  planChipText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFD700',
+  },
+  planInlineChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: 'center',
+  },
+  planInlineChipText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#FFD700',
   },
   historyScoreNumber: {
     fontSize: 24,
