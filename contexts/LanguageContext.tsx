@@ -206,7 +206,7 @@ const translations = {
     basicFeature1: '15 outfit analyses per day',
     basicFeature2: 'Basic style categories',
     basicFeature3: 'Extended history (25 items)',
-    basicFeature4: '\u2014',
+    basicFeature4: 'Standard support',
     basicFeature5: '\u2014',
 
     premiumFeature1: 'Unlimited outfit analyses',
@@ -447,7 +447,7 @@ const translations = {
     basicFeature1: 'Günde 15 kıyafet analizi',
     basicFeature2: 'Temel stil kategorileri',
     basicFeature3: 'Genişletilmiş geçmiş (25 öğe)',
-    basicFeature4: '\u2014',
+    basicFeature4: 'Standart destek',
     basicFeature5: '\u2014',
 
     premiumFeature1: 'Sınırsız kıyafet analizi',
