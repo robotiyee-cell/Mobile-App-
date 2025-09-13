@@ -77,6 +77,8 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
   useEffect(() => {
     if (maxItems === -1) return;
     setItems(prev => {
+      if (prev.length <= maxItems) return prev;
+      // Remove oldest items (from the end of the array since newest are at the beginning)
       const trimmed = prev.slice(0, maxItems);
       void persist(trimmed);
       return trimmed;
@@ -85,7 +87,9 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
 
   const addItem = useCallback(async (item: HistoryItem) => {
     setItems(prev => {
+      // Add new item to the beginning (newest first)
       const next = [item, ...prev];
+      // Trim to maxItems if there's a limit, removing oldest items
       const trimmed = maxItems === -1 ? next : next.slice(0, maxItems);
       void persist(trimmed);
       return trimmed;

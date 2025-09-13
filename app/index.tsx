@@ -27,6 +27,7 @@ import Svg, { Circle, Path, G } from 'react-native-svg';
 import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
 import { useLanguage, Language } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useHistory } from '../contexts/HistoryContext';
 import { router, useFocusEffect } from 'expo-router';
 
 interface OutfitAnalysis {
@@ -108,7 +109,8 @@ export default function OutfitRatingScreen() {
   const [analysis, setAnalysis] = useState<OutfitAnalysis | AllCategoriesAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCategorySelection, setShowCategorySelection] = useState(false);
-  const [savedRatings, setSavedRatings] = useState<SavedRating[]>([]);
+  // Using HistoryContext instead of local state
+  const { items: savedRatings, addItem: addHistoryItem, removeItem: removeHistoryItem, clearHistory: clearHistoryItems, maxItems } = useHistory();
   const [isAppActive, setIsAppActive] = useState<boolean>(true);
   const isMountedRef = useRef<boolean>(true);
   const ignoreResponsesRef = useRef<boolean>(false);
@@ -131,7 +133,6 @@ export default function OutfitRatingScreen() {
   const savedForActiveIdRef = useRef<boolean>(false);
 
   useEffect(() => {
-    loadSavedRatings();
     checkTermsAcceptance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
@@ -232,37 +233,25 @@ export default function OutfitRatingScreen() {
     }
   };
 
-  const storageKey = `outfitRatings${user?.id ? `_${user.id}` : ''}`;
-
-  const loadSavedRatings = async () => {
-    try {
-      const saved = await AsyncStorage.getItem(storageKey);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            setSavedRatings(parsed);
-          } else {
-            console.log('Invalid saved ratings format, resetting');
-            setSavedRatings([]);
-          }
-        } catch (parseError) {
-          console.log('Error parsing saved ratings JSON:', parseError);
-          setSavedRatings([]);
-          // Clear corrupted data
-          await AsyncStorage.removeItem('outfitRatings');
-        }
-      }
-    } catch (error) {
-      console.log('Error loading saved ratings:', error);
-    }
+  // Convert SavedRating to HistoryItem format
+  const convertToHistoryItem = (rating: SavedRating) => {
+    const score = 'score' in rating.analysis ? rating.analysis.score : rating.analysis.overallScore;
+    return {
+      id: rating.id,
+      createdAt: new Date(rating.timestamp).toISOString(),
+      imageUri: rating.imageUri,
+      thumbnailUri: rating.maskedImageUri,
+      selectedCategory: rating.category as any, // Type conversion needed
+      score: score,
+      analysisSummary: 'style' in rating.analysis ? rating.analysis.style : rating.analysis.overallAnalysis,
+      details: JSON.stringify(rating.analysis)
+    };
   };
 
   const saveRating = async (rating: SavedRating) => {
     try {
-      const updatedRatings = [rating, ...savedRatings.slice(0, 9)]; // Keep last 10 ratings
-      setSavedRatings(updatedRatings);
-      await AsyncStorage.setItem(storageKey, JSON.stringify(updatedRatings));
+      const historyItem = convertToHistoryItem(rating);
+      await addHistoryItem(historyItem);
     } catch (error) {
       console.log('Error saving rating:', error);
     }
@@ -846,15 +835,27 @@ export default function OutfitRatingScreen() {
         translated = data.completion as any;
       }
       const updated: SavedRating = { ...rating, analysis: translated, lang: language };
-      setSavedRatings(prev => prev.map(r => r.id === rating.id ? updated : r));
-      try { await AsyncStorage.setItem(storageKey, JSON.stringify([updated, ...savedRatings.filter(r => r.id !== rating.id)])); } catch {}
+      // Note: Translation updates are handled by the HistoryContext
+      // We don't need to manually update the savedRatings here
       return updated;
     } catch (e) {
       return rating;
     }
   };
 
-  const loadSavedRating = async (rating: SavedRating) => {
+  const loadSavedRating = async (historyItem: any) => {
+    // Convert HistoryItem back to SavedRating format for compatibility
+    const rating: SavedRating = {
+      id: historyItem.id,
+      imageUri: historyItem.imageUri,
+      maskedImageUri: historyItem.thumbnailUri,
+      category: historyItem.selectedCategory,
+      analysis: historyItem.details ? JSON.parse(historyItem.details) : { score: historyItem.score || 0, style: historyItem.analysisSummary || '' },
+      timestamp: new Date(historyItem.createdAt).getTime(),
+      planTier: subscription.tier,
+      lang: language
+    };
+    
     let r = rating;
     if (r.lang !== language) {
       r = await translateAnalysisIfNeeded(rating);
@@ -878,8 +879,7 @@ export default function OutfitRatingScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem(storageKey);
-              setSavedRatings([]);
+              await clearHistoryItems();
               Alert.alert(t('cleared'), t('historyCleared'));
             } catch {
               Alert.alert(t('error'), t('couldNotClearHistory'));
@@ -1920,7 +1920,7 @@ export default function OutfitRatingScreen() {
         <View style={styles.historySection}>
           <Text style={styles.historyTitle}>{t('yourRatingHistory')}</Text>
           <Text style={styles.historySubtitle}>
-            {(t('historySubtitle') ?? '').replace('{count}', `${savedRatings.length}`)}
+            {(t('historySubtitle') ?? '').replace('{count}', `${savedRatings.length}`)} {maxItems !== -1 && ` (${t('maxItems')}: ${maxItems})`}
           </Text>
           
           {savedRatings.length === 0 ? (
@@ -1933,16 +1933,16 @@ export default function OutfitRatingScreen() {
             </View>
           ) : (
             <ScrollView style={styles.historyList} showsVerticalScrollIndicator={false}>
-              {savedRatings.map((rating) => {
-                const categoryInfo = STYLE_CATEGORIES.find(cat => cat.id === rating.category);
+              {savedRatings.map((historyItem) => {
+                const categoryInfo = STYLE_CATEGORIES.find(cat => cat.id === historyItem.selectedCategory);
                 return (
                   <TouchableOpacity
-                    key={rating.id}
+                    key={historyItem.id}
                     style={styles.historyItem}
-                    onPress={() => loadSavedRating(rating)}
+                    onPress={() => loadSavedRating(historyItem)}
                   >
                     <View style={styles.historyImageContainer}>
-                      <Image source={{ uri: rating.imageUri }} style={styles.historyImage} />
+                      <Image source={{ uri: historyItem.imageUri }} style={styles.historyImage} />
                       <View style={styles.historyImageOverlay}>
                         <Shield size={16} color="white" />
                       </View>
@@ -1957,18 +1957,15 @@ export default function OutfitRatingScreen() {
                           <Text style={styles.historyCategoryText}>{t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? '')))}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                          {rating.planTier ? (
-                            <View style={styles.planChip}>
-                              <Text style={styles.planChipText}>{rating.planTier.charAt(0).toUpperCase() + rating.planTier.slice(1)}</Text>
-                            </View>
-                          ) : null}
-                          <Text style={styles.historyDate}>{formatDate(rating.timestamp)}</Text>
+                          <View style={styles.planChip}>
+                            <Text style={styles.planChipText}>{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Text>
+                          </View>
+                          <Text style={styles.historyDate}>{formatDate(new Date(historyItem.createdAt).getTime())}</Text>
                         </View>
                       </View>
                       <View style={styles.historyScore}>
-                        <Text style={styles.historyScoreNumber}>{'score' in rating.analysis ? formatScore(rating.analysis.score) : formatScore(rating.analysis.overallScore)}</Text>
+                        <Text style={styles.historyScoreNumber}>{formatScore(historyItem.score || 0)}</Text>
                         <Text style={styles.historyScoreOutOf}>/12</Text>
-
                       </View>
                     </View>
                   </TouchableOpacity>

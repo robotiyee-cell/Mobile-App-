@@ -124,6 +124,7 @@ const translations = {
     // History
     yourRatingHistory: 'Your Rating History',
     historySubtitle: 'Your last {count} outfit ratings with privacy protection',
+    maxItems: 'Max',
     noRatingsYet: 'No ratings yet',
     noRatingsSubtext: 'Upload your first outfit to get started!',
     clearHistoryTitle: 'Clear History',
@@ -373,6 +374,7 @@ const translations = {
     // History
     yourRatingHistory: 'Değerlendirme Geçmişiniz',
     historySubtitle: 'Gizlilik koruması ile son {count} kıyafet değerlendirmeniz',
+    maxItems: 'Maks',
     noRatingsYet: 'Henüz değerlendirme yok',
     noRatingsSubtext: 'Başlamak için ilk kıyafetinizi yükleyin!',
     clearHistoryTitle: 'Geçmişi Temizle',
