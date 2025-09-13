@@ -124,6 +124,8 @@ export default function OutfitRatingScreen() {
   const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
   const { t, language } = useLanguage();
   const isPremiumLike = subscription.tier === 'premium' || subscription.tier === 'ultimate';
+  const activeAnalysisIdRef = useRef<string | null>(null);
+  const savedForActiveIdRef = useRef<boolean>(false);
 
   useEffect(() => {
     loadSavedRatings();
@@ -140,6 +142,30 @@ export default function OutfitRatingScreen() {
     };
   }, []);
 
+  const cancelAnalysis = React.useCallback(() => {
+    try {
+      ignoreResponsesRef.current = true;
+      if (currentAbortRef.current) {
+        currentAbortRef.current.abort();
+      }
+    } catch {}
+    activeAnalysisIdRef.current = null;
+    savedForActiveIdRef.current = false;
+    setIsAnalyzing(false);
+  }, []);
+
+  const confirmEndAnalysis = React.useCallback(async (): Promise<boolean> => {
+    if (!isAnalyzing) return true;
+    return new Promise((resolve) => {
+      const title = language === 'tr' ? 'Analiz sona erecektir' : 'Analysis will end';
+      const msg = language === 'tr' ? 'Emin misiniz?' : 'Are you sure?';
+      Alert.alert(title, msg, [
+        { text: language === 'tr' ? 'Vazgeç' : 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+        { text: language === 'tr' ? 'Bitir' : 'End', style: 'destructive', onPress: () => { cancelAnalysis(); resolve(true); } },
+      ]);
+    });
+  }, [cancelAnalysis, isAnalyzing, language]);
+
   useEffect(() => {
     isMountedRef.current = true;
 
@@ -153,6 +179,7 @@ export default function OutfitRatingScreen() {
       if (!active) {
         if (isAnalyzingRef.current) {
           setShouldResume(true);
+          cancelAnalysis();
         }
       } else if (active) {
         if (shouldResume && selectedImage && selectedCategory && !isAnalyzing) {
@@ -172,7 +199,7 @@ export default function OutfitRatingScreen() {
       isMountedRef.current = false;
       sub.remove();
     };
-  }, [isAnalyzing, shouldResume, selectedImage, selectedCategory]);
+  }, [cancelAnalysis, isAnalyzing, shouldResume, selectedImage, selectedCategory]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -189,9 +216,9 @@ export default function OutfitRatingScreen() {
       return () => {
         console.log('Screen blurred');
         if (isAnalyzing) {
+          cancelAnalysis();
           setShouldResume(true);
         }
-        // Do not abort or ignore responses on blur; allow analysis to continue in background or resume gracefully
       };
     }, [shouldResume, selectedImage, selectedCategory, isAnalyzing])
   );
@@ -272,6 +299,10 @@ export default function OutfitRatingScreen() {
 
   const pickImage = async (useCamera: boolean = false) => {
     try {
+      if (isAnalyzing) {
+        const proceed = await confirmEndAnalysis();
+        if (!proceed) return;
+      }
       let result;
       
       if (useCamera) {
@@ -379,6 +410,10 @@ export default function OutfitRatingScreen() {
 
     setIsAnalyzing(true);
     const thisReq = ++requestIdRef.current;
+    if (!retry) {
+      activeAnalysisIdRef.current = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      savedForActiveIdRef.current = false;
+    }
     try {
       const categoryInfo = STYLE_CATEGORIES.find(cat => cat.id === categoryToUse);
 
@@ -680,7 +715,7 @@ export default function OutfitRatingScreen() {
 
         await incrementAnalysisCount();
 
-        if (selectedImage && selectedCategory) {
+        if (!savedForActiveIdRef.current && selectedImage && categoryToUse) {
           const rating: SavedRating = {
             id: Date.now().toString(),
             imageUri: selectedImage,
@@ -723,7 +758,7 @@ export default function OutfitRatingScreen() {
         if (!(ignoreResponsesRef.current || thisReq !== requestIdRef.current || !isMountedRef.current)) {
           setAnalysis(fallbackAnalysis);
           await incrementAnalysisCount();
-          if (selectedImage && selectedCategory) {
+          if (!savedForActiveIdRef.current && selectedImage && categoryToUse) {
             const rating: SavedRating = {
               id: Date.now().toString(),
               imageUri: selectedImage,
@@ -750,10 +785,16 @@ export default function OutfitRatingScreen() {
     } finally {
       if (isMountedRef.current) setIsAnalyzing(false);
       if (currentAbortRef.current) currentAbortRef.current = null;
+      activeAnalysisIdRef.current = null;
+      savedForActiveIdRef.current = false;
     }
   };
 
-  const resetApp = () => {
+  const resetApp = async () => {
+    if (isAnalyzing) {
+      const proceed = await confirmEndAnalysis();
+      if (!proceed) return;
+    }
     setSelectedImage(null);
     setMaskedImage(null);
     setAnalysis(null);
@@ -815,8 +856,12 @@ export default function OutfitRatingScreen() {
     });
   };
 
-  const handleCategorySelect = (category: StyleCategory) => {
+  const handleCategorySelect = async (category: StyleCategory) => {
     console.log('Category selected:', category);
+    if (isAnalyzing && category !== selectedCategory) {
+      const proceed = await confirmEndAnalysis();
+      if (!proceed) return;
+    }
     if (category === 'rate') {
       // Check if user has premium access for "All category"
       if (subscription.tier === 'free' || subscription.tier === 'basic') {
@@ -840,7 +885,11 @@ export default function OutfitRatingScreen() {
     console.log('Selected category set to:', category);
   };
 
-  const handleRateOptionSelect = (category: StyleCategory) => {
+  const handleRateOptionSelect = async (category: StyleCategory) => {
+    if (isAnalyzing && category !== selectedCategory) {
+      const proceed = await confirmEndAnalysis();
+      if (!proceed) return;
+    }
     if (category === 'rate') {
       // Check if user has premium access for "All category"
       if (subscription.tier === 'free' || subscription.tier === 'basic') {
@@ -1787,35 +1836,35 @@ export default function OutfitRatingScreen() {
         <View style={styles.headerButtonsRow}>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={toggleHistory}
+            onPress={async () => { if (isAnalyzing) { const ok = await confirmEndAnalysis(); if (!ok) return; } toggleHistory(); }}
             testID="btn-history"
           >
             <History size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={() => { resetApp(); setShowHistory(false); }}
+            onPress={async () => { await resetApp(); setShowHistory(false); }}
             testID="btn-home"
           >
             <Home size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={() => router.push('/subscription')}
+            onPress={async () => { if (isAnalyzing) { const ok = await confirmEndAnalysis(); if (!ok) return; } router.push('/subscription'); }}
             testID="btn-subscription"
           >
             <CreditCard size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={() => setShowTermsModal(true)}
+            onPress={async () => { if (isAnalyzing) { const ok = await confirmEndAnalysis(); if (!ok) return; } setShowTermsModal(true); }}
             testID="btn-terms"
           >
             <FileText size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={() => router.push('/settings')}
+            onPress={async () => { if (isAnalyzing) { const ok = await confirmEndAnalysis(); if (!ok) return; } router.push('/settings'); }}
             testID="btn-settings"
           >
             <Settings size={20} color="#1a1a1a" />
