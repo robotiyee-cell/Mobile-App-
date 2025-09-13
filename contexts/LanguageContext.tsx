@@ -216,7 +216,7 @@ const translations = {
     basicFeature2: 'Basic style categories',
     basicFeature3: 'Extended history (25 items)',
     basicFeature4: 'Standard support',
-    basicFeature5: '\u2014',
+    basicFeature5: 'Improvement Suggestions: Concise tips to enhance your outfit. Actionable, beginner-friendly guidance.',
 
     premiumFeature1: 'Unlimited outfit analyses',
     premiumFeature2: 'All categories (7 results)',
@@ -466,7 +466,7 @@ const translations = {
     basicFeature2: 'Temel stil kategorileri',
     basicFeature3: 'Genişletilmiş geçmiş (25 öğe)',
     basicFeature4: 'Standart destek',
-    basicFeature5: '\u2014',
+    basicFeature5: 'İyileştirme Önerileri: Kıyafetinizi geliştirmek için kısa ipuçları. Uygulanabilir, başlangıç dostu öneriler.',
 
     premiumFeature1: 'Sınırsız kıyafet analizi',
     premiumFeature2: 'Tüm kategoriler (7 sonuç)',
