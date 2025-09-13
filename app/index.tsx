@@ -433,8 +433,6 @@ export default function OutfitRatingScreen() {
         ? 'short (1-2 sentences, concise)'
         : 'very short (1-2 sentences, brief)';
 
-      const controller = new AbortController();
-      currentAbortRef.current = controller;
       const slowTimer = setTimeout(() => {
         try {
           if (isAnalyzing) {
@@ -836,7 +834,7 @@ export default function OutfitRatingScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem('outfitRatings');
+              await AsyncStorage.removeItem(storageKey);
               setSavedRatings([]);
               Alert.alert(t('cleared'), t('historyCleared'));
             } catch {
