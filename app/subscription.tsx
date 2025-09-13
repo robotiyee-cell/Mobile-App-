@@ -30,12 +30,14 @@ import {
 import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
 import { router, Stack } from 'expo-router';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SubscriptionScreen() {
   const { subscription, plans, isLoading, subscribeTo } = useSubscription();
   const { t } = useLanguage();
+  const { signIn } = useAuth();
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionTier | null>(null);
   const [isSubscribing, setIsSubscribing] = useState<boolean>(false);
@@ -115,6 +117,9 @@ export default function SubscriptionScreen() {
           setRememberedEmail(saved);
           setEmail(saved);
           setIsRememberedUser(true);
+          try {
+            await signIn(saved);
+          } catch {}
         }
       } catch {}
     };
@@ -135,8 +140,8 @@ export default function SubscriptionScreen() {
     if (isUpgrade) {
       setCheckoutVisible(true);
     } else {
-      // For lateral change/downgrade or free, don't auto-subscribe; wait for Save
-      setCheckoutVisible(false);
+      // Immediate apply for same-tier switch, downgrade, or free
+      await handleSubscribe(planId);
     }
   }, [plans, subscription.tier]);
 
@@ -176,6 +181,9 @@ export default function SubscriptionScreen() {
             await AsyncStorage.setItem('user_email', email);
             setRememberedEmail(email);
             setIsRememberedUser(true);
+            try { await signIn(email, firstName); } catch {}
+          } else if (rememberedEmail) {
+            try { await signIn(rememberedEmail); } catch {}
           }
         } catch {}
         setPaymentCompleted(true);

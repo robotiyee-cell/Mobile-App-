@@ -19,7 +19,7 @@ function RootLayoutNav() {
   const { t } = useLanguage();
   return (
     <Stack screenOptions={{
-          headerBackTitle: t('backToCategories'),
+          headerBackTitle: t('back'),
           headerTransparent: false,
           headerStyle: { backgroundColor: '#111827' },
           headerTintColor: '#FFFFFF',

@@ -25,7 +25,7 @@ import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crow
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage, Language } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { router, useFocusEffect } from 'expo-router';
 
@@ -59,6 +59,7 @@ interface SavedRating {
   analysis: OutfitAnalysis | AllCategoriesAnalysis;
   timestamp: number;
   planTier?: SubscriptionTier;
+  lang?: Language;
 }
 
 type StyleCategory = 'sexy' | 'elegant' | 'casual' | 'naive' | 'trendy' | 'anime' | 'sixties' | 'sarcastic' | 'rate';
@@ -724,7 +725,7 @@ export default function OutfitRatingScreen() {
             timestamp: Date.now(),
             planTier: subscription.tier
           };
-          await saveRating(rating);
+          await saveRating({ ...rating, lang: language });
         }
       } catch (parseError) {
         console.log('Error parsing analysis response:', parseError);
@@ -767,7 +768,7 @@ export default function OutfitRatingScreen() {
               timestamp: Date.now(),
               planTier: subscription.tier
             };
-            await saveRating(rating);
+            await saveRating({ ...rating, lang: language });
           }
         }
       }
@@ -814,11 +815,54 @@ export default function OutfitRatingScreen() {
     }
   };
 
-  const loadSavedRating = (rating: SavedRating) => {
-    setSelectedImage(rating.imageUri);
-    setMaskedImage(rating.maskedImageUri || null);
-    setSelectedCategory(rating.category);
-    setAnalysis(rating.analysis);
+  const translateAnalysisIfNeeded = async (rating: SavedRating): Promise<SavedRating> => {
+    try {
+      if (!rating || !rating.analysis) return rating;
+      if (rating.lang === language) return rating;
+      const targetLang = language === 'tr' ? 'Turkish' : 'English';
+      const body = {
+        messages: [
+          { role: 'system', content: `You are a precise translator. Translate the following JSON fields' text content into ${targetLang}. Preserve the JSON structure and all numeric values exactly. Return ONLY JSON.` },
+          { role: 'user', content: typeof rating.analysis === 'string' ? rating.analysis : JSON.stringify(rating.analysis) }
+        ]
+      };
+      const res = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      let translated: OutfitAnalysis | AllCategoriesAnalysis = rating.analysis as any;
+      if (typeof data?.completion === 'string') {
+        let text = data.completion.trim();
+        if (text.startsWith('```')) {
+          text = text.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
+        }
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+        const slice = firstBrace !== -1 && lastBrace !== -1 ? text.slice(firstBrace, lastBrace + 1) : text;
+        translated = JSON.parse(slice);
+      } else if (typeof data?.completion === 'object' && data.completion) {
+        translated = data.completion as any;
+      }
+      const updated: SavedRating = { ...rating, analysis: translated, lang: language };
+      setSavedRatings(prev => prev.map(r => r.id === rating.id ? updated : r));
+      try { await AsyncStorage.setItem(storageKey, JSON.stringify([updated, ...savedRatings.filter(r => r.id !== rating.id)])); } catch {}
+      return updated;
+    } catch (e) {
+      return rating;
+    }
+  };
+
+  const loadSavedRating = async (rating: SavedRating) => {
+    let r = rating;
+    if (r.lang !== language) {
+      r = await translateAnalysisIfNeeded(rating);
+    }
+    setSelectedImage(r.imageUri);
+    setMaskedImage(r.maskedImageUri || null);
+    setSelectedCategory(r.category);
+    setAnalysis(r.analysis);
     setShowCategorySelection(false);
     setShowHistory(false);
   };
