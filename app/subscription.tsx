@@ -460,36 +460,6 @@ export default function SubscriptionScreen() {
           </View>
         </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            {t('footerBullets')}
-          </Text>
-          <Text style={styles.footerSubtext}>
-            {t('footerRenew')}
-          </Text>
-          <TouchableOpacity
-            testID="btn-save-plan"
-            style={styles.saveButton}
-            onPress={() => {
-              if (paymentCompleted) {
-                router.replace('/');
-                return;
-              }
-              if (selectedPlan) {
-                handleSubscribe(selectedPlan);
-              } else {
-                Alert.alert(t('info'), t('selectPlanFirst'));
-              }
-            }}
-            disabled={isSubscribing}
-          >
-            {isSubscribing ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.saveButtonText}>{t('save') || 'Kaydet'}</Text>
-            )}
-          </TouchableOpacity>
-        </View>
         <Modal visible={checkoutVisible} animationType="fade" transparent>
           <View style={[styles.modalOverlay, { justifyContent: 'flex-start' }]}>
             <View style={[styles.modalContent, { borderTopLeftRadius: 0, borderTopRightRadius: 0, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }]}>
