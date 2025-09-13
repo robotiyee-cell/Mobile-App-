@@ -51,6 +51,7 @@ export default function SubscriptionScreen() {
   const [rememberedEmail, setRememberedEmail] = useState<string | null>(null);
   const [isRememberedUser, setIsRememberedUser] = useState<boolean>(false);
   const [testMode, setTestMode] = useState<boolean>(false);
+  const [paymentCompleted, setPaymentCompleted] = useState<boolean>(false);
 
   const getPlanFeatures = (planId: SubscriptionTier): string[] => {
     if (planId === 'free') {
@@ -130,26 +131,14 @@ export default function SubscriptionScreen() {
 
     const isUpgrade = targetPlan.price > currentPlan.price;
 
-    if (!isUpgrade) {
-      try {
-        setIsSubscribing(true);
-        const ok = await subscribeTo(planId);
-        if (ok) {
-          router.replace('/');
-        } else {
-          Alert.alert(t('error'), t('failedSubscription'));
-        }
-      } catch {
-        Alert.alert(t('error'), t('failedSubscription'));
-      } finally {
-        setIsSubscribing(false);
-      }
-      return;
-    }
-
     setSelectedPlan(planId);
-    setCheckoutVisible(true);
-  }, [plans, subscription.tier, subscribeTo, t]);
+    if (isUpgrade) {
+      setCheckoutVisible(true);
+    } else {
+      // For lateral change/downgrade or free, don't auto-subscribe; wait for Save
+      setCheckoutVisible(false);
+    }
+  }, [plans, subscription.tier]);
 
   const handleSubscribe = async (planId: SubscriptionTier) => {
     if (planId === 'free') {
@@ -157,7 +146,8 @@ export default function SubscriptionScreen() {
         setIsSubscribing(true);
         const ok = await subscribeTo('free');
         if (ok) {
-          router.replace('/');
+          setPaymentCompleted(true);
+          Alert.alert(t('success'), t('planSaved'));
         } else {
           Alert.alert(t('error'), t('failedSubscription'));
         }
@@ -165,13 +155,12 @@ export default function SubscriptionScreen() {
         Alert.alert(t('error'), t('failedSubscription'));
       } finally {
         setIsSubscribing(false);
-        setSelectedPlan(null);
         setCheckoutVisible(false);
       }
       return;
     }
 
-    if (!validateCheckout()) {
+    if (checkoutVisible && !validateCheckout()) {
       Alert.alert(t('error'), t('failedSubscription'));
       return;
     }
@@ -189,7 +178,8 @@ export default function SubscriptionScreen() {
             setIsRememberedUser(true);
           }
         } catch {}
-        router.replace('/');
+        setPaymentCompleted(true);
+        Alert.alert(t('success'), t('planSaved'));
       } else {
         Alert.alert(t('error'), t('failedSubscription'));
       }
@@ -197,7 +187,6 @@ export default function SubscriptionScreen() {
       Alert.alert(t('error'), t('failedSubscription'));
     } finally {
       setIsSubscribing(false);
-      setSelectedPlan(null);
       setCheckoutVisible(false);
     }
   };
@@ -482,10 +471,14 @@ export default function SubscriptionScreen() {
             testID="btn-save-plan"
             style={styles.saveButton}
             onPress={() => {
+              if (paymentCompleted) {
+                router.replace('/');
+                return;
+              }
               if (selectedPlan) {
                 handleSubscribe(selectedPlan);
               } else {
-                router.back();
+                Alert.alert(t('info'), t('selectPlanFirst'));
               }
             }}
             disabled={isSubscribing}
