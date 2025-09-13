@@ -250,6 +250,8 @@ const translations = {
     successWelcome: 'Welcome to L4F {plan}! Your subscription is now active.',
     startAnalyzing: 'Start Analyzing',
     failedSubscription: 'Failed to process subscription. Please try again.',
+    success: 'Success',
+    planSaved: 'Plan saved',
     
     // Errors
     permissionNeeded: 'Permission needed',
@@ -497,6 +499,8 @@ const translations = {
     successWelcome: 'L4F {plan}\'a hoş geldiniz! Aboneliğiniz şimdi aktif.',
     startAnalyzing: 'Analize Başla',
     failedSubscription: 'Abonelik işlenemedi. Lütfen tekrar deneyin.',
+    success: 'Başarılı',
+    planSaved: 'Plan başarıyla kaydedildi',
     
     // Errors
     permissionNeeded: 'İzin gerekli',
