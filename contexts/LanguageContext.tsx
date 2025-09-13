@@ -99,7 +99,6 @@ const translations = {
     continue: 'Continue',
     exported: 'Exported',
     htmlDownloaded: 'HTML downloaded. Attach it to your email.',
-    premiumPlan: 'Premium Plan',
     
     // Buttons
     newPhoto: 'New Photo',
@@ -194,7 +193,6 @@ const translations = {
     expiry: 'Expiry (MM/YY)',
     cvc: 'CVC',
     payNow: 'Pay Now',
-    continue: 'Continue',
     applePay: 'Apple Pay',
     googlePay: 'Google Pay',
     creditDebitCard: 'Credit/Debit Card',
@@ -348,7 +346,6 @@ const translations = {
     continue: 'Devam Et',
     exported: 'Dışa aktarıldı',
     htmlDownloaded: 'HTML indirildi. E-postanıza ekleyin.',
-    premiumPlan: 'Premium Plan',
     
     // Buttons
     newPhoto: 'Yeni Fotoğraf',
@@ -443,7 +440,6 @@ const translations = {
     expiry: 'Son Kullanma (AA/YY)',
     cvc: 'CVC',
     payNow: 'Şimdi Öde',
-    continue: 'Devam Et',
     applePay: 'Apple Pay',
     googlePay: 'Google Pay',
     creditDebitCard: 'Kredi/Banka Kartı',

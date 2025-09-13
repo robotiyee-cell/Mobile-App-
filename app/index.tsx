@@ -422,8 +422,8 @@ export default function OutfitRatingScreen() {
       if (currentAbortRef.current) {
         try { currentAbortRef.current.abort(); } catch {}
       }
-      const controller = new AbortController();
-      currentAbortRef.current = controller;
+      const abortController = new AbortController();
+      currentAbortRef.current = abortController;
 
       const lengthPolicy = subscription.tier === 'ultimate' 
         ? 'very long (7+ sentences, detailed and thorough)'
@@ -662,7 +662,7 @@ export default function OutfitRatingScreen() {
             }
           ]
         })
-      , signal: controller.signal });
+      , signal: abortController.signal });
 
       clearTimeout(slowTimer);
       const data = await response.json();
