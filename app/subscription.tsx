@@ -123,16 +123,19 @@ export default function SubscriptionScreen() {
   const openCheckout = useCallback(async (planId: SubscriptionTier) => {
     const targetPlan = plans.find(p => p.id === planId);
     const currentPlan = plans.find(p => p.id === subscription.tier);
-    if (planId === 'free' || (targetPlan && currentPlan && targetPlan.price <= currentPlan.price)) {
+
+    if (!targetPlan || !currentPlan) {
+      return;
+    }
+
+    const isUpgrade = targetPlan.price > currentPlan.price;
+
+    if (!isUpgrade) {
       try {
         setIsSubscribing(true);
         const ok = await subscribeTo(planId);
         if (ok) {
-          Alert.alert(
-            t('successTitle'),
-            t('successWelcome').replace('{plan}', t(planId + 'Plan')),
-            [{ text: t('continue'), onPress: () => router.back() }]
-          );
+          router.replace('/');
         } else {
           Alert.alert(t('error'), t('failedSubscription'));
         }
@@ -143,9 +146,10 @@ export default function SubscriptionScreen() {
       }
       return;
     }
+
     setSelectedPlan(planId);
     setCheckoutVisible(true);
-  }, [plans, subscribeTo, t, subscription.tier]);
+  }, [plans, subscription.tier, subscribeTo, t]);
 
   const handleSubscribe = async (planId: SubscriptionTier) => {
     if (planId === 'free') {
@@ -153,11 +157,7 @@ export default function SubscriptionScreen() {
         setIsSubscribing(true);
         const ok = await subscribeTo('free');
         if (ok) {
-          Alert.alert(
-            t('successTitle'),
-            t('successWelcome').replace('{plan}', t('freePlan')),
-            [{ text: t('continue'), onPress: () => router.back() }]
-          );
+          router.replace('/');
         } else {
           Alert.alert(t('error'), t('failedSubscription'));
         }
@@ -189,16 +189,7 @@ export default function SubscriptionScreen() {
             setIsRememberedUser(true);
           }
         } catch {}
-        Alert.alert(
-          t('successTitle'),
-          t('successWelcome').replace('{plan}', plans.find(p => p.id === planId)?.name ?? ''),
-          [
-            {
-              text: t('startAnalyzing'),
-              onPress: () => router.back()
-            }
-          ]
-        );
+        router.replace('/');
       } else {
         Alert.alert(t('error'), t('failedSubscription'));
       }
