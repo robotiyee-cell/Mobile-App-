@@ -130,6 +130,32 @@ export default function OutfitRatingScreen() {
   const { t, language } = useLanguage();
   const isPremiumLike = subscription.tier === 'premium' || subscription.tier === 'ultimate';
   const showSuggestions = subscription.tier !== 'free';
+
+  function ensureParagraph(text: string, category: string, lang: Language): string {
+    try {
+      const minSentences = 3;
+      const maxSentences = 4;
+      const split = (text || '').trim().replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).filter(Boolean);
+      if (split.length >= minSentences) return text;
+      const extrasEn = [
+        `Tie the idea back to the ${category} aesthetic with one clear focal point rather than many small accents.`,
+        'Refine fit at one seam (waist, shoulder, or hem) to make the silhouette feel intentional and premium.',
+        'Keep the color story cohesive by repeating one accent hue twice for balance and coherence.'
+      ];
+      const extrasTr = [
+        `${category} estetiğine geri bağlamak için birçok küçük detay yerine tek ve net bir odak noktası seç.`,
+        'Silüetin bilinçli ve kaliteli görünmesi için bir dikiş noktasında (bel, omuz veya etek ucu) kalıbı incelt.',
+        'Renk hikâyesini tutarlı tutmak için bir vurgu rengini görünümde iki kez tekrar et.'
+      ];
+      const pool = lang === 'tr' ? extrasTr : extrasEn;
+      const needed = Math.min(maxSentences - split.length, pool.length);
+      const extended = (text || '').trim() + ' ' + pool.slice(0, needed).join(' ');
+      return extended.trim();
+    } catch {
+      return text;
+    }
+  }
+
   const generateShortSuggestions = React.useCallback((category: string, lang: Language): string[] => {
     const base: Record<string, { en: string[]; tr: string[] }> = {
       sexy: { 
@@ -215,7 +241,9 @@ export default function OutfitRatingScreen() {
     };
     const key = (category as keyof typeof base) || 'rate';
     const pack = base[key] ?? base.rate;
-    return (lang === 'tr' ? pack.tr : pack.en).slice(0, 2);
+    const arr = (lang === 'tr' ? pack.tr : pack.en).slice(0, 2);
+    // Ensure each suggestion is at least a paragraph (3-4 sentences)
+    return arr.map((s) => ensureParagraph(s, category, lang));
   }, []);
   const activeAnalysisIdRef = useRef<string | null>(null);
   const savedForActiveIdRef = useRef<boolean>(false);
@@ -509,7 +537,7 @@ export default function OutfitRatingScreen() {
         : subscription.tier === 'premium'
         ? 'long (5-6 sentences, well-developed)'
         : subscription.tier === 'basic'
-        ? 'short (2-3 sentences, concise)'
+        ? 'medium (3-4 sentences, paragraph-length)'
         : 'very short (1-2 sentences, brief)';
 
       const slowTimer = setTimeout(() => {
@@ -718,7 +746,7 @@ export default function OutfitRatingScreen() {
               - Keep it concise per OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
-              ${categoryToUse !== 'rate' ? `${subscription.tier !== 'free' ? `After the analysis, provide ${subscription.tier === 'basic' ? '2-3' : '3-5'} specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}. Each suggestion should be ${subscription.tier === 'basic' ? '2-3' : '2-4'} sentences long and concrete.` : `Do NOT include improvement suggestions in the output.`}
+              ${categoryToUse !== 'rate' ? `${subscription.tier !== 'free' ? `After the analysis, provide ${subscription.tier === 'basic' ? '2-3' : '3-5'} specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}. Each suggestion should be ${subscription.tier === 'basic' ? '3-4' : '2-4'} sentences long and concrete.` : `Do NOT include improvement suggestions in the output.`}
               
               Format your response as JSON:
               {
@@ -785,11 +813,15 @@ export default function OutfitRatingScreen() {
             if (categoryToUse === 'rate' && analysisData && (analysisData as any).results) {
               (analysisData as any).results = (analysisData as any).results.map((r: any) => ({
                 ...r,
-                suggestions: Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions.slice(0, 2) : generateShortSuggestions(r?.category ?? 'rate', language),
+                suggestions: (
+                  (Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions.slice(0, 2) : generateShortSuggestions(r?.category ?? 'rate', language))
+                ).map((s: string) => ensureParagraph(s, r?.category ?? 'rate', language)),
               }));
             } else if (analysisData && typeof analysisData === 'object' && (analysisData as any).style !== undefined) {
               const a: any = analysisData as any;
-              a.suggestions = Array.isArray(a?.suggestions) && a.suggestions.length > 0 ? a.suggestions.slice(0, 2) : generateShortSuggestions(categoryToUse ?? 'rate', language);
+              a.suggestions = (
+                Array.isArray(a?.suggestions) && a.suggestions.length > 0 ? a.suggestions.slice(0, 2) : generateShortSuggestions(categoryToUse ?? 'rate', language)
+              ).map((s: string) => ensureParagraph(s, categoryToUse ?? 'rate', language));
               analysisData = a;
             }
           } catch {}
