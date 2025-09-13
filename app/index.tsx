@@ -241,10 +241,11 @@ export default function OutfitRatingScreen() {
       createdAt: new Date(rating.timestamp).toISOString(),
       imageUri: rating.imageUri,
       thumbnailUri: rating.maskedImageUri,
-      selectedCategory: rating.category as any, // Type conversion needed
+      selectedCategory: rating.category as any,
       score: score,
       analysisSummary: 'style' in rating.analysis ? rating.analysis.style : rating.analysis.overallAnalysis,
-      details: JSON.stringify(rating.analysis)
+      details: JSON.stringify(rating.analysis),
+      lang: rating.lang,
     };
   };
 

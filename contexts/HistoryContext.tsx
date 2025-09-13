@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
 import { useSubscription } from './SubscriptionContext';
 import { useAuth } from './AuthContext';
+
+import { Language, useLanguage } from './LanguageContext';
 
 export type HistoryItemCategory = 'sexy' | 'elegant' | 'casual' | 'naive' | 'trendy' | 'anime' | 'sixties' | 'sarcastic' | 'custom' | 'all';
 
@@ -15,6 +17,7 @@ export interface HistoryItem {
   score?: number;
   analysisSummary?: string;
   details?: string;
+  lang?: Language;
 }
 
 interface HistoryContextValue {
@@ -31,8 +34,10 @@ const STORAGE_KEY_BASE = 'l4f_history_items_v1';
 export const [HistoryProvider, useHistory] = createContextHook<HistoryContextValue>(() => {
   const { subscription, plans } = useSubscription();
   const { user } = useAuth();
+  const { language } = useLanguage();
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const translatingRef = useRef<boolean>(false);
 
   const planDef = useMemo(() => plans.find(p => p.id === subscription.tier), [plans, subscription.tier]);
   const maxItems = useMemo<number | -1>(() => {
@@ -78,7 +83,6 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
     if (maxItems === -1) return;
     setItems(prev => {
       if (prev.length <= maxItems) return prev;
-      // Remove oldest items (from the end of the array since newest are at the beginning)
       const trimmed = prev.slice(0, maxItems);
       void persist(trimmed);
       return trimmed;
@@ -87,9 +91,7 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
 
   const addItem = useCallback(async (item: HistoryItem) => {
     setItems(prev => {
-      // Add new item to the beginning (newest first)
       const next = [item, ...prev];
-      // Trim to maxItems if there's a limit, removing oldest items
       const trimmed = maxItems === -1 ? next : next.slice(0, maxItems);
       void persist(trimmed);
       return trimmed;
@@ -113,6 +115,83 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
       console.log('History clear error', e);
     }
   }, []);
+
+  const translateJsonSafely = async (jsonText: string, targetLang: Language): Promise<string | null> => {
+    try {
+      const isJson = !!jsonText && (jsonText.trim().startsWith('{') || jsonText.trim().startsWith('['));
+      if (!isJson) return null;
+      const res = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: `You are a precise translator. Translate all human-readable text values in the given JSON into ${targetLang === 'tr' ? 'Turkish' : 'English'}. Preserve JSON structure and all numbers exactly. Return ONLY JSON.` },
+            { role: 'user', content: jsonText }
+          ]
+        })
+      });
+      const data = await res.json();
+      let completion: string | object = data?.completion ?? '';
+      if (typeof completion === 'object') {
+        return JSON.stringify(completion);
+      }
+      if (typeof completion === 'string') {
+        let text = completion.trim();
+        if (text.startsWith('```')) {
+          text = text.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
+        }
+        const first = text.indexOf('{');
+        const last = text.lastIndexOf('}');
+        const slice = first !== -1 && last !== -1 && last > first ? text.slice(first, last + 1) : text;
+        JSON.parse(slice);
+        return slice;
+      }
+      return null;
+    } catch (e) {
+      console.log('History translate error', e);
+      return null;
+    }
+  };
+
+  const extractSummary = (details: string | undefined): string | undefined => {
+    if (!details) return undefined;
+    try {
+      const obj = JSON.parse(details) as any;
+      if (obj && typeof obj === 'object') {
+        if ('overallAnalysis' in obj && typeof obj.overallAnalysis === 'string') return obj.overallAnalysis as string;
+        if ('style' in obj && typeof obj.style === 'string') return obj.style as string;
+      }
+    } catch {}
+    return undefined;
+  };
+
+  useEffect(() => {
+    const run = async () => {
+      if (translatingRef.current) return;
+      const need = items.filter(i => (i?.details && i.lang && i.lang !== language) || (i?.details && !i.lang));
+      if (need.length === 0) return;
+      translatingRef.current = true;
+      try {
+        const updated: HistoryItem[] = await Promise.all(
+          items.map(async (it) => {
+            if (!it.details) return it;
+            if (it.lang === language) return it;
+            const translated = await translateJsonSafely(it.details, language);
+            if (!translated) return it;
+            const summary = extractSummary(translated) ?? it.analysisSummary;
+            return { ...it, details: translated, analysisSummary: summary, lang: language };
+          })
+        );
+        setItems(updated);
+        void persist(updated);
+      } catch (e) {
+        console.log('History bulk translate failed', e);
+      } finally {
+        translatingRef.current = false;
+      }
+    };
+    void run();
+  }, [language, items, persist]);
 
   return {
     items,
