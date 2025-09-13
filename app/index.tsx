@@ -155,7 +155,7 @@ export default function OutfitRatingScreen() {
   }, []);
 
   const confirmEndAnalysis = React.useCallback(async (): Promise<boolean> => {
-    if (!isAnalyzing || !selectedCategory || !!analysis) return true;
+    if (!isAnalyzing || !selectedCategory) return true;
     return new Promise((resolve) => {
       const title = language === 'tr' ? 'Analiz sona erecektir' : 'Analysis will end';
       const msg = language === 'tr' ? 'Emin misiniz?' : 'Are you sure?';
@@ -164,7 +164,7 @@ export default function OutfitRatingScreen() {
         { text: language === 'tr' ? 'Bitir' : 'End', style: 'destructive', onPress: () => { cancelAnalysis(); resolve(true); } },
       ]);
     });
-  }, [analysis, cancelAnalysis, isAnalyzing, language, selectedCategory]);
+  }, [cancelAnalysis, isAnalyzing, language, selectedCategory]);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -791,7 +791,7 @@ export default function OutfitRatingScreen() {
   };
 
   const resetApp = async () => {
-    if (isAnalyzing) {
+    if (isAnalyzing && !!selectedCategory) {
       const proceed = await confirmEndAnalysis();
       if (!proceed) return;
     }
@@ -858,7 +858,7 @@ export default function OutfitRatingScreen() {
 
   const handleCategorySelect = async (category: StyleCategory) => {
     console.log('Category selected:', category);
-    if (isAnalyzing && !analysis && category !== selectedCategory) {
+    if (isAnalyzing && category !== selectedCategory) {
       const proceed = await confirmEndAnalysis();
       if (!proceed) return;
     }
@@ -886,7 +886,7 @@ export default function OutfitRatingScreen() {
   };
 
   const handleRateOptionSelect = async (category: StyleCategory) => {
-    if (isAnalyzing && !analysis && category !== selectedCategory) {
+    if (isAnalyzing && category !== selectedCategory) {
       const proceed = await confirmEndAnalysis();
       if (!proceed) return;
     }
@@ -1836,35 +1836,35 @@ export default function OutfitRatingScreen() {
         <View style={styles.headerButtonsRow}>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory && !analysis; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } toggleHistory(); }}
+            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } toggleHistory(); }}
             testID="btn-history"
           >
             <History size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={async () => { await resetApp(); setShowHistory(false); }}
+            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } await resetApp(); setShowHistory(false); }}
             testID="btn-home"
           >
             <Home size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory && !analysis; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } router.push('/subscription'); }}
+            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } router.push('/subscription'); }}
             testID="btn-subscription"
           >
             <CreditCard size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory && !analysis; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } setShowTermsModal(true); }}
+            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } setShowTermsModal(true); }}
             testID="btn-terms"
           >
             <FileText size={20} color="#1a1a1a" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerButton}
-            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory && !analysis; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } router.push('/settings'); }}
+            onPress={async () => { const shouldConfirm = isAnalyzing && !!selectedCategory; if (shouldConfirm) { const ok = await confirmEndAnalysis(); if (!ok) return; } router.push('/settings'); }}
             testID="btn-settings"
           >
             <Settings size={20} color="#1a1a1a" />
