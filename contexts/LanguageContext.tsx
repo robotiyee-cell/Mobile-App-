@@ -100,6 +100,7 @@ const translations = {
     backToCategories: 'Back to Categories',
     rateNewOutfit: 'Rate New Outfit',
     back: 'Back',
+    save: 'Save',
 
     // Extra action copy
     rateThisOutfit: 'Rate This Outfit',
@@ -341,6 +342,7 @@ const translations = {
     backToCategories: 'Kategorilere Dön',
     rateNewOutfit: 'Yeni Kıyafet Değerlendir',
     back: 'Geri',
+    save: 'Kaydet',
 
     // Extra action copy
     rateThisOutfit: 'Bu Kıyafeti Puanla',
