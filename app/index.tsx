@@ -134,7 +134,7 @@ export default function OutfitRatingScreen() {
   const displayCategoryName = React.useCallback((id?: string | null): string => {
     if (!id) return '';
     if (id === 'rate') return t('allCategories');
-    if (id === 'sexy') return 'Hot';
+    if (id === 'sexy') return t('sexy');
     return t(id as string);
   }, [t]);
 

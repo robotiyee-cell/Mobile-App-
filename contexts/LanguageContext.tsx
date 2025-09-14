@@ -294,7 +294,7 @@ const translations = {
     // Categories
     chooseStyleCategory: 'Stil Kategorinizi Seçin',
     categorySubtitle: 'Hedeflediğiniz stili seçin ve daha hedefli bir analiz alın',
-    sexy: 'Seksi',
+    sexy: 'Çekici',
     elegant: 'Zarif',
     casual: 'Günlük',
     naive: 'Masum',
