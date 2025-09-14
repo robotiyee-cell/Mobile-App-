@@ -458,7 +458,7 @@ export default function OutfitRatingScreen() {
     try {
       if (!data || typeof data !== 'object') return { ok: false, reason: 'no_object' };
 
-      const minChars = subscription.tier === 'ultimate' ? 350 : subscription.tier === 'premium' ? 250 : subscription.tier === 'basic' ? 100 : 60;
+      const minChars = subscription.tier === 'ultimate' ? 350 : subscription.tier === 'premium' ? 250 : subscription.tier === 'basic' ? 60 : 60;
 
       if (category === 'rate') {
         const a = data as AllCategoriesAnalysis;
@@ -472,7 +472,7 @@ export default function OutfitRatingScreen() {
         }
         const overall = Number((a as AllCategoriesAnalysis).overallScore);
         if (!Number.isFinite(overall) || overall <= 0) return { ok: false, reason: 'overall_invalid' };
-        if (!validateTextQuality((a as AllCategoriesAnalysis).overallAnalysis, Math.max(120, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'overall_too_short' };
+        if (!validateTextQuality((a as AllCategoriesAnalysis).overallAnalysis, Math.max(60, Math.floor(minChars * 0.8)))) return { ok: false, reason: 'overall_too_short' };
         return { ok: true };
       }
 
@@ -480,9 +480,9 @@ export default function OutfitRatingScreen() {
       const sc = Number(a.score);
       if (!Number.isFinite(sc) || sc <= 0 || sc > 12) return { ok: false, reason: 'invalid_score' };
       if (!validateTextQuality(a.style, minChars)) return { ok: false, reason: 'style_short' };
-      if (!validateTextQuality(a.colorCoordination, Math.max(80, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'color_short' };
-      if (!validateTextQuality(a.accessories, Math.max(80, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'accessories_short' };
-      if (!validateTextQuality(a.harmony, Math.max(80, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'harmony_short' };
+      if (!validateTextQuality(a.colorCoordination, Math.max(40, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'color_short' };
+      if (!validateTextQuality(a.accessories, Math.max(40, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'accessories_short' };
+      if (!validateTextQuality(a.harmony, Math.max(40, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'harmony_short' };
       return { ok: true };
     } catch (e) {
       return { ok: false, reason: 'exception' };
@@ -544,7 +544,7 @@ export default function OutfitRatingScreen() {
         : subscription.tier === 'premium'
         ? 'long (5-6 sentences, well-developed)'
         : subscription.tier === 'basic'
-        ? 'medium (3-4 sentences, paragraph-length)'
+        ? 'short (1-2 sentences, concise)'
         : 'very short (1-2 sentences, brief)';
 
       const slowTimer = setTimeout(() => {
@@ -573,7 +573,7 @@ export default function OutfitRatingScreen() {
               
               IMPORTANT: Each category has DIFFERENT scoring criteria. The same outfit should receive DIFFERENT scores for different categories based on how well it fits that specific aesthetic.
               
-              OUTPUT LENGTH POLICY: Keep your explanations ${lengthPolicy} in length. Targets by plan: Free=2-3 sentences, Basic=3-4 sentences, Premium=5-6 sentences, Ultimate=7+ sentences. Apply this to every analysis field and to each category in ALL CATEGORIES mode.
+              OUTPUT LENGTH POLICY: Keep your explanations ${lengthPolicy} in length. Targets by plan: Free=2-3 sentences, Basic=1-2 sentences, Premium=5-6 sentences, Ultimate=7+ sentences. Apply this to every analysis field and to each category in ALL CATEGORIES mode.
               
               For the "${categoryToUse}" style specifically:
               ${categoryToUse === 'sexy' ? `
