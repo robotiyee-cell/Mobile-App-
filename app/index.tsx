@@ -73,7 +73,7 @@ interface CategoryOption {
 }
 
 const STYLE_CATEGORIES: CategoryOption[] = [
-  { id: 'sexy', label: 'Sexy', description: 'Bold, alluring, confident', color: '#FF6B6B' },
+  { id: 'sexy', label: 'Hot', description: 'Bold, alluring, confident', color: '#FF6B6B' },
   { id: 'elegant', label: 'Elegant', description: 'Sophisticated, refined, graceful', color: '#4ECDC4' },
   { id: 'casual', label: 'Casual', description: 'Relaxed, comfortable, everyday', color: '#45B7D1' },
   { id: 'naive', label: 'Naive', description: 'Sweet, innocent, youthful', color: '#FFA07A' },
@@ -130,6 +130,13 @@ export default function OutfitRatingScreen() {
   const { t, language } = useLanguage();
   const isPremiumLike = subscription.tier === 'premium' || subscription.tier === 'ultimate';
   const showSuggestions = subscription.tier !== 'free';
+
+  const displayCategoryName = React.useCallback((id?: string | null): string => {
+    if (!id) return '';
+    if (id === 'rate') return t('allCategories');
+    if (id === 'sexy') return 'Hot';
+    return t(id as string);
+  }, [t]);
 
   function ensureParagraph(text: string, category: string, lang: Language): string {
     try {
@@ -1099,7 +1106,7 @@ export default function OutfitRatingScreen() {
     try {
       const parts: string[] = [];
       const headerKey = selectedCategory === 'rate' ? 'allCategories' : (selectedCategory ?? '');
-      const header = selectedCategory ? `${t('selectedStyle')}: ${t(headerKey)}` : t('analysisType');
+      const header = selectedCategory ? `${t('selectedStyle')}: ${displayCategoryName(selectedCategory)}` : t('analysisType');
       parts.push(header);
       if (!analysis) return parts.join('\n');
       if ('results' in (analysis as AllCategoriesAnalysis)) {
@@ -2090,7 +2097,7 @@ export default function OutfitRatingScreen() {
                             styles.categoryColorDot,
                             { backgroundColor: categoryInfo?.color }
                           ]} />
-                          <Text style={styles.historyCategoryText}>{t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? '')))}</Text>
+                          <Text style={styles.historyCategoryText}>{displayCategoryName(categoryInfo?.id ?? '')}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                           <View style={styles.planChip}>
@@ -2531,7 +2538,7 @@ export default function OutfitRatingScreen() {
                       category.id === 'sixties' && styles.sixtiesCategoryLabel,
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                        category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic') && styles.themedCategoryLabel
-                    ]}>{`${t(category.id === 'rate' ? 'allCategories' : category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}</Text>
+                    ]}>{`${displayCategoryName(category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}</Text>
                     <Text style={[
                       styles.categoryDescription,
                       category.id === 'sixties' && styles.sixtiesCategoryDescription,
@@ -2605,7 +2612,7 @@ export default function OutfitRatingScreen() {
                     { backgroundColor: STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.color }
                   ]} />
                   <Text style={styles.selectedCategoryText}>
-                    {t(selectedCategory === 'rate' ? 'allCategories' : (selectedCategory ?? ''))}
+                    {displayCategoryName(selectedCategory)}
                   </Text>
                 </View>
                 <View style={styles.planInlineChip}>
@@ -2705,7 +2712,7 @@ export default function OutfitRatingScreen() {
                                       { backgroundColor: categoryInfo?.color || '#999' }
                                     ]} />
                                     <Text style={[styles.categoryResultName, { color: getTextColor(result.category as StyleCategory), fontWeight: '900' }]} numberOfLines={1} ellipsizeMode="tail">
-                                      {t((categoryInfo?.id ?? (result.category || '')))}
+                                      {displayCategoryName(categoryInfo?.id ?? (result.category || ''))}
                                     </Text>
                                   </View>
                                   <View style={styles.scoreRow} testID={`category-score-in-chip-${result.category}`}>
@@ -2719,7 +2726,7 @@ export default function OutfitRatingScreen() {
                               </View>
                               {subscription.tier !== 'free' ? (
                                 <View style={styles.categorySuggestions}>
-                                  <Text style={styles.suggestionsSubtitle}>{(t('suggestionsFor') ?? '').replace('{category}', t((categoryInfo?.id === 'rate' ? 'allCategories' : (categoryInfo?.id ?? (result.category || '')))))}</Text>
+                                  <Text style={styles.suggestionsSubtitle}>{(t('suggestionsFor') ?? '').replace('{category}', displayCategoryName(categoryInfo?.id ?? (result.category || '')))}</Text>
                                   {result.suggestions && Array.isArray(result.suggestions) ? result.suggestions.slice(0, subscription.tier === 'basic' ? 2 : result.suggestions.length).map((suggestion: string, suggestionIndex: number) => (
                                     <View key={suggestionIndex} style={styles.suggestionItem}>
                                       <View style={styles.suggestionBullet} />
@@ -2759,7 +2766,7 @@ export default function OutfitRatingScreen() {
                           { backgroundColor: STYLE_CATEGORIES.find(cat => cat.id === selectedCategory)?.color }
                         ]} />
                         <Text style={styles.selectedCategoryText}>
-                          {t((selectedCategory ?? ''))}
+                          {displayCategoryName(selectedCategory)}
                         </Text>
                       </View>
                     </View>
@@ -3025,7 +3032,7 @@ export default function OutfitRatingScreen() {
                         category.id === 'sixties' && styles.sixtiesCategoryLabel,
                         (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                          category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedCategoryLabel
-                      ]}>{`${t(category.id === 'rate' ? 'allCategories' : category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}</Text>
+                      ]}>{`${displayCategoryName(category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}</Text>
                       <Text style={[
                         styles.categoryDescription,
                         styles.compactCategoryDescription,
