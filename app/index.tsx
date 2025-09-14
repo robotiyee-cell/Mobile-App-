@@ -163,6 +163,15 @@ export default function OutfitRatingScreen() {
     }
   }
 
+  function limitSentences(text: string, max: number): string {
+    try {
+      const split = (text || '').trim().replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).filter(Boolean);
+      return split.slice(0, Math.max(1, max)).join(' ').trim();
+    } catch {
+      return text;
+    }
+  }
+
   const generateShortSuggestions = React.useCallback((category: string, lang: Language): string[] => {
     const base: Record<string, { en: string[]; tr: string[] }> = {
       sexy: { 
@@ -249,8 +258,7 @@ export default function OutfitRatingScreen() {
     const key = (category as keyof typeof base) || 'rate';
     const pack = base[key] ?? base.rate;
     const arr = (lang === 'tr' ? pack.tr : pack.en).slice(0, 2);
-    // Ensure each suggestion is at least a paragraph (3-4 sentences)
-    return arr.map((s) => ensureParagraph(s, category, lang));
+    return arr.map((s) => limitSentences(s, 2));
   }, []);
   const activeAnalysisIdRef = useRef<string | null>(null);
   const savedForActiveIdRef = useRef<boolean>(false);
@@ -754,7 +762,7 @@ export default function OutfitRatingScreen() {
               - Respect the OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
-              ${categoryToUse !== 'rate' ? `${subscription.tier !== 'free' ? `After the analysis, provide ${subscription.tier === 'basic' ? '2-3' : '3-5'} specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}. Each suggestion should be ${subscription.tier === 'basic' ? '3-4' : '2-4'} sentences long and concrete.` : `Do NOT include improvement suggestions in the output.`}
+              ${categoryToUse !== 'rate' ? `${subscription.tier !== 'free' ? `After the analysis, provide ${subscription.tier === 'basic' ? '2-3' : '3-5'} specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}. Each suggestion should be ${subscription.tier === 'basic' ? '1-2' : '2-4'} sentences long and concrete.` : `Do NOT include improvement suggestions in the output.`}
               
               Format your response as JSON:
               {
@@ -823,13 +831,13 @@ export default function OutfitRatingScreen() {
                 ...r,
                 suggestions: (
                   (Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions.slice(0, 2) : generateShortSuggestions(r?.category ?? 'rate', language))
-                ).map((s: string) => ensureParagraph(s, r?.category ?? 'rate', language)),
+                ).map((s: string) => limitSentences(s, 2)),
               }));
             } else if (analysisData && typeof analysisData === 'object' && (analysisData as any).style !== undefined) {
               const a: any = analysisData as any;
               a.suggestions = (
                 Array.isArray(a?.suggestions) && a.suggestions.length > 0 ? a.suggestions.slice(0, 2) : generateShortSuggestions(categoryToUse ?? 'rate', language)
-              ).map((s: string) => ensureParagraph(s, categoryToUse ?? 'rate', language));
+              ).map((s: string) => limitSentences(s, 2));
               analysisData = a;
             }
           } catch {}
