@@ -744,13 +744,14 @@ export default function OutfitRatingScreen() {
               
               ${categoryToUse === 'sarcastic' ? `
               SPECIAL MODE: DESIGNER ROAST
-              - Lean into playful, witty, couture-level humor with vivid metaphors and unapologetic critique.
-              - Be more critical: call out mismatches, fit issues, cheap-looking textures, and styling misses with a cheeky, clever tone.
-              - Never abusive or personal; keep it fashion-focused and smart. No real names — use an archetypal “famous designer” voice.
-              - Pepper each field with fitting emojis (😭😅💅🔥✨🫠🙃🧵✂️) — keep density around 20–30%, not every sentence.
-              - End each field with a punchy roast tag line.
+              - Crank the dial to hilariously savage couture critique with razor-sharp wit and vivid, fashion-native metaphors.
+              - Be extra punchy: spotlight proportion crimes, fit sins, cheap-looking textures, dated styling, color clashes, and over-accessorizing. Call it out boldly and cleverly.
+              - Never abusive or personal; roast the LOOK only. No real names — speak like an iconic haute-couture creative director.
+              - Comedy-first: include at least one clever comparison per field and finish with a spicy one-liner.
+              - Emoji seasoning up to 30% max where it heightens the joke (😭💅🔥✨🫠🙃🧵✂️) — not every sentence.
+              - End each field with a mic-drop roast tag line (4–8 words).
               - Do NOT use the word "sarcasm" anywhere.
-              - Keep it concise per OUTPUT LENGTH POLICY and return the exact JSON fields.
+              - Respect the OUTPUT LENGTH POLICY and return the exact JSON fields.
               ` : ''}
               
               ${categoryToUse !== 'rate' ? `${subscription.tier !== 'free' ? `After the analysis, provide ${subscription.tier === 'basic' ? '2-3' : '3-5'} specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}. Each suggestion should be ${subscription.tier === 'basic' ? '3-4' : '2-4'} sentences long and concrete.` : `Do NOT include improvement suggestions in the output.`}
