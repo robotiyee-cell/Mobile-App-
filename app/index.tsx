@@ -2378,7 +2378,7 @@ export default function OutfitRatingScreen() {
                       (category.id === 'sexy' || category.id === 'elegant' || category.id === 'casual' || 
                        category.id === 'naive' || category.id === 'trendy' || category.id === 'anime' || category.id === 'sarcastic' || category.id === 'rate') && styles.themedCategoryLabel,
                       isDisabled && styles.disabledCategoryLabel
-                    ]}>{`${t(category.id === 'rate' ? 'allCategories' : category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}{isPremiumFeature && !hasAccess && ' 🔒'}</Text>
+                    ]}>{`${displayCategoryName(category.id)}${category.id === 'sarcastic' ? ' 😜' : ''}`}{isPremiumFeature && !hasAccess && ' 🔒'}</Text>
                     <Text style={[
                       styles.categoryDescription,
                       category.id === 'sixties' && styles.sixtiesCategoryDescription,

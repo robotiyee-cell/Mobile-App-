@@ -44,7 +44,7 @@ const translations = {
     // Categories
     chooseStyleCategory: 'Choose Your Style Category',
     categorySubtitle: 'Select the style you\'re aiming for to get a more targeted analysis',
-    sexy: 'Sexy',
+    sexy: 'Hot',
     elegant: 'Elegant',
     casual: 'Casual',
     naive: 'Naive',
