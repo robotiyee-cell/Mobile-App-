@@ -756,7 +756,7 @@ export default function OutfitRatingScreen() {
               - Be extra punchy: spotlight proportion crimes, fit sins, cheap-looking textures, dated styling, color clashes, and over-accessorizing. Call it out boldly and cleverly.
               - Never abusive or personal; roast the LOOK only. No real names — speak like an iconic haute-couture creative director.
               - Comedy-first: include at least one clever comparison per field and finish with a spicy one-liner.
-              - Emoji seasoning up to 30% max where it heightens the joke (😭💅🔥✨🫠🙃🧵✂️) — not every sentence.
+              - Emoji seasoning up to 30% max where it heightens the joke (😭💅🔥✨🫠🙃🧵✂️). Include funny, fitting emojis in EVERY field (2–4 total), sprinkled naturally — not at the start of each sentence.
               - End each field with a mic-drop roast tag line (4–8 words).
               - Do NOT use the word "sarcasm" anywhere.
               - Respect the OUTPUT LENGTH POLICY and return the exact JSON fields.
