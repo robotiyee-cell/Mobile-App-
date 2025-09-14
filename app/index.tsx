@@ -987,7 +987,7 @@ export default function OutfitRatingScreen() {
   };
 
   const loadSavedRating = async (historyItem: any) => {
-    // Convert HistoryItem back to SavedRating format for compatibility
+    const itemLang: Language | undefined = historyItem?.lang as Language | undefined;
     const rating: SavedRating = {
       id: historyItem.id,
       imageUri: historyItem.imageUri,
@@ -996,12 +996,12 @@ export default function OutfitRatingScreen() {
       analysis: historyItem.details ? JSON.parse(historyItem.details) : { score: historyItem.score || 0, style: historyItem.analysisSummary || '' },
       timestamp: new Date(historyItem.createdAt).getTime(),
       planTier: subscription.tier,
-      lang: language
+      lang: itemLang
     };
-    
+
     let r = rating;
-    if (r.lang !== language) {
-      r = await translateAnalysisIfNeeded(rating);
+    if ((r.lang ?? 'en') !== language) {
+      r = await translateAnalysisIfNeeded(r);
     }
     setSelectedImage(r.imageUri);
     setMaskedImage(r.maskedImageUri || null);
