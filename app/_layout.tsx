@@ -36,6 +36,14 @@ function RootLayoutNav() {
         headerTitleStyle: { fontWeight: '700', fontSize: 14 },
         headerShadowVisible: true
       }} />
+      <Stack.Screen name="terms" options={{
+        title: t('termsTitle'),
+        headerTransparent: false,
+        headerStyle: { backgroundColor: '#111827' },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: { fontWeight: '700', fontSize: 14 },
+        headerShadowVisible: true
+      }} />
     </Stack>
   );
 }

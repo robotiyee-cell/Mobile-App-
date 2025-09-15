@@ -7,13 +7,14 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Settings as SettingsIcon, Globe, Check, Save } from 'lucide-react-native';
 import { useLanguage, Language } from '../contexts/LanguageContext';
 
 export default function SettingsScreen() {
   const { language, setLanguage, t } = useLanguage();
+  const router = useRouter();
   const [pendingLanguage, setPendingLanguage] = useState<Language>(language);
   const [saving, setSaving] = useState<boolean>(false);
 
@@ -57,7 +58,7 @@ export default function SettingsScreen() {
           <View style={styles.languageOptions}>
             {languages.map((lang) => (
               <TouchableOpacity
-                key={lang.code}
+                key={`${lang.code}-${lang.shortCode}`}
                 style={[
                   styles.languageOption,
                   pendingLanguage === lang.code && styles.selectedLanguageOption
@@ -91,6 +92,41 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             ))}
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={[styles.button, styles.commitButton]}
+            onPress={async () => {
+              try {
+                setSaving(true);
+                await setLanguage(pendingLanguage);
+              } catch (e) {
+                console.log('Failed to apply language', e);
+              } finally {
+                setSaving(false);
+              }
+            }}
+            disabled={saving || pendingLanguage === language}
+            testID="btn-commit-language"
+          >
+            <Save size={20} color="white" />
+            <Text style={styles.buttonText}>{saving ? '...' : t('apply')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.legalButton]}
+            onPress={() => {
+              try {
+                router.push('/terms');
+              } catch (e) {
+                console.log('navigate terms failed', e);
+              }
+            }}
+            testID="btn-open-terms"
+          >
+            <Text style={styles.legalText}>{t('termsTitle')}</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -236,5 +272,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
+  },
+  legalButton: {
+    backgroundColor: 'transparent',
+    marginTop: 12,
+  },
+  legalText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FF1493',
+    textDecorationLine: 'underline',
   },
 });
