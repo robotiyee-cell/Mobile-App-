@@ -25,6 +25,7 @@ import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crow
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
+import { trpc } from '../lib/trpc';
 import { useLanguage, Language } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useHistory } from '../contexts/HistoryContext';
@@ -120,6 +121,7 @@ export default function OutfitRatingScreen() {
   const [showRateOptions, setShowRateOptions] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+  const [jobId, setJobId] = useState<string | null>(null);
   const [showInitialTerms, setShowInitialTerms] = useState<boolean>(true);
   const [shouldResume, setShouldResume] = useState<boolean>(false);
   const [trendVisible, setTrendVisible] = useState<boolean>(false);
@@ -278,6 +280,16 @@ export default function OutfitRatingScreen() {
     };
   }, []);
 
+  const startMutation = trpc.analysis.start.useMutation();
+  const statusQuery = trpc.analysis.status.useQuery(
+    { jobId: jobId ?? '' },
+    {
+      enabled: !!jobId,
+      refetchInterval: isAppActive && isAnalyzing ? 1500 : false,
+      staleTime: 0,
+    }
+  );
+
   const cancelAnalysis = React.useCallback(() => {
     try {
       ignoreResponsesRef.current = true;
@@ -288,6 +300,7 @@ export default function OutfitRatingScreen() {
     activeAnalysisIdRef.current = null;
     savedForActiveIdRef.current = false;
     setIsAnalyzing(false);
+    setJobId(null);
   }, []);
 
   const confirmEndAnalysis = React.useCallback(async (): Promise<boolean> => {
@@ -541,36 +554,23 @@ export default function OutfitRatingScreen() {
         }
       }
 
-      if (currentAbortRef.current) {
-        try { currentAbortRef.current.abort(); } catch {}
+      try {
+        const resp = await startMutation.mutateAsync({
+          imageBase64: base64Image,
+          category: categoryToUse,
+          language,
+          plan: subscription.tier,
+        } as any);
+        if (resp && typeof resp === 'object' && 'jobId' in resp) {
+          setJobId((resp as { jobId: string }).jobId);
+        }
+      } catch (e) {
+        Alert.alert(t('error'), t('failedToAnalyze'));
+        setIsAnalyzing(false);
+        return;
       }
-      const abortController = new AbortController();
-      currentAbortRef.current = abortController;
 
-      const lengthPolicy = subscription.tier === 'ultimate' 
-        ? 'very long (7+ sentences, detailed and thorough)'
-        : subscription.tier === 'premium'
-        ? 'long (5-6 sentences, well-developed)'
-        : subscription.tier === 'basic'
-        ? 'short (1-2 sentences, concise)'
-        : 'very short (1-2 sentences, brief)';
-
-      const slowTimer = setTimeout(() => {
-        try {
-          if (isAnalyzing) {
-            Alert.alert(t('analysisTakingLong'), t('photoMaybeIrrelevant'), [
-              { text: t('tryDifferentPhoto'), style: 'default' },
-              { text: t('continue'), style: 'cancel' },
-            ]);
-          }
-        } catch {}
-      }, 25000);
-
-      const response = await fetch('https://toolkit.rork.com/text/llm/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
+      return;
             {
               role: 'system',
               content: `You are a professional fashion stylist and outfit critic. The user has indicated they want their outfit analyzed specifically for the "${categoryToUse}" style category (${categoryInfo?.description}).
@@ -785,10 +785,7 @@ export default function OutfitRatingScreen() {
             }
           ]
         })
-      , signal: abortController.signal });
-
-      clearTimeout(slowTimer);
-      const data = await response.json();
+      , signal: undefined as any });
 
       try {
         if (ignoreResponsesRef.current || thisReq !== requestIdRef.current || !isMountedRef.current) {
@@ -924,7 +921,7 @@ export default function OutfitRatingScreen() {
         Alert.alert(t('error'), t('failedToAnalyze'));
       }
     } finally {
-      if (isMountedRef.current) setIsAnalyzing(false);
+      if (isMountedRef.current && !jobId) setIsAnalyzing(false);
       if (currentAbortRef.current) currentAbortRef.current = null;
       activeAnalysisIdRef.current = null;
       savedForActiveIdRef.current = false;
@@ -1984,6 +1981,54 @@ export default function OutfitRatingScreen() {
       </View>
     );
   };
+
+  useEffect(() => {
+    try {
+      if (!statusQuery.data) return;
+      const s = (statusQuery.data as any).status as 'pending' | 'processing' | 'succeeded' | 'failed' | undefined;
+      if (!s) return;
+      if (s === 'succeeded') {
+        const result = (statusQuery.data as any).result as any;
+        if (subscription.tier === 'basic') {
+          try {
+            if (selectedCategory === 'rate' && result && result.results) {
+              result.results = result.results.map((r: any) => ({
+                ...r,
+                suggestions: (
+                  (Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions.slice(0, 2) : generateShortSuggestions(r?.category ?? 'rate', language))
+                ).map((s: string) => limitSentences(s, 2)),
+              }));
+            } else if (result && typeof result === 'object' && result.style !== undefined) {
+              const a: any = result as any;
+              a.suggestions = (
+                Array.isArray(a?.suggestions) && a.suggestions.length > 0 ? a.suggestions.slice(0, 2) : generateShortSuggestions(selectedCategory ?? 'rate', language)
+              ).map((s: string) => limitSentences(s, 2));
+            }
+          } catch {}
+        }
+        setAnalysis(result);
+        incrementAnalysisCount();
+        if (!savedForActiveIdRef.current && selectedImage && selectedCategory) {
+          const rating: SavedRating = {
+            id: Date.now().toString(),
+            imageUri: selectedImage,
+            maskedImageUri: maskedImage || undefined,
+            category: selectedCategory,
+            analysis: result,
+            timestamp: Date.now(),
+            planTier: subscription.tier,
+          };
+          saveRating({ ...rating, lang: language });
+        }
+        setIsAnalyzing(false);
+        setJobId(null);
+      } else if (s === 'failed') {
+        setIsAnalyzing(false);
+        setJobId(null);
+        Alert.alert(t('error'), t('failedToAnalyze'));
+      }
+    } catch {}
+  }, [statusQuery.data]);
 
   return (
     <View style={styles.container}>
