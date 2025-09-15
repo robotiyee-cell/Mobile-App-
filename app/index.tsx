@@ -537,8 +537,6 @@ export default function OutfitRatingScreen() {
       savedForActiveIdRef.current = false;
     }
     try {
-      const categoryInfo = STYLE_CATEGORIES.find(cat => cat.id === categoryToUse);
-
       const imageToAnalyze = maskedImage || selectedImage;
       let base64Image: string;
 
@@ -548,7 +546,7 @@ export default function OutfitRatingScreen() {
       } catch (error) {
         console.log('Error converting image to base64:', error);
         if (imageToAnalyze.startsWith('data:')) {
-          base64Image = imageToAnalyze.split(',')[1];
+          base64Image = imageToAnalyze.split(',')[1] ?? '';
         } else {
           throw new Error('Failed to process image');
         }
@@ -561,354 +559,16 @@ export default function OutfitRatingScreen() {
           language,
           plan: subscription.tier,
         } as any);
-        if (resp && typeof resp === 'object' && 'jobId' in resp) {
+        if (resp && typeof resp === 'object' && (resp as any).jobId) {
           setJobId((resp as { jobId: string }).jobId);
+        } else {
+          throw new Error('No jobId returned');
         }
+        console.log('Analysis job started:', { jobId: (resp as any).jobId, req: thisReq });
       } catch (e) {
         Alert.alert(t('error'), t('failedToAnalyze'));
         setIsAnalyzing(false);
         return;
-      }
-
-      return;
-            {
-              role: 'system',
-              content: `You are a professional fashion stylist and outfit critic. The user has indicated they want their outfit analyzed specifically for the "${categoryToUse}" style category (${categoryInfo?.description}).
-              
-              IMPORTANT: This image has been privacy-protected with face masking before being shared with you. Focus only on the clothing, accessories, and overall styling.
-              
-              CRITICAL: You MUST analyze this outfit specifically for the "${categoryToUse}" style. Do NOT give generic fashion advice. Your entire analysis should be focused on how well this outfit achieves the specific "${categoryToUse}" aesthetic.
-              
-              IMPORTANT: Each category has DIFFERENT scoring criteria. The same outfit should receive DIFFERENT scores for different categories based on how well it fits that specific aesthetic.
-              
-              OUTPUT LENGTH POLICY: Keep your explanations ${lengthPolicy} in length. Targets by plan: Free=2-3 sentences, Basic=1-2 sentences, Premium=5-6 sentences, Ultimate=7+ sentences. Apply this to every analysis field and to each category in ALL CATEGORIES mode.
-              
-              For the "${categoryToUse}" style specifically:
-              ${categoryToUse === 'sexy' ? `
-              SEXY STYLE SCORING CRITERIA:
-              HIGH SCORES (9-12): Perfect sexy elements like:
-              - Form-fitting, body-conscious silhouettes
-              - Strategic revealing cuts (low necklines, short hemlines, cutouts)
-              - Sultry colors (black, red, deep jewel tones)
-              - Confidence-boosting elements (high heels, bold makeup)
-              - Luxurious fabrics (silk, satin, leather, lace)
-              - Figure-enhancing details
-              
-              MEDIUM SCORES (6-8): Some sexy elements like:
-              - Fitted pieces with modest revealing
-              - Darker color palette
-              - Some body-conscious styling
-              
-              LOW SCORES (1-5): Conservative, loose-fitting, or overly modest pieces` : ''}
-              ${categoryToUse === 'elegant' ? `
-              ELEGANT STYLE SCORING CRITERIA:
-              HIGH SCORES (9-12): Perfect elegant elements like:
-              - Sophisticated tailoring and refined cuts
-              - Classic, timeless silhouettes
-              - Neutral or muted color palettes (black, white, navy, beige, pastels)
-              - Quality fabrics (wool, silk, cashmere, fine cotton)
-              - Understated luxury and minimalist styling
-              - Clean lines and polished finishing
-              
-              MEDIUM SCORES (6-8): Some elegant elements like:
-              - Well-tailored pieces
-              - Classic colors
-              - Refined styling
-              
-              LOW SCORES (1-5): Casual, overly trendy, or loud patterns/colors` : ''}
-              ${categoryToUse === 'casual' ? `
-              CASUAL STYLE SCORING CRITERIA:
-              HIGH SCORES (9-12): Perfect casual elements like:
-              - Comfortable, relaxed fit pieces
-              - Everyday wearability and practicality
-              - Effortless, laid-back styling
-              - Approachable and comfortable fabrics (cotton, denim, jersey)
-              - Easy-to-wear combinations
-              - Relaxed silhouettes
-              
-              MEDIUM SCORES (6-8): Some casual elements like:
-              - Comfortable pieces with some structure
-              - Mix of casual and dressy elements
-              
-              LOW SCORES (1-5): Overly formal, structured, or high-maintenance pieces` : ''}
-              ${categoryToUse === 'naive' ? `
-              NAIVE STYLE SCORING CRITERIA:
-              HIGH SCORES (9-12): Perfect naive elements like:
-              - Sweet, innocent, and youthful styling
-              - Soft, pastel colors (pink, baby blue, mint, lavender)
-              - Playful details (bows, ruffles, cute prints)
-              - Modest cuts and coverage
-              - Fresh, pure, and wholesome aesthetics
-              - Childlike or romantic elements
-              
-              MEDIUM SCORES (6-8): Some naive elements like:
-              - Soft colors or sweet details
-              - Modest styling
-              - Youthful elements
-              
-              LOW SCORES (1-5): Dark colors, edgy styling, or overly mature/sophisticated pieces` : ''}
-              ${categoryToUse === 'trendy' ? `
-              TRENDY STYLE SCORING CRITERIA:
-              HIGH SCORES (9-12): Perfect trendy elements like:
-              - Current fashion trends and modern cuts
-              - Contemporary styling and fashion-forward pieces
-              - Instagram-worthy, social media ready looks
-              - Bold, statement pieces
-              - Modern color combinations
-              - Up-to-date silhouettes and styling
-              
-              MEDIUM SCORES (6-8): Some trendy elements like:
-              - Modern pieces with classic elements
-              - Some current trends incorporated
-              
-              LOW SCORES (1-5): Outdated, classic, or overly conservative styling` : ''}
-              ${categoryToUse === 'anime' ? `
-              ANIME STYLE SCORING CRITERIA:
-              HIGH SCORES (9-12): Perfect anime elements like:
-              - Kawaii (cute) elements and styling
-              - Bright, vibrant colors (especially pink, blue, purple)
-              - Playful accessories (hair clips, colorful bags, cute jewelry)
-              - Japanese fashion influences (Harajuku, Lolita, cosplay elements)
-              - Colorful, fun, and whimsical pieces
-              - Cartoon-like or fantasy elements
-              
-              MEDIUM SCORES (6-8): Some anime elements like:
-              - Bright colors or cute accessories
-              - Playful styling
-              
-              LOW SCORES (1-5): Muted colors, serious styling, or lack of playful elements` : ''}
-              ${categoryToUse === 'sixties' ? `
-              SIXTIES STYLE SCORING CRITERIA:
-              HIGH SCORES (10-12): Perfect sixties elements like:
-              - A-line or shift dresses (especially mini length)
-              - Bold geometric or floral patterns typical of the 1960s
-              - Mod-style pieces with clean lines
-              - Bright, saturated colors (especially orange, pink, yellow, turquoise)
-              - Go-go boots or Mary Jane shoes
-              - Pillbox hats, headbands, or mod hairstyles
-              - Oversized sunglasses or cat-eye glasses
-              - Turtlenecks or mock necks
-              - Cropped jackets or blazers
-              - Colorful tights or stockings
-              
-              MEDIUM SCORES (7-9): Some sixties elements like:
-              - Retro-inspired patterns or colors
-              - A-line silhouettes
-              - Vintage-style accessories
-              - 1960s color palette
-              
-              LOW SCORES (1-6): Modern styles with minimal sixties influence
-              
-              The outfit in the image appears to be a colorful floral dress which could score HIGH if it has authentic sixties characteristics like the right silhouette, pattern style, and overall mod aesthetic.` : ''}
-              ${categoryToUse === 'rate' ? `
-              ALL CATEGORIES ANALYSIS - CRITICAL INSTRUCTIONS:
-              You MUST analyze this outfit for ALL 7 style categories and provide 7 completely separate and distinct results.
-              
-              For EACH of the 7 categories (sexy, elegant, casual, naive, trendy, anime, sixties), you must provide:
-              - Individual score out of 12 based on how well the outfit fits that SPECIFIC category
-              - Detailed analysis of how the outfit performs in that SPECIFIC category (respect the OUTPUT LENGTH POLICY)
-
-              
-              IMPORTANT: Each category should have DIFFERENT scores and DIFFERENT analysis based on how the outfit fits that particular style aesthetic.
-              
-              You MUST return results in this EXACT JSON format with ALL 7 categories:
-              {
-                "results": [
-                  { "category": "sexy", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "elegant", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "casual", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "naive", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "trendy", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "anime", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} },
-                  { "category": "sixties", "score": number_out_of_12, "analysis": "..."${subscription.tier !== 'free' ? ', "suggestions": ["...","...","..."]' : ''} }
-                ],
-                "overallScore": average_of_all_7_scores,
-                "overallAnalysis": "comprehensive summary respecting the OUTPUT LENGTH POLICY"
-              }
-              
-              CRITICAL: You must provide exactly 7 category results. Do not skip any categories. Each result must be unique and tailored to that specific style category.` : ''}
-              
-              Analyze the outfit with focus on how well it achieves the ${categoryToUse} aesthetic and provide detailed feedback on:
-              1. Style - Evaluate how well the outfit embodies the "${categoryToUse}" style and elaborate on the specific elements that contribute to or detract from this aesthetic
-              2. Color coordination - How the colors work together for the ${categoryToUse} look specifically
-              3. Use of accessories - How accessories enhance or diminish the ${categoryToUse} vibe
-              4. Overall harmony - How cohesive the outfit is in achieving the desired ${categoryToUse} aesthetic
-              
-              Rate the outfit's relevancy to the chosen "${categoryToUse}" category. Give a score out of 12 based on how successfully the outfit achieves the ${categoryToUse} style. 
-              
-              SCORING GUIDELINES BY CATEGORY:
-              - SEXY: Focus on how alluring, confident, and body-conscious the outfit is
-              - ELEGANT: Focus on sophistication, refinement, and timeless appeal
-              - CASUAL: Focus on comfort, practicality, and effortless wearability
-              - NAIVE: Focus on sweetness, innocence, and youthful charm
-              - TRENDY: Focus on current fashion trends and modern appeal
-              - ANIME: Focus on kawaii elements, bright colors, and playful styling
-              - SIXTIES: Focus on authentic 1960s mod elements and retro aesthetics
-              - ALL: Analyze across all categories and provide comprehensive results
-              
-              ${categoryToUse === 'sixties' ? 'For sixties style, prioritize authentic 1960s elements over general fashion appeal. A perfect sixties outfit with authentic mod elements should score 10-12, even if it might not be considered fashionable by today\'s standards.' : ''}
-              
-              Be constructive but honest in your critique. The SAME OUTFIT should receive DIFFERENT SCORES for different categories. Consider fit, appropriateness for the chosen style, creativity, and overall aesthetic appeal FOR THE ${categoryToUse} STYLE ONLY.
-              
-              ${categoryToUse === 'sarcastic' ? `
-              SPECIAL MODE: DESIGNER ROAST
-              - Crank the dial to hilariously savage couture critique with razor-sharp wit and vivid, fashion-native metaphors.
-              - Be extra punchy: spotlight proportion crimes, fit sins, cheap-looking textures, dated styling, color clashes, and over-accessorizing. Call it out boldly and cleverly.
-              - Never abusive or personal; roast the LOOK only. No real names — speak like an iconic haute-couture creative director.
-              - Comedy-first: include at least one clever comparison per field and finish with a spicy one-liner.
-              - Emoji seasoning up to 30% max where it heightens the joke (😭💅🔥✨🫠🙃🧵✂️). Include funny, fitting emojis in EVERY field (2–4 total), sprinkled naturally — not at the start of each sentence.
-              - End each field with a mic-drop roast tag line (4–8 words).
-              - Do NOT use the word "sarcasm" anywhere.
-              - Respect the OUTPUT LENGTH POLICY and return the exact JSON fields.
-              ` : ''}
-              
-              ${categoryToUse !== 'rate' ? `${subscription.tier !== 'free' ? `After the analysis, provide ${subscription.tier === 'basic' ? '2-3' : '3-5'} specific, actionable suggestions to improve the outfit and better achieve the ${categoryToUse} aesthetic. Focus on practical improvements like color changes, accessory additions/removals, fit adjustments, or styling tweaks that would make it more ${categoryToUse}. Each suggestion should be ${subscription.tier === 'basic' ? '1-2' : '2-4'} sentences long and concrete.` : `Do NOT include improvement suggestions in the output.`}
-              
-              Format your response as JSON:
-              {
-                "style": "detailed analysis (respect the OUTPUT LENGTH POLICY) of how well the outfit achieves the ${categoryToUse} aesthetic with specific references to ${categoryToUse} style elements",
-                "colorCoordination": "analysis (respect the OUTPUT LENGTH POLICY) of colors and their harmony for the ${categoryToUse} style specifically",
-                "accessories": "commentary (respect the OUTPUT LENGTH POLICY) on accessories and their contribution to the ${categoryToUse} look specifically",
-                "harmony": "overall harmony (respect the OUTPUT LENGTH POLICY) and cohesiveness assessment for the ${categoryToUse} aesthetic specifically",
-                "score": number_out_of_12${subscription.tier !== 'free' ? `,
-                "suggestions": ["specific ${categoryToUse}-focused improvement suggestion 1", "specific ${categoryToUse}-focused improvement suggestion 2", "specific ${categoryToUse}-focused improvement suggestion 3"]` : ''}
-              }` : ''}`
-            },
-            { role: 'system', content: `All outputs MUST be in ${language === 'tr' ? 'Turkish' : 'English'}. Use this language for every field and sentence.${language === 'tr' ? ' İngilizce kelimeler, argo ya da ödünç sözcükler kullanma. Moda terimlerinde mümkün olduğunca Türkçe karşılıkları kullan ve özellikle Tasarımcı İğnelemesi modunda tamamen doğal Türkçe yaz.' : ''}` },
-
-            {
-              role: 'user',
-              content: [
-                { type: 'text', text: `Please analyze this outfit for the "${categoryToUse}" style category and rate it out of 12. The image has been privacy-protected with face masking. Respond in ${language === 'tr' ? 'Turkish' : 'English'} only.` },
-                { type: 'image', image: `data:image/jpeg;base64,${base64Image}` }
-              ]
-            }
-          ]
-        })
-      , signal: undefined as any });
-
-      try {
-        if (ignoreResponsesRef.current || thisReq !== requestIdRef.current || !isMountedRef.current) {
-          return;
-        }
-        
-        let analysisData;
-        try {
-          if (!data || !data.completion) {
-            throw new Error('No completion data received');
-          }
-          const completion = data.completion;
-          if (typeof completion === 'object' && completion !== null) {
-            analysisData = completion;
-          } else if (typeof completion === 'string') {
-            let text = completion.trim();
-            if (text.startsWith('```')) {
-              text = text.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
-            }
-            const firstBrace = text.indexOf('{');
-            const lastBrace = text.lastIndexOf('}');
-            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-              const jsonSlice = text.slice(firstBrace, lastBrace + 1);
-              analysisData = JSON.parse(jsonSlice);
-            } else {
-              analysisData = JSON.parse(text);
-            }
-          } else {
-            throw new Error('Invalid completion type');
-          }
-        } catch (parseError) {
-          console.log('Error parsing analysis response JSON:', parseError, 'Raw data:', data);
-          throw parseError;
-        }
-        
-        if (subscription.tier === 'basic') {
-          try {
-            if (categoryToUse === 'rate' && analysisData && (analysisData as any).results) {
-              (analysisData as any).results = (analysisData as any).results.map((r: any) => ({
-                ...r,
-                suggestions: (
-                  (Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions.slice(0, 2) : generateShortSuggestions(r?.category ?? 'rate', language))
-                ).map((s: string) => limitSentences(s, 2)),
-              }));
-            } else if (analysisData && typeof analysisData === 'object' && (analysisData as any).style !== undefined) {
-              const a: any = analysisData as any;
-              a.suggestions = (
-                Array.isArray(a?.suggestions) && a.suggestions.length > 0 ? a.suggestions.slice(0, 2) : generateShortSuggestions(categoryToUse ?? 'rate', language)
-              ).map((s: string) => limitSentences(s, 2));
-              analysisData = a;
-            }
-          } catch {}
-        }
-
-        const validation = validateAnalysis(analysisData, categoryToUse);
-        if (!validation.ok) {
-          console.log('Validation failed, reason:', validation.reason, 'retry:', retry);
-          if (!retry) {
-            await analyzeOutfit(categoryToUse, true);
-            return;
-          }
-        }
-        
-        setAnalysis(analysisData);
-
-        await incrementAnalysisCount();
-
-        if (!savedForActiveIdRef.current && selectedImage && categoryToUse) {
-          const rating: SavedRating = {
-            id: Date.now().toString(),
-            imageUri: selectedImage,
-            maskedImageUri: maskedImage || undefined,
-            category: categoryToUse,
-            analysis: analysisData,
-            timestamp: Date.now(),
-            planTier: subscription.tier
-          };
-          await saveRating({ ...rating, lang: language });
-        }
-      } catch (parseError) {
-        console.log('Error parsing analysis response:', parseError);
-
-        let fallbackAnalysis;
-        if (selectedCategory === 'rate') {
-          fallbackAnalysis = {
-            results: [
-              { category: "sexy", score: 7, analysis: "The outfit has some appealing elements but could be more form-fitting and bold to achieve a sexier look.", suggestions: ["Try more body-conscious silhouettes", "Add statement accessories", "Consider bolder colors"] },
-              { category: "elegant", score: 8, analysis: "The outfit shows good sophistication and refinement with classic elements.", suggestions: ["Add refined accessories", "Consider neutral tones", "Focus on quality fabrics"] },
-              { category: "casual", score: 9, analysis: "Perfect for everyday wear with comfortable and practical styling.", suggestions: ["Add comfortable layers", "Include practical accessories", "Keep it effortless"] },
-              { category: "naive", score: 6, analysis: "The outfit could be sweeter and more youthful to achieve the naive aesthetic.", suggestions: ["Add pastel colors", "Include cute details", "Try softer silhouettes"] },
-              { category: "trendy", score: 7, analysis: "The outfit has some modern elements but could be more fashion-forward.", suggestions: ["Add current trends", "Try bold patterns", "Include statement pieces"] },
-              { category: "anime", score: 5, analysis: "The outfit needs more colorful and playful elements to achieve the anime aesthetic.", suggestions: ["Add bright colors", "Include kawaii accessories", "Try playful patterns"] },
-              { category: "sixties", score: 7, analysis: "The look hints at 1960s vibes; stronger mod elements like a shift silhouette or bold geometric prints would enhance authenticity.", suggestions: ["Try a shift or A-line mini dress", "Introduce geometric or pop floral patterns", "Consider white go-go boots or a headband"] }
-            ],
-            overallScore: 7,
-            overallAnalysis: "The outfit performs well across different categories, with particular strength in casual and elegant styles. There's room for improvement in more expressive categories like anime and naive styles."
-          };
-        } else {
-          fallbackAnalysis = {
-            style: "Modern casual",
-            colorCoordination: "Good color balance",
-            accessories: "Well-chosen accessories",
-            harmony: "Overall cohesive look",
-            score: 8,
-            suggestions: ["Try adding a statement accessory", "Consider different color combinations", "Experiment with layering"]
-          };
-        }
-        if (!(ignoreResponsesRef.current || thisReq !== requestIdRef.current || !isMountedRef.current)) {
-          setAnalysis(fallbackAnalysis);
-          await incrementAnalysisCount();
-          if (!savedForActiveIdRef.current && selectedImage && categoryToUse) {
-            const rating: SavedRating = {
-              id: Date.now().toString(),
-              imageUri: selectedImage,
-              maskedImageUri: maskedImage || undefined,
-              category: categoryToUse,
-              analysis: fallbackAnalysis,
-              timestamp: Date.now(),
-              planTier: subscription.tier
-            };
-            await saveRating({ ...rating, lang: language });
-          }
-        }
       }
     } catch (err: unknown) {
       const e = err as { name?: string; message?: string } | undefined;
@@ -921,10 +581,7 @@ export default function OutfitRatingScreen() {
         Alert.alert(t('error'), t('failedToAnalyze'));
       }
     } finally {
-      if (isMountedRef.current && !jobId) setIsAnalyzing(false);
       if (currentAbortRef.current) currentAbortRef.current = null;
-      activeAnalysisIdRef.current = null;
-      savedForActiveIdRef.current = false;
     }
   };
 
