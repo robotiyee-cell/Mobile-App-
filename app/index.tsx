@@ -1646,6 +1646,14 @@ export default function OutfitRatingScreen() {
       if (!s) return;
       if (s === 'succeeded') {
         const result = (statusQuery.data as any).result as any;
+        const isValid = validateAnalysis(result, selectedCategory ?? null).ok;
+        if (!isValid) {
+          console.log('Invalid analysis result received from backend. Raw:', result);
+          Alert.alert(t('error'), t('noCategoryResults'));
+          setIsAnalyzing(false);
+          setJobId(null);
+          return;
+        }
         if (subscription.tier === 'basic') {
           try {
             if (selectedCategory === 'rate' && result && result.results) {
