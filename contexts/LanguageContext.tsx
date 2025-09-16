@@ -74,6 +74,9 @@ const translations = {
     findDesignMatchButtonHeader: 'Find Design Match',
     designMatchHeader: 'Design Match',
     designMatchAnalysisResults: 'Design Match Analysis Results',
+    exactMatch: 'Exact Match',
+    closestSuggestions: 'Closest Suggestions',
+    confidence: 'Confidence',
     
     // Analysis
     analyzing: 'Analyzing...',
@@ -330,6 +333,9 @@ const translations = {
     findDesignMatchButtonHeader: 'Tasarım Eşleştirmeyi Bul',
     designMatchHeader: 'Tasarım Eşleştirme',
     designMatchAnalysisResults: 'Tasarım Eşleştirme Analiz Sonuçları',
+    exactMatch: 'Tam Eşleşme',
+    closestSuggestions: 'En Yakın Öneriler',
+    confidence: 'Güven Düzeyi',
     
     // Analysis
     analyzing: 'Analiz ediliyor...',
