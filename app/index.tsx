@@ -2444,7 +2444,6 @@ export default function OutfitRatingScreen() {
                                       <Text style={[styles.suggestionText, { color: getTextColor(result.category as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
                                     </View>
                                   )) : null}
-                                  <Text style={[styles.suggestionsSubtitle, { marginTop: 16 }]}>{t('designerMatch')}</Text>
                                 </View>
                               ) : null}
                             </View>
@@ -2515,10 +2514,6 @@ export default function OutfitRatingScreen() {
                             <Text style={[styles.suggestionText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
                           </View>
                         ))}
-                        <View style={[styles.suggestionsHeader, { marginTop: 24 }]}>
-                          <Lightbulb size={20} color="#FFD700" />
-                          <Text style={styles.suggestionsTitle}>{t('designerMatch')}</Text>
-                        </View>
                       </View>
                     ) : null}
                   </View>
@@ -2790,7 +2785,7 @@ export default function OutfitRatingScreen() {
       {/* Copyright Notice */}
       <View style={styles.copyrightContainer}>
         <Text style={styles.copyrightText}>
-          Copyright (©) 2024 Looks4Fun
+          Copyright (©) 2024 Look4Fun
         </Text>
       </View>
     </View>
