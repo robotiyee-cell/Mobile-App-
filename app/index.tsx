@@ -582,6 +582,8 @@ export default function OutfitRatingScreen() {
       return;
     }
 
+    setDesignMatchText('');
+    setDesignMatchLoading(false);
     setIsAnalyzing(true);
     const thisReq = ++requestIdRef.current;
     if (!retry) {
