@@ -128,7 +128,7 @@ export default function OutfitRatingScreen() {
   const [trendVisible, setTrendVisible] = useState<boolean>(false);
   const [trendLoading, setTrendLoading] = useState<boolean>(false);
   const [trendText, setTrendText] = useState<string>('');
-  const { subscription, canAnalyze, incrementAnalysisCount } = useSubscription();
+  const { subscription, canAnalyze, incrementAnalysisCount, plans } = useSubscription();
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const isPremiumLike = subscription.tier === 'premium' || subscription.tier === 'ultimate';
@@ -140,6 +140,22 @@ export default function OutfitRatingScreen() {
     if (id === 'sexy') return t('sexy');
     return t(id as string);
   }, [t]);
+
+  const currentPlanDef = React.useMemo(() => {
+    try {
+      return (plans ?? []).find((p: any) => p?.id === subscription.tier);
+    } catch {
+      return undefined;
+    }
+  }, [plans, subscription.tier]);
+
+  const planHierarchyText = React.useMemo(() => {
+    const emoji = currentPlanDef?.emojiIcon ?? '';
+    const planet = currentPlanDef?.planet ?? '';
+    const myth = currentPlanDef?.mythology ?? '';
+    const label = `${emoji} ${planet} · ${myth}`.trim();
+    return label.length > 0 ? label : (subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1));
+  }, [currentPlanDef?.emojiIcon, currentPlanDef?.planet, currentPlanDef?.mythology, subscription.tier]);
 
   function ensureParagraph(text: string, category: string, lang: Language): string {
     try {
@@ -1025,7 +1041,7 @@ Rules:
           }
         }
         const imgHtml = inlineBase64 ? `<div style=\"margin:16px 0;\"><em style=\"color:#999;\">${safe(t('faceProtected') ?? '')}</em><br/><img alt=\"\" src=\"data:image/jpeg;base64,${inlineBase64}\" style=\"max-width:100%;border-radius:12px;border:1px solid #eee;\"/></div>` : '';
-        return `<!doctype html><html><body style=\"font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; background:#FFE4E6; padding:16px;\">\n          <div style=\"max-width:720px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;\">\n            <h1 style=\"margin:0 0 4px 0;color:#9B59B6;font-style:italic;font-weight:900;\">${safe(t('appName'))}</h1>\n            <div style=\"margin:4px 0 16px 0;color:#FFD700;font-weight:900;font-size:12px;\">\n              <span>${subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</span>\n            </div>\n            <div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px;\">\n              <span style=\"display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===selectedCategory)?.color ?? '#FFD700'}\"></span>\n              <span style=\"font-weight:700;color:#1a1a1a;\">${safe(t('selectedStyle'))}:: ${safe(heading)}</span>\n            </div>\n            ${inner}\n            ${imgHtml}\n          </div>\n        </body></html>`;
+        return `<!doctype html><html><body style=\"font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif; background:#FFE4E6; padding:16px;\">\n          <div style=\"max-width:720px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;\">\n            <h1 style=\"margin:0 0 4px 0;color:#9B59B6;font-style:italic;font-weight:900;\">${safe(t('appName'))}</h1>\n            <div style=\"margin:4px 0 16px 0;color:#FFD700;font-weight:900;font-size:12px;\">\n              <span>${(currentPlanDef?.emojiIcon ?? '') + ' ' + (currentPlanDef?.planet ?? '') + ' · ' + (currentPlanDef?.mythology ?? '')}</span>\n            </div>\n            <div style=\"display:flex;align-items:center;gap:8px;margin-bottom:12px;\">\n              <span style=\"display:inline-block;width:8px;height:8px;border-radius:4px;background:${STYLE_CATEGORIES.find(c=>c.id===selectedCategory)?.color ?? '#FFD700'}\"></span>\n              <span style=\"font-weight:700;color:#1a1a1a;\">${safe(t('selectedStyle'))}:: ${safe(heading)}</span>\n            </div>\n            ${inner}\n            ${imgHtml}\n          </div>\n        </body></html>`;
       })();
 
       if (Platform.OS === 'web') {
@@ -1923,7 +1939,7 @@ Rules:
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                           <View style={styles.planChip}>
-                            <Text style={styles.planChipText}>{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Text>
+                            <Text style={styles.planChipText}>{planHierarchyText}</Text>
                           </View>
                           <Text style={styles.historyDate}>{formatDate(new Date(historyItem.createdAt).getTime())}</Text>
                         </View>
@@ -1975,9 +1991,7 @@ Rules:
               </LinearGradient>
               <View style={styles.subscriptionBadge}>
                 <Crown size={12} color="#FFD700" />
-                <Text style={styles.subscriptionBadgeText}>
-                  {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-                </Text>
+                <Text style={styles.subscriptionBadgeText}>{planHierarchyText}</Text>
               </View>
             </View>
             
@@ -2439,7 +2453,7 @@ Rules:
                 </View>
                 <View style={styles.planInlineChip}>
                   <Crown size={12} color="#FFD700" />
-                  <Text style={styles.planInlineChipText}>{subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}</Text>
+                  <Text style={styles.planInlineChipText}>{planHierarchyText}</Text>
                 </View>
               </View>
               
@@ -2480,9 +2494,7 @@ Rules:
             <View style={styles.resultsContainer}>
               <View style={styles.subscriptionBadgePlain}>
                 <Crown size={12} color="#FFD700" />
-                <Text style={styles.subscriptionBadgeTextSmall}>
-                  {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
-                </Text>
+                <Text style={styles.subscriptionBadgeTextSmall}>{planHierarchyText}</Text>
               </View>
               {selectedCategory === 'rate' && 'results' in analysis ? (
                 // All Categories Results
