@@ -330,7 +330,7 @@ const translations = {
     allCategoriesDesc: '7 kategori için sonuç alın',
     
     // Design Match
-    findDesignMatchButtonHeader: 'Tasarım Eşleştirmeyi Bul',
+    findDesignMatchButtonHeader: 'Marka ve Tasarımı Bul',
     designMatchHeader: 'Tasarım Eşleştirme',
     designMatchAnalysisResults: 'Tasarım Eşleştirme Analiz Sonuçları',
     exactMatch: 'Tam Eşleşme',
