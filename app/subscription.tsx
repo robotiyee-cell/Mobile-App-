@@ -221,6 +221,9 @@ export default function SubscriptionScreen() {
     if (feature.includes('analyses') || feature.includes('analysis')) {
       return <Sparkles size={16} color="#FF9800" />;
     }
+    if (feature.includes('Design Match') || feature.includes('Tasarım Eşleştirme')) {
+      return <Sparkles size={16} color="#FF00AA" />;
+    }
     if (feature.includes('support') || feature.includes('Priority')) {
       return <MessageCircle size={16} color="#2196F3" />;
     }
@@ -343,7 +346,8 @@ export default function SubscriptionScreen() {
                   <View style={styles.planIconContainer}>
                     {getPlanIcon(plan.id)}
                   </View>
-                  <Text style={styles.planName}>{t(plan.id + 'Plan')}</Text>
+                  <Text style={styles.planName}>{`${plan.emojiIcon} ${plan.name}`}</Text>
+                  <Text style={styles.planMeta}>{`${plan.planet} • ${plan.mythology}`}</Text>
                   <View style={styles.planPricing}>
                     <Text style={styles.planPrice}>
                       {plan.price === 0 ? t('priceFree') : `${plan.price}`}
@@ -355,6 +359,7 @@ export default function SubscriptionScreen() {
                 </LinearGradient>
 
                 <View style={styles.planContent}>
+                  <Text style={styles.planDescription}>{plan.description}</Text>
                   <View style={styles.planFeatures}>
                     {getPlanFeatures(plan.id).map((feature, index) => (
                       <View key={index} style={styles.featureItem}>
@@ -398,7 +403,7 @@ export default function SubscriptionScreen() {
                       .filter((f) => (f ?? '').toString().trim() !== '—');
                     if (extras.length === 0) return null;
                     return (
-                      <View style={{ marginTop: 8, gap: 8 }}>
+                      <View style={styles.ultimateExtrasContainer}>
                         {extras.map((f, i) => (
                           <View key={i} style={styles.featureItem}>
                             {getFeatureIcon(f)}
@@ -499,9 +504,9 @@ export default function SubscriptionScreen() {
 
               <Text style={styles.sectionLabel}>{t('creditDebitCard')}</Text>
               {isRememberedUser ? (
-                <View style={{ marginBottom: 12 }}>
-                  <Text style={{ color: '#111', fontWeight: '600' }}>{rememberedEmail}</Text>
-                  <Text style={{ color: '#6b7280', fontSize: 12 }}>Signed in</Text>
+                <View style={styles.signedInContainer}>
+                  <Text style={styles.signedInEmail}>{rememberedEmail}</Text>
+                  <Text style={styles.signedInNote}>Signed in</Text>
                 </View>
               ) : (
                 <>
@@ -787,6 +792,11 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 8,
   },
+  planMeta: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.85)',
+    marginBottom: 6,
+  },
   planPricing: {
     flexDirection: 'row',
     alignItems: 'baseline',
@@ -803,6 +813,12 @@ const styles = StyleSheet.create({
   },
   planContent: {
     padding: 24,
+  },
+  planDescription: {
+    fontSize: 14,
+    color: '#374151',
+    marginBottom: 16,
+    lineHeight: 20,
   },
   planFeatures: {
     marginBottom: 24,
@@ -1002,5 +1018,20 @@ const styles = StyleSheet.create({
     color: '#92400e',
     textAlign: 'center',
     fontWeight: '500',
+  },
+  signedInContainer: {
+    marginBottom: 12,
+  },
+  signedInEmail: {
+    color: '#111111',
+    fontWeight: '600',
+  },
+  signedInNote: {
+    color: '#6b7280',
+    fontSize: 12,
+  },
+  ultimateExtrasContainer: {
+    marginTop: 8,
+    rowGap: 8,
   },
 });
