@@ -107,6 +107,7 @@ export default function OutfitRatingScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [maskedImage, setMaskedImage] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<StyleCategory | null>(null);
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<OutfitAnalysis | AllCategoriesAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCategorySelection, setShowCategorySelection] = useState(false);
@@ -435,6 +436,15 @@ export default function OutfitRatingScreen() {
         const Buf = (globalThis as any)?.Buffer;
         return (Buf ? Buf.from(binary, 'binary').toString('base64') : '');
       }
+      if (uri.startsWith('content://')) {
+        try {
+          const dest = (FileSystem.cacheDirectory ?? '') + `img-${Date.now()}.jpg`;
+          await FileSystem.copyAsync({ from: uri, to: dest });
+          return await FileSystem.readAsStringAsync(dest, { encoding: FileSystem.EncodingType.Base64 });
+        } catch (copyErr) {
+          console.log('content URI copy failed, trying direct read', copyErr);
+        }
+      }
       return await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
     } catch (e) {
       console.log('uriToBase64 failed', e);
@@ -461,6 +471,7 @@ export default function OutfitRatingScreen() {
           allowsEditing: true,
           aspect: [3, 4],
           quality: 0.8,
+          base64: true,
         });
       } else {
         result = await ImagePicker.launchImageLibraryAsync({
@@ -468,14 +479,16 @@ export default function OutfitRatingScreen() {
           allowsEditing: true,
           aspect: [3, 4],
           quality: 0.8,
+          base64: true,
         });
       }
 
       if (!result.canceled && result.assets[0]) {
         const imageUri = result.assets[0].uri;
+        const pickedBase64 = (result.assets[0] as any)?.base64 as string | undefined;
         setSelectedImage(imageUri);
+        setSelectedImageBase64(pickedBase64 ?? null);
         
-        // Create masked version for privacy
         const masked = await maskFaceInImage(imageUri);
         setMaskedImage(masked);
         
@@ -564,7 +577,7 @@ export default function OutfitRatingScreen() {
       let base64Image: string;
 
       try {
-        base64Image = await uriToBase64(imageToAnalyze);
+        base64Image = selectedImageBase64 ?? await uriToBase64(imageToAnalyze);
       } catch (error) {
         console.log('Error converting image to base64:', error);
         throw new Error('Failed to process image');
@@ -611,6 +624,7 @@ export default function OutfitRatingScreen() {
       if (!proceed) return;
     }
     setSelectedImage(null);
+    setSelectedImageBase64(null);
     setMaskedImage(null);
     setAnalysis(null);
     setSelectedCategory(null);
@@ -621,8 +635,8 @@ export default function OutfitRatingScreen() {
   const toggleHistory = () => {
     setShowHistory(!showHistory);
     if (!showHistory) {
-      // Reset current session when viewing history
       setSelectedImage(null);
+      setSelectedImageBase64(null);
       setMaskedImage(null);
       setAnalysis(null);
       setSelectedCategory(null);
@@ -687,6 +701,7 @@ export default function OutfitRatingScreen() {
       r = await translateAnalysisIfNeeded(r);
     }
     setSelectedImage(r.imageUri);
+    setSelectedImageBase64(null);
     setMaskedImage(r.maskedImageUri || null);
     setSelectedCategory(r.category);
     setAnalysis(r.analysis);
