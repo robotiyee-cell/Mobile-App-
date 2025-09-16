@@ -617,7 +617,7 @@ export default function OutfitRatingScreen() {
       } catch (e) {
         const err = e as { message?: string } | undefined;
         console.log('startMutation failed', err?.message ?? e);
-        Alert.alert(t('error'), `${t('failedToAnalyze')}${err?.message ? `\n${err.message}` : ''}`);
+        Alert.alert(t('error'), t('failedToAnalyze'));
         setIsAnalyzing(false);
         return;
       }
@@ -944,6 +944,14 @@ Rules:
         text = text.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
       }
       text = text.replace(/<[^>]*>/g, '');
+      if (language === 'tr') {
+        try {
+          text = text
+            .replace(/\bExact\s*match\s*:/i, 'Tam Eşleşme:')
+            .replace(/\bClosest\s*suggestions\s*:/i, 'En Yakın Öneriler:')
+            .replace(/\bConfidence\s*:/gi, 'Güven Düzeyi:');
+        } catch {}
+      }
       setDesignMatchText(text.trim());
     } catch (e) {
       setDesignMatchText(language === 'tr' ? 'Eşleşme oluşturulamadı.' : 'Could not generate matches.');
@@ -1811,7 +1819,7 @@ Rules:
         const be = (statusQuery.data as any)?.error as string | undefined;
         setIsAnalyzing(false);
         setJobId(null);
-        Alert.alert(t('error'), `${t('failedToAnalyze')}${be ? `\n${be}` : ''}`);
+        Alert.alert(t('error'), t('failedToAnalyze'));
       }
     } catch {}
   }, [statusQuery.data]);
@@ -2643,7 +2651,7 @@ Rules:
                         <View style={styles.designMatchSection}>
                           <View style={styles.suggestionsHeader}>
                             <Sparkles size={20} color="#9B59B6" />
-                            <Text style={styles.designMatchTitle}>Design Match</Text>
+                            <Text style={styles.designMatchTitle}>{t('designMatchHeader')}</Text>
                           </View>
                           {designMatchLoading ? (
                             <ActivityIndicator color="#9B59B6" />
@@ -2656,7 +2664,7 @@ Rules:
                               testID="btn-design-match"
                             >
                               <Sparkles size={20} color="white" />
-                              <Text style={styles.buttonText}>Find Design Match</Text>
+                              <Text style={styles.buttonText}>{t('findDesignMatchButtonHeader')}</Text>
                             </TouchableOpacity>
                           )}
                         </View>
