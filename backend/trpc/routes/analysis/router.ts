@@ -108,20 +108,25 @@ Return ONLY JSON, no code fences.`;
     body: JSON.stringify({ messages }),
   });
   const contentType = res.headers.get("content-type") || "";
+  const raw = await res.text().catch(() => "");
   if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    throw new Error(`llm_http_${res.status}${errText ? `: ${errText.slice(0, 120)}` : ""}`);
+    throw new Error(`llm_http_${res.status}${raw ? `: ${raw.slice(0, 120)}` : ""}`);
   }
-  if (!contentType.includes("application/json")) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(`llm_non_json_response: ${txt.slice(0, 120)}`);
-  }
-  let data: any;
+  let data: any = undefined;
   try {
-    data = await res.json();
-  } catch (e) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(`llm_json_parse_error: ${txt.slice(0, 120)}`);
+    data = JSON.parse(raw);
+  } catch {
+    try {
+      const firstBrace = raw.indexOf("{");
+      const lastBrace = raw.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        const slice = raw.slice(firstBrace, lastBrace + 1);
+        data = JSON.parse(slice);
+      }
+    } catch {
+      const hint = contentType.includes("html") || raw.trim().startsWith("<") ? "llm_html_response" : "llm_json_parse_error";
+      throw new Error(`${hint}: ${raw.slice(0, 120)}`);
+    }
   }
   const completion = data?.completion as unknown;
   if (typeof completion === "object" && completion !== null) return completion;
