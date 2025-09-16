@@ -891,23 +891,43 @@ export default function OutfitRatingScreen() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [
-            { role: 'system', content: `You are a fashion historian and brand sleuth. Identify designers/brands this outfit most resembles, based solely on the image. Return 3 concise bullets: Brand — why (1 line) + confidence %.
-              Rules:
-              - Language: ${language === 'tr' ? 'Turkish' : 'English'}
-              - Keep it respectful; use “inspired by” if uncertain.
-              - Avoid inventing SKU names.
-            ` },
+            { role: 'system', content: `You are a fashion attribution expert. First try to identify the exact designer or brand from the image. If and only if an exact ID cannot be made with high confidence, list closest alternatives.
+Rules:
+- Output language: ${language === 'tr' ? 'Turkish' : 'English'}
+- Return ONLY plain text. No markdown, no HTML, no code fences.
+- Format strictly:
+  Exact match: <Brand/Designer> — <1-line reason> — Confidence: <0-100>%
+  Closest suggestions:
+  - <Brand/Designer> — <1-line reason> — Confidence: <0-100>%
+  - <Brand/Designer> — <1-line reason> — Confidence: <0-100>%
+  - <Brand/Designer> — <1-line reason> — Confidence: <0-100>%
+- If there is an exact match, include the Exact match line first, then the suggestions. If not, omit the Exact match line and only return the Closest suggestions block.
+- Be specific about signatures (silhouette, motifs, construction, hardware) and avoid SKU/product names.` },
             { role: 'user', content: [
-              { type: 'text', text: 'Which designers or brands does this outfit resemble? Provide top 3 with brief rationale and confidence.' },
+              { type: 'text', text: 'Identify the exact brand/designer if possible, then give the nearest alternatives with short rationale and confidence.' },
               { type: 'image', image: `data:image/jpeg;base64,${base64Image}` },
             ]}
           ]
         })
       });
+
+      if (!res.ok) {
+        setDesignMatchText(language === 'tr' ? 'Eşleşme oluşturulamadı.' : 'Could not generate matches.');
+        return;
+      }
+
       const data = await res.json();
-      const text = typeof data?.completion === 'string' ? data.completion : '';
-      setDesignMatchText(text || (language === 'tr' ? 'Eşleşme bulunamadı.' : 'No clear matches.'));
-    } catch {
+      let text = typeof data?.completion === 'string' ? data.completion : '';
+      if (!text) {
+        setDesignMatchText(language === 'tr' ? 'Eşleşme bulunamadı.' : 'No clear matches.');
+        return;
+      }
+      if (text.startsWith('```')) {
+        text = text.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
+      }
+      text = text.replace(/<[^>]*>/g, '');
+      setDesignMatchText(text.trim());
+    } catch (e) {
       setDesignMatchText(language === 'tr' ? 'Eşleşme oluşturulamadı.' : 'Could not generate matches.');
     } finally {
       setDesignMatchLoading(false);
