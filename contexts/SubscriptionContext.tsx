@@ -20,6 +20,10 @@ export interface SubscriptionPlan {
   hasPrioritySupport: boolean;
   hasCustomStyles: boolean;
   hasTrendInsights?: boolean;
+  emojiIcon: string;
+  planet: string;
+  mythology: string;
+  description: string;
 }
 
 export interface UserSubscription {
@@ -50,7 +54,11 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     hasAdvancedAnalysis: false,
     hasPrioritySupport: false,
     hasCustomStyles: false,
-    hasTrendInsights: false
+    hasTrendInsights: false,
+    emojiIcon: '🪽',
+    planet: 'Mercury',
+    mythology: 'Hermes',
+    description: 'Swift messenger of the gods, light and fast.'
   },
   {
     id: 'basic',
@@ -70,7 +78,11 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     hasAdvancedAnalysis: false,
     hasPrioritySupport: false,
     hasCustomStyles: false,
-    hasTrendInsights: false
+    hasTrendInsights: false,
+    emojiIcon: '💫',
+    planet: 'Venus',
+    mythology: 'Aphrodite',
+    description: 'Goddess of love and beauty, bright and radiant.'
   },
   {
     id: 'premium',
@@ -92,7 +104,11 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     hasAdvancedAnalysis: false,
     hasPrioritySupport: false,
     hasCustomStyles: false,
-    hasTrendInsights: false
+    hasTrendInsights: false,
+    emojiIcon: '⚡',
+    planet: 'Jupiter',
+    mythology: 'Zeus',
+    description: 'King of the gods, ruler of thunder and sky.'
   },
   {
     id: 'ultimate',
@@ -112,7 +128,11 @@ const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     hasAdvancedAnalysis: true,
     hasPrioritySupport: true,
     hasCustomStyles: false,
-    hasTrendInsights: true
+    hasTrendInsights: true,
+    emojiIcon: '⏳',
+    planet: 'Saturn',
+    mythology: 'Cronus',
+    description: 'Ancient Titan of time, majestic and powerful.'
   }
 ];
 
