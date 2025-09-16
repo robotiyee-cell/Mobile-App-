@@ -702,6 +702,10 @@ export default function OutfitRatingScreen() {
   };
 
   const loadSavedRating = async (historyItem: any) => {
+    try {
+      setDesignMatchText('');
+      setDesignMatchLoading(false);
+    } catch {}
     const itemLang: Language | undefined = historyItem?.lang as Language | undefined;
     const rating: SavedRating = {
       id: historyItem.id,
@@ -894,6 +898,46 @@ export default function OutfitRatingScreen() {
 
   const [designMatchLoading, setDesignMatchLoading] = useState<boolean>(false);
   const [designMatchText, setDesignMatchText] = useState<string>('');
+
+  const translateDesignMatchIfNeeded = React.useCallback(async (text: string, toLang: Language): Promise<string> => {
+    try {
+      if (!text || typeof text !== 'string') return text;
+      const targetLang = toLang === 'tr' ? 'Turkish' : 'English';
+      const body = {
+        messages: [
+          { role: 'system', content: `Translate the following fashion attribution result to ${targetLang}. Keep the exact lines and structure. Do not add markdown or code fences.` },
+          { role: 'user', content: text }
+        ]
+      };
+      const res = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      const completion = typeof data?.completion === 'string' ? data.completion : '';
+      if (!completion) return text;
+      let translated = completion.trim();
+      if (translated.startsWith('```')) {
+        translated = translated.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
+      }
+      return translated;
+    } catch {
+      return text;
+    }
+  }, []);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!designMatchText) return;
+        const updated = await translateDesignMatchIfNeeded(designMatchText, language);
+        if (updated && typeof updated === 'string') {
+          setDesignMatchText(updated);
+        }
+      } catch {}
+    })();
+  }, [language]);
 
   const generateDesignMatch = async (): Promise<void> => {
     if (!selectedImage) {

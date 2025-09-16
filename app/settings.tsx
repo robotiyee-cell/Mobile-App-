@@ -129,24 +129,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={[styles.button, styles.commitButton]}
-          onPress={async () => {
-            try {
-              setSaving(true);
-              await setLanguage(pendingLanguage);
-            } catch (e) {
-              console.log('Failed to apply language', e);
-            } finally {
-              setSaving(false);
-            }
-          }}
-          disabled={saving || pendingLanguage === language}
-          testID="btn-commit-language"
-        >
-          <Save size={20} color="white" />
-          <Text style={styles.buttonText}>{saving ? '...' : t('apply')}</Text>
-        </TouchableOpacity>
+
       </ScrollView>
     </SafeAreaView>
   );
