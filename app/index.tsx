@@ -432,8 +432,8 @@ export default function OutfitRatingScreen() {
         const len = bytes.byteLength;
         for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
         if (typeof btoa === 'function') return btoa(binary);
-        // @ts-expect-error Buffer may not exist on web, so guard
-        return (typeof Buffer !== 'undefined' ? Buffer.from(binary, 'binary').toString('base64') : '');
+        const Buf = (globalThis as any)?.Buffer;
+        return (Buf ? Buf.from(binary, 'binary').toString('base64') : '');
       }
       return await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
     } catch (e) {
