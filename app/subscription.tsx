@@ -257,10 +257,10 @@ export default function SubscriptionScreen() {
         >
           <View style={styles.currentPlanHeader}>
             <Shield size={24} color="white" />
-            <Text style={styles.currentPlanTitle}>{t('currentPlan')}</Text>
+            <Text style={styles.currentPlanTitle}>{`${currentPlan?.emojiIcon ?? ''} ${currentPlan?.planet ?? ''} · ${currentPlan?.mythology ?? ''}`.trim()}</Text>
           </View>
           <View style={styles.currentPlanInfo}>
-            <Text style={styles.currentPlanName}>{t(currentPlan.id + 'Plan')}</Text>
+
             {subscription.tier !== 'free' && subscription.expiresAt && (
               <Text style={styles.currentPlanExpiry}>
                 {t('expires')} {subscription.expiresAt.toLocaleDateString()}
@@ -288,22 +288,19 @@ export default function SubscriptionScreen() {
     );
   }
 
+  const screenTitle = (() => {
+    const cp = plans.find(p => p.id === subscription.tier);
+    if (!cp) return t('chooseYourPlan');
+    const emoji = cp.emojiIcon ?? '';
+    const planet = cp.planet ?? '';
+    const myth = cp.mythology ?? '';
+    return `${emoji} ${planet} · ${myth}`.trim();
+  })();
+
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: t(subscription.tier + 'Plan') }} />
+      <Stack.Screen options={{ title: screenTitle }} />
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        <LinearGradient
-          colors={['#FF69B4', '#FFB6C1', '#FFC0CB']}
-          style={styles.header}
-        >
-          <View style={styles.headerContent}>
-            <Crown size={48} color="white" />
-            <Text style={styles.headerTitle}>{t('upgradeToPremiumHeader')}</Text>
-            <Text style={styles.headerSubtitle}>
-              {t('upgradeToPremiumSub')}
-            </Text>
-          </View>
-        </LinearGradient>
 
         {renderCurrentPlan()}
 
@@ -346,7 +343,7 @@ export default function SubscriptionScreen() {
                   <View style={styles.planIconContainer}>
                     {getPlanIcon(plan.id)}
                   </View>
-                  <Text style={styles.planHierarchyText}>{`${plan.emojiIcon} ${plan.planet} · ${plan.mythology} — “${plan.description}”`}</Text>
+                  <Text style={styles.planHierarchyText}>{`${plan.emojiIcon} ${plan.planet} · ${plan.mythology}`}</Text>
                   <View style={styles.planPricing}>
                     <Text style={styles.planPrice}>
                       {plan.price === 0 ? t('priceFree') : `${plan.price}`}
