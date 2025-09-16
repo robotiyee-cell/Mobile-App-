@@ -70,6 +70,11 @@ const translations = {
     startCustomAnalysis: 'Start Custom Analysis',
     allCategoriesDesc: 'Get results for all 7 categories',
     
+    // Design Match
+    findDesignMatchButtonHeader: 'Find Design Match',
+    designMatchHeader: 'Design Match',
+    designMatchAnalysisResults: 'Design Match Analysis Results',
+    
     // Analysis
     analyzing: 'Analyzing...',
     rateMyOutfit: 'Rate My Outfit',
@@ -320,6 +325,11 @@ const translations = {
     customStylePlaceholder: 'örn. Bohem, Cottagecore, Y2K, Minimalist',
     startCustomAnalysis: 'Özel Analizi Başlat',
     allCategoriesDesc: '7 kategori için sonuç alın',
+    
+    // Design Match
+    findDesignMatchButtonHeader: 'Tasarım Eşleştirmeyi Bul',
+    designMatchHeader: 'Tasarım Eşleştirme',
+    designMatchAnalysisResults: 'Tasarım Eşleştirme Analiz Sonuçları',
     
     // Analysis
     analyzing: 'Analiz ediliyor...',
