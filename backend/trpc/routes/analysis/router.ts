@@ -107,7 +107,22 @@ Return ONLY JSON, no code fences.`;
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ messages }),
   });
-  const data = await res.json();
+  const contentType = res.headers.get("content-type") || "";
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    throw new Error(`llm_http_${res.status}${errText ? `: ${errText.slice(0, 120)}` : ""}`);
+  }
+  if (!contentType.includes("application/json")) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`llm_non_json_response: ${txt.slice(0, 120)}`);
+  }
+  let data: any;
+  try {
+    data = await res.json();
+  } catch (e) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`llm_json_parse_error: ${txt.slice(0, 120)}`);
+  }
   const completion = data?.completion as unknown;
   if (typeof completion === "object" && completion !== null) return completion;
   if (typeof completion === "string") {
