@@ -60,7 +60,7 @@ export default function SubscriptionScreen() {
       return [t('freeFeature1'), t('freeFeature2'), t('freeFeature3'), t('freeFeature4'), t('freeFeature5'), t('freeFeature6')].filter(f => (f ?? '').toString().trim() !== '—');
     }
     if (planId === 'basic') {
-      return [t('basicFeature1'), t('basicFeature2'), t('basicFeature3'), t('basicFeature4'), t('basicFeature5')].filter(f => (f ?? '').toString().trim() !== '—');
+      return [t('basicFeature1'), t('basicFeature2'), t('basicFeature3'), t('basicFeature4'), t('basicFeature5'), t('basicFeature6')].filter(f => (f ?? '').toString().trim() !== '—');
     }
     if (planId === 'premium') {
       return [t('premiumFeature1'), t('premiumFeature2'), t('premiumFeature3'), t('premiumFeature4'), t('premiumFeature5'), t('premiumFeature6'), t('premiumFeature7')].filter(f => (f ?? '').toString().trim() !== '—');

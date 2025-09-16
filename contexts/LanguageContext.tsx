@@ -217,6 +217,7 @@ const translations = {
     basicFeature3: 'Extended history (25 items)',
     basicFeature4: 'Standard support',
     basicFeature5: 'Improvement Suggestions',
+    basicFeature6: 'Design Match',
 
     premiumFeature1: 'Unlimited outfit analyses',
     premiumFeature2: 'All categories (7 results)',
@@ -224,7 +225,7 @@ const translations = {
     premiumFeature4: 'Detailed improvement suggestions',
     premiumFeature5: 'Email support',
     premiumFeature6: 'Export analysis results',
-    premiumFeature7: '—',
+    premiumFeature7: 'Design Match',
 
     ultimateFeature1: 'Everything in Premium',
     ultimateFeature2: 'Advanced AI Analysis',
@@ -467,6 +468,7 @@ const translations = {
     basicFeature3: 'Genişletilmiş geçmiş (25 öğe)',
     basicFeature4: 'Standart destek',
     basicFeature5: 'İyileştirme Önerileri',
+    basicFeature6: 'Tasarım Eşleştirme',
 
     premiumFeature1: 'Sınırsız kıyafet analizi',
     premiumFeature2: 'Tüm kategoriler (7 sonuç)',
@@ -474,7 +476,7 @@ const translations = {
     premiumFeature4: 'Detaylı iyileştirme önerileri',
     premiumFeature5: 'E-posta desteği',
     premiumFeature6: 'Analiz sonuçlarını dışa aktar',
-    premiumFeature7: '—',
+    premiumFeature7: 'Tasarım Eşleştirme',
 
     ultimateFeature1: 'Premium’daki her şey',
     ultimateFeature2: 'Gelişmiş AI Analizi',
