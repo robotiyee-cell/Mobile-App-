@@ -346,8 +346,7 @@ export default function SubscriptionScreen() {
                   <View style={styles.planIconContainer}>
                     {getPlanIcon(plan.id)}
                   </View>
-                  <Text style={styles.planName}>{`${plan.emojiIcon} ${plan.name}`}</Text>
-                  <Text style={styles.planMeta}>{`${plan.planet} • ${plan.mythology}`}</Text>
+                  <Text style={styles.planHierarchyText}>{`${plan.emojiIcon} ${plan.planet} · ${plan.mythology} — “${plan.description}”`}</Text>
                   <View style={styles.planPricing}>
                     <Text style={styles.planPrice}>
                       {plan.price === 0 ? t('priceFree') : `${plan.price}`}
@@ -792,10 +791,12 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 8,
   },
-  planMeta: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.85)',
-    marginBottom: 6,
+  planHierarchyText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.95)',
+    textAlign: 'center',
+    marginBottom: 8,
   },
   planPricing: {
     flexDirection: 'row',
