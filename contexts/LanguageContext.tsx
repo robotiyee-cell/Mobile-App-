@@ -16,7 +16,7 @@ interface LanguageContextType {
 const translations = {
   en: {
     // Header
-    appName: 'Look4Fun',
+    appName: 'Looks4Fun',
     appDescription: 'Look for fun with ai fashion review',
     
     
@@ -138,21 +138,21 @@ const translations = {
     // Terms
     termsTitle: 'Terms and Conditions',
     copyrightNoticeTitle: 'Copyright Notice',
-    copyrightNotice: 'Copyright (©) 2024 Look4Fun. All rights reserved. Unauthorized copying or distribution is prohibited.',
+    copyrightNotice: 'Copyright (©) 2024 Looks4Fun. All rights reserved. Unauthorized copying or distribution is prohibited.',
     termsOfUseTitle: 'Terms of Use',
     termsIntro: 'By using this application ("L4F"), you agree to the following terms and conditions:',
     copyrightProtectionTitle: '1. Copyright Protection',
-    copyrightProtectionText: 'This application and all its contents, including but not limited to design, code, graphics, text, and functionality, are protected by copyright law and owned by Look4Fun.',
+    copyrightProtectionText: 'This application and all its contents, including but not limited to design, code, graphics, text, and functionality, are protected by copyright law and owned by Looks4Fun.',
     prohibitedActivitiesTitle: '2. Prohibited Activities',
     prohibitedActivitiesBullets: 'You are strictly prohibited from:\n• Copying, reproducing, or distributing any part of this application\n• Reverse engineering or attempting to extract source code\n• Creating derivative works based on this application\n• Using this application for commercial purposes without permission\n• Removing or modifying copyright notices',
     privacyAndDataTitle: '3. Privacy and Data',
     privacyAndDataText: 'Your privacy is important to us. Face masking technology is used to protect your identity during AI analysis. Only outfit data is processed, ensuring your personal information remains secure.',
     intellectualPropertyTitle: '4. Intellectual Property',
-    intellectualPropertyText: 'All intellectual property rights in this application remain with Look4Fun. No rights are granted to users except for personal, non-commercial use as outlined in these terms.',
+    intellectualPropertyText: 'All intellectual property rights in this application remain with Looks4Fun. No rights are granted to users except for personal, non-commercial use as outlined in these terms.',
     violationsTitle: '5. Violations',
     violationsText: 'Any violation of these terms may result in immediate termination of your access to the application and potential legal action.',
     contactTitle: '6. Contact',
-    contactText: 'For permissions, licensing inquiries, or questions about these terms, contact: Look4Fun',
+    contactText: 'For permissions, licensing inquiries, or questions about these terms, contact: Looks4Fun',
     acceptTermsLabel: 'I Accept the Terms and Conditions',
     continueToApp: 'Continue to App',
 
@@ -267,7 +267,7 @@ const translations = {
   },
   tr: {
     // Header
-    appName: 'Look4Fun',
+    appName: 'Looks4Fun',
     appDescription: 'AI moda değerlendirmesi ile eğlenceli görünün',
     
     // Settings
@@ -388,21 +388,21 @@ const translations = {
     // Terms
     termsTitle: 'Şartlar ve Koşullar',
     copyrightNoticeTitle: 'Telif Hakkı Bildirimi',
-    copyrightNotice: 'Telif Hakkı (©) 2024 Look4Fun. Tüm hakları saklıdır. İzinsiz kopyalama veya dağıtım yasaktır.',
+    copyrightNotice: 'Telif Hakkı (©) 2024 Looks4Fun. Tüm hakları saklıdır. İzinsiz kopyalama veya dağıtım yasaktır.',
     termsOfUseTitle: 'Kullanım Şartları',
     termsIntro: 'Bu uygulamayı ("L4F") kullanarak aşağıdaki şartları ve koşulları kabul etmiş olursunuz:',
     copyrightProtectionTitle: '1. Telif Hakkı Koruması',
-    copyrightProtectionText: 'Bu uygulama ve tasarım, kod, grafikler, metin ve işlevsellik dahil ancak bunlarla sınırlı olmamak üzere tüm içerikleri telif hakkı yasaları ile korunmaktadır ve Look4Fun’a aittir.',
+    copyrightProtectionText: 'Bu uygulama ve tasarım, kod, grafikler, metin ve işlevsellik dahil ancak bunlarla sınırlı olmamak üzere tüm içerikleri telif hakkı yasaları ile korunmaktadır ve Looks4Fun’a aittir.',
     prohibitedActivitiesTitle: '2. Yasaklı Faaliyetler',
     prohibitedActivitiesBullets: 'Kesinlikle yasaktır:\n• Uygulamanın herhangi bir bölümünü kopyalamak, çoğaltmak veya dağıtmak\n• Tersine mühendislik yapmak veya kaynak kodu çıkarmaya çalışmak\n• Bu uygulamaya dayalı türev çalışmalar oluşturmak\n• İzin almadan ticari amaçlarla kullanmak\n• Telif hakkı bildirimlerini kaldırmak veya değiştirmek',
     privacyAndDataTitle: '3. Gizlilik ve Veri',
     privacyAndDataText: 'Gizliliğiniz bizim için önemlidir. AI analizi sırasında kimliğinizi korumak için yüz maskeleme teknolojisi kullanılır. Yalnızca kıyafet verileri işlenir.',
     intellectualPropertyTitle: '4. Fikri Mülkiyet',
-    intellectualPropertyText: 'Bu uygulamadaki tüm fikri mülkiyet hakları Look4Fun’a aittir. Bu şartlarda belirtilen kişisel, ticari olmayan kullanım dışında kullanıcıya hak tanınmaz.',
+    intellectualPropertyText: 'Bu uygulamadaki tüm fikri mülkiyet hakları Looks4Fun’a aittir. Bu şartlarda belirtilen kişisel, ticari olmayan kullanım dışında kullanıcıya hak tanınmaz.',
     violationsTitle: '5. İhlaller',
     violationsText: 'Bu şartların ihlali, uygulamaya erişiminizin derhal sonlandırılmasına ve yasal işlemlere yol açabilir.',
     contactTitle: '6. İletişim',
-    contactText: 'İzinler, lisans talepleri veya bu şartlarla ilgili sorular için: Look4Fun',
+    contactText: 'İzinler, lisans talepleri veya bu şartlarla ilgili sorular için: Looks4Fun',
     acceptTermsLabel: 'Şartlar ve Koşulları Kabul Ediyorum',
     continueToApp: 'Uygulamaya Devam Et',
 

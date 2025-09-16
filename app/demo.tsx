@@ -375,7 +375,7 @@ export default function DemoScreen() {
       {/* Copyright Notice */}
       <View style={styles.copyrightContainer}>
         <Text style={styles.copyrightText}>
-          Copyright (©) 2024 Look4Fun
+          Copyright (©) 2024 Looks4Fun
         </Text>
       </View>
     </View>
