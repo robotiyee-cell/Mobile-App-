@@ -584,7 +584,9 @@ export default function OutfitRatingScreen() {
         }
         console.log('Analysis job started:', { jobId: (resp as any).jobId, req: thisReq });
       } catch (e) {
-        Alert.alert(t('error'), t('failedToAnalyze'));
+        const err = e as { message?: string } | undefined;
+        console.log('startMutation failed', err?.message ?? e);
+        Alert.alert(t('error'), `${t('failedToAnalyze')}${err?.message ? `\n${err.message}` : ''}`);
         setIsAnalyzing(false);
         return;
       }
@@ -1736,9 +1738,10 @@ export default function OutfitRatingScreen() {
         setIsAnalyzing(false);
         setJobId(null);
       } else if (s === 'failed') {
+        const be = (statusQuery.data as any)?.error as string | undefined;
         setIsAnalyzing(false);
         setJobId(null);
-        Alert.alert(t('error'), t('failedToAnalyze'));
+        Alert.alert(t('error'), `${t('failedToAnalyze')}${be ? `\n${be}` : ''}`);
       }
     } catch {}
   }, [statusQuery.data]);
