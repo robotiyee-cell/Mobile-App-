@@ -404,18 +404,41 @@ export default function OutfitRatingScreen() {
 
   const maskFaceInImage = async (imageUri: string): Promise<string> => {
     try {
-      // For web, we'll use a simple blur overlay approach
-      // For mobile, we'll create a masked version with a face blur overlay
       if (Platform.OS === 'web') {
-        // Return original image for web - masking will be handled in UI
         return imageUri;
       } else {
-        // For mobile, return the original image and handle masking in UI
         return imageUri;
       }
     } catch (error) {
       console.log('Error masking image:', error);
       return imageUri;
+    }
+  };
+
+  const uriToBase64 = async (uri: string): Promise<string> => {
+    try {
+      if (!uri) return '';
+      if (uri.startsWith('data:')) {
+        const parts = uri.split(',');
+        return parts[1] ?? '';
+      }
+      if (Platform.OS === 'web') {
+        const res = await fetch(uri);
+        if (!res.ok) throw new Error(`fetch_failed_${res.status}`);
+        const blob = await res.blob();
+        const ab = await blob.arrayBuffer();
+        let binary = '';
+        const bytes = new Uint8Array(ab);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
+        if (typeof btoa === 'function') return btoa(binary);
+        // @ts-expect-error Buffer may not exist on web, so guard
+        return (typeof Buffer !== 'undefined' ? Buffer.from(binary, 'binary').toString('base64') : '');
+      }
+      return await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+    } catch (e) {
+      console.log('uriToBase64 failed', e);
+      throw e as Error;
     }
   };
 
@@ -541,15 +564,10 @@ export default function OutfitRatingScreen() {
       let base64Image: string;
 
       try {
-        const base64 = await FileSystem.readAsStringAsync(imageToAnalyze, { encoding: FileSystem.EncodingType.Base64 });
-        base64Image = base64;
+        base64Image = await uriToBase64(imageToAnalyze);
       } catch (error) {
         console.log('Error converting image to base64:', error);
-        if (imageToAnalyze.startsWith('data:')) {
-          base64Image = imageToAnalyze.split(',')[1] ?? '';
-        } else {
-          throw new Error('Failed to process image');
-        }
+        throw new Error('Failed to process image');
       }
 
       try {
@@ -850,14 +868,9 @@ export default function OutfitRatingScreen() {
       const imageToAnalyze = maskedImage || selectedImage;
       let base64Image: string;
       try {
-        const base64 = await FileSystem.readAsStringAsync(imageToAnalyze, { encoding: FileSystem.EncodingType.Base64 });
-        base64Image = base64;
+        base64Image = await uriToBase64(imageToAnalyze);
       } catch (error) {
-        if (imageToAnalyze.startsWith('data:')) {
-          base64Image = imageToAnalyze.split(',')[1];
-        } else {
-          throw error as Error;
-        }
+        throw error as Error;
       }
 
       const res = await fetch('https://toolkit.rork.com/text/llm/', {
@@ -898,12 +911,7 @@ export default function OutfitRatingScreen() {
       let inlineBase64 = '';
       try {
         if (imageUri) {
-          if (imageUri.startsWith('data:')) {
-            inlineBase64 = imageUri.split(',')[1] ?? '';
-          } else {
-            const base64 = await FileSystem.readAsStringAsync(imageUri, { encoding: FileSystem.EncodingType.Base64 });
-            inlineBase64 = base64;
-          }
+          inlineBase64 = await uriToBase64(imageUri);
         }
       } catch (e) {
         console.log('Failed to embed image base64 for email', e);
