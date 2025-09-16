@@ -857,6 +857,46 @@ export default function OutfitRatingScreen() {
     }
   };
 
+  const [designMatchLoading, setDesignMatchLoading] = useState<boolean>(false);
+  const [designMatchText, setDesignMatchText] = useState<string>('');
+
+  const generateDesignMatch = async (): Promise<void> => {
+    if (!selectedImage) {
+      Alert.alert(t('error'), t('failedToAnalyze'));
+      return;
+    }
+    try {
+      setDesignMatchLoading(true);
+      const imageToAnalyze = maskedImage || selectedImage;
+      const base64Image = await uriToBase64(imageToAnalyze);
+      const res = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: `You are a fashion historian and brand sleuth. Identify designers/brands this outfit most resembles, based solely on the image. Return 3 concise bullets: Brand — why (1 line) + confidence %.
+              Rules:
+              - Language: ${language === 'tr' ? 'Turkish' : 'English'}
+              - Keep it respectful; use “inspired by” if uncertain.
+              - Avoid inventing SKU names.
+            ` },
+            { role: 'user', content: [
+              { type: 'text', text: 'Which designers or brands does this outfit resemble? Provide top 3 with brief rationale and confidence.' },
+              { type: 'image', image: `data:image/jpeg;base64,${base64Image}` },
+            ]}
+          ]
+        })
+      });
+      const data = await res.json();
+      const text = typeof data?.completion === 'string' ? data.completion : '';
+      setDesignMatchText(text || (language === 'tr' ? 'Eşleşme bulunamadı.' : 'No clear matches.'));
+    } catch {
+      setDesignMatchText(language === 'tr' ? 'Eşleşme oluşturulamadı.' : 'Could not generate matches.');
+    } finally {
+      setDesignMatchLoading(false);
+    }
+  };
+
   const generateTrendInsights = async (): Promise<void> => {
     if (!selectedImage) {
       Alert.alert(t('error'), t('failedToAnalyze'));
@@ -2530,6 +2570,27 @@ export default function OutfitRatingScreen() {
                             <Text style={[styles.suggestionText, { color: getTextColor(selectedCategory as StyleCategory), fontWeight: '700' }]}>{suggestion}</Text>
                           </View>
                         ))}
+
+                        <View style={styles.designMatchSection}>
+                          <View style={styles.suggestionsHeader}>
+                            <Sparkles size={20} color="#9B59B6" />
+                            <Text style={styles.designMatchTitle}>Design Match</Text>
+                          </View>
+                          {designMatchLoading ? (
+                            <ActivityIndicator color="#9B59B6" />
+                          ) : designMatchText ? (
+                            <Text style={styles.designMatchText}>{designMatchText}</Text>
+                          ) : (
+                            <TouchableOpacity
+                              style={[styles.button, styles.designMatchButton]}
+                              onPress={generateDesignMatch}
+                              testID="btn-design-match"
+                            >
+                              <Sparkles size={20} color="white" />
+                              <Text style={styles.buttonText}>Find Design Match</Text>
+                            </TouchableOpacity>
+                          )}
+                        </View>
                       </View>
                     ) : null}
                   </View>
@@ -2801,7 +2862,7 @@ export default function OutfitRatingScreen() {
       {/* Copyright Notice */}
       <View style={styles.copyrightContainer}>
         <Text style={styles.copyrightText}>
-          Copyright (©) 2024 Look4Fun
+          Copyright (©) 2024 Looks4Fun
         </Text>
       </View>
     </View>
@@ -3673,6 +3734,27 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     textAlign: 'center',
     paddingHorizontal: 4,
+  },
+
+  designMatchSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  designMatchTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#6A1B9A',
+  },
+  designMatchText: {
+    fontSize: 15,
+    color: '#333',
+    lineHeight: 22,
+  },
+  designMatchButton: {
+    backgroundColor: '#6A1B9A',
+    marginTop: 8,
   },
   
   // Style category section below results
