@@ -27,7 +27,7 @@ export default function TermsScreen() {
           </View>
           <Text style={styles.paragraph}>{t('copyrightNotice')}</Text>
           <Text style={styles.paragraph}>
-            All content, UI design, and brand identity of Look 4 Fun are protected under copyright law. Look 4 Fun is an original mobile product. The name and visual identity are protected.
+            All content, UI design, and brand identity of Looks4Fun are protected under copyright law. Looks4Fun is an original mobile product. The name and visual identity are protected.
           </Text>
         </View>
 
