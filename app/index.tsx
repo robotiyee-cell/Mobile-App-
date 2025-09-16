@@ -502,7 +502,7 @@ export default function OutfitRatingScreen() {
     try {
       if (!data || typeof data !== 'object') return { ok: false, reason: 'no_object' };
 
-      const minChars = subscription.tier === 'ultimate' ? 350 : subscription.tier === 'premium' ? 250 : subscription.tier === 'basic' ? 60 : 60;
+      const softMin = 10;
 
       if (category === 'rate') {
         const a = data as AllCategoriesAnalysis;
@@ -512,21 +512,21 @@ export default function OutfitRatingScreen() {
           if (typeof (r as CategoryResult).category !== 'string') return { ok: false, reason: 'missing_category' };
           const sc = Number((r as CategoryResult).score);
           if (!Number.isFinite(sc) || sc <= 0 || sc > 12) return { ok: false, reason: 'invalid_score' };
-          if (!validateTextQuality((r as CategoryResult).analysis, minChars)) return { ok: false, reason: 'analysis_too_short' };
+          if (!validateTextQuality((r as CategoryResult).analysis, softMin)) return { ok: false, reason: 'analysis_too_short' };
         }
         const overall = Number((a as AllCategoriesAnalysis).overallScore);
         if (!Number.isFinite(overall) || overall <= 0) return { ok: false, reason: 'overall_invalid' };
-        if (!validateTextQuality((a as AllCategoriesAnalysis).overallAnalysis, Math.max(60, Math.floor(minChars * 0.8)))) return { ok: false, reason: 'overall_too_short' };
+        if (!validateTextQuality((a as AllCategoriesAnalysis).overallAnalysis, softMin)) return { ok: false, reason: 'overall_too_short' };
         return { ok: true };
       }
 
       const a = data as OutfitAnalysis;
       const sc = Number(a.score);
       if (!Number.isFinite(sc) || sc <= 0 || sc > 12) return { ok: false, reason: 'invalid_score' };
-      if (!validateTextQuality(a.style, minChars)) return { ok: false, reason: 'style_short' };
-      if (!validateTextQuality(a.colorCoordination, Math.max(40, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'color_short' };
-      if (!validateTextQuality(a.accessories, Math.max(40, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'accessories_short' };
-      if (!validateTextQuality(a.harmony, Math.max(40, Math.floor(minChars * 0.6)))) return { ok: false, reason: 'harmony_short' };
+      if (!validateTextQuality(a.style, softMin)) return { ok: false, reason: 'style_short' };
+      if (!validateTextQuality(a.colorCoordination, softMin)) return { ok: false, reason: 'color_short' };
+      if (!validateTextQuality(a.accessories, softMin)) return { ok: false, reason: 'accessories_short' };
+      if (!validateTextQuality(a.harmony, softMin)) return { ok: false, reason: 'harmony_short' };
       return { ok: true };
     } catch (e) {
       return { ok: false, reason: 'exception' };
@@ -1695,14 +1695,31 @@ export default function OutfitRatingScreen() {
       const s = (statusQuery.data as any).status as 'pending' | 'processing' | 'succeeded' | 'failed' | undefined;
       if (!s) return;
       if (s === 'succeeded') {
-        const result = (statusQuery.data as any).result as any;
-        const isValid = validateAnalysis(result, selectedCategory ?? null).ok;
-        if (!isValid) {
-          console.log('Invalid analysis result received from backend. Raw:', result);
-          Alert.alert(t('error'), t('noCategoryResults'));
-          setIsAnalyzing(false);
-          setJobId(null);
-          return;
+        let result = (statusQuery.data as any).result as any;
+        const validated = validateAnalysis(result, selectedCategory ?? null);
+        if (!validated.ok) {
+          try {
+            if (selectedCategory === 'rate' && result && Array.isArray(result.results)) {
+              result = {
+                ...result,
+                overallAnalysis: ensureParagraph(String(result.overallAnalysis ?? ''), 'overall', language),
+                results: result.results.map((r: any) => ({
+                  ...r,
+                  analysis: ensureParagraph(String(r?.analysis ?? ''), String(r?.category ?? 'rate'), language),
+                  suggestions: Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions : generateShortSuggestions(String(r?.category ?? 'rate'), language),
+                })),
+              };
+            } else if (result && typeof result === 'object') {
+              result = {
+                style: ensureParagraph(String(result.style ?? ''), String(selectedCategory ?? ''), language),
+                colorCoordination: ensureParagraph(String(result.colorCoordination ?? ''), String(selectedCategory ?? ''), language),
+                accessories: ensureParagraph(String(result.accessories ?? ''), String(selectedCategory ?? ''), language),
+                harmony: ensureParagraph(String(result.harmony ?? ''), String(selectedCategory ?? ''), language),
+                score: Number(result.score ?? 0),
+                suggestions: Array.isArray(result.suggestions) && result.suggestions.length > 0 ? result.suggestions : generateShortSuggestions(String(selectedCategory ?? 'rate'), language),
+              } as OutfitAnalysis;
+            }
+          } catch {}
         }
         if (subscription.tier === 'basic') {
           try {
@@ -1713,7 +1730,7 @@ export default function OutfitRatingScreen() {
                   (Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions.slice(0, 2) : generateShortSuggestions(r?.category ?? 'rate', language))
                 ).map((s: string) => limitSentences(s, 2)),
               }));
-            } else if (result && typeof result === 'object' && result.style !== undefined) {
+            } else if (result && typeof result === 'object' && (result as any).style !== undefined) {
               const a: any = result as any;
               a.suggestions = (
                 Array.isArray(a?.suggestions) && a.suggestions.length > 0 ? a.suggestions.slice(0, 2) : generateShortSuggestions(selectedCategory ?? 'rate', language)
