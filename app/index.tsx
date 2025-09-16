@@ -3783,9 +3783,12 @@ const styles = StyleSheet.create({
     color: '#6A1B9A',
   },
   designMatchText: {
-    fontSize: 15,
-    color: '#333',
-    lineHeight: 22,
+    fontSize: 17,
+    color: '#1a1a1a',
+    lineHeight: 26,
+    fontWeight: '600',
+    fontFamily: Platform.select({ ios: undefined, android: 'sans-serif-medium', web: 'system-ui' }),
+    letterSpacing: 0.2,
   },
   designMatchButton: {
     backgroundColor: '#6A1B9A',
