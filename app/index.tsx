@@ -2925,12 +2925,19 @@ Rules:
                                 <View>
                                   <Text style={[styles.designMatchSubheader, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} testID="design-match-suggestions-title">{language === 'tr' ? 'En Yakın Öneriler' : 'Closest suggestions'}</Text>
                                   {parsedDesignMatch.suggestions.map((it, idx) => (
-                                    <View key={idx} style={styles.designMatchItemRow} testID={`design-match-item-${idx}`}>
+                                    <View
+                                      key={idx}
+                                      style={[
+                                        styles.designMatchItemRow,
+                                        idx === parsedDesignMatch.suggestions.length - 1 && styles.designMatchItemRowLast,
+                                      ]}
+                                      testID={`design-match-item-${idx}`}
+                                    >
                                       <View style={styles.designMatchIndex}><Text style={styles.designMatchIndexText}>{idx + 1}</Text></View>
                                       <View style={{ flex: 1 }}>
                                         <Text style={[styles.designMatchBrand, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} numberOfLines={1} ellipsizeMode="tail">{it.brand ?? it.raw}</Text>
                                         {it.reason ? (
-                                          <Text style={styles.designMatchReason}>{it.reason}</Text>
+                                          <Text style={[styles.designMatchReason, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{it.reason}</Text>
                                         ) : null}
                                       </View>
                                       {typeof it.confidence === 'number' ? (
@@ -4140,8 +4147,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   designMatchIndex: {
     width: 26,
@@ -4166,6 +4173,9 @@ const styles = StyleSheet.create({
     color: '#555',
     lineHeight: 18,
     marginTop: 2,
+  },
+  designMatchItemRowLast: {
+    borderBottomWidth: 0,
   },
   designMatchConfidenceBadge: {
     backgroundColor: 'rgba(255, 215, 0, 0.15)',
