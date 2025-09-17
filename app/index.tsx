@@ -112,7 +112,7 @@ export default function OutfitRatingScreen() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCategorySelection, setShowCategorySelection] = useState(false);
   // Using HistoryContext instead of local state
-  const { items: savedRatings, addItem: addHistoryItem, removeItem: removeHistoryItem, clearHistory: clearHistoryItems, maxItems } = useHistory();
+  const { items: savedRatings, addItem: addHistoryItem, updateItem: updateHistoryItem, removeItem: removeHistoryItem, clearHistory: clearHistoryItems, maxItems } = useHistory();
   const [isAppActive, setIsAppActive] = useState<boolean>(true);
   const isMountedRef = useRef<boolean>(true);
   const ignoreResponsesRef = useRef<boolean>(false);
@@ -281,6 +281,7 @@ export default function OutfitRatingScreen() {
   }, []);
   const activeAnalysisIdRef = useRef<string | null>(null);
   const savedForActiveIdRef = useRef<boolean>(false);
+  const currentHistoryIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     checkTermsAcceptance();
@@ -410,12 +411,14 @@ export default function OutfitRatingScreen() {
     };
   };
 
-  const saveRating = async (rating: SavedRating) => {
+  const saveRating = async (rating: SavedRating): Promise<string> => {
     try {
       const historyItem = convertToHistoryItem(rating);
       await addHistoryItem(historyItem);
+      return historyItem.id;
     } catch (error) {
       console.log('Error saving rating:', error);
+      return rating.id;
     }
   };
 
@@ -800,6 +803,12 @@ export default function OutfitRatingScreen() {
     setAnalysis(r.analysis);
     setShowCategorySelection(false);
     setShowHistory(false);
+    try {
+      const dm: string = historyItem?.designMatch ?? '';
+      setDesignMatchText(dm || '');
+      currentHistoryIdRef.current = historyItem?.id ?? null;
+    } catch {}
+    
   };
 
   const clearHistory = async () => {
@@ -1067,7 +1076,16 @@ Rules:
             .replace(/\bConfidence\s*:/gi, 'Güven Düzeyi:');
         } catch {}
       }
-      setDesignMatchText(text.trim());
+      const finalText = text.trim();
+      setDesignMatchText(finalText);
+      try {
+        const hid = currentHistoryIdRef.current;
+        if (hid) {
+          await updateHistoryItem(hid, { designMatch: finalText, lang: language });
+        }
+      } catch (e) {
+        console.log('Failed to update history with design match', e);
+      }
     } catch (e) {
       setDesignMatchText(language === 'tr' ? 'Eşleşme oluşturulamadı.' : 'Could not generate matches.');
     } finally {
@@ -1926,7 +1944,10 @@ Rules:
             timestamp: Date.now(),
             planTier: subscription.tier,
           };
-          saveRating({ ...rating, lang: language });
+          (async () => {
+            const hid = await saveRating({ ...rating, lang: language });
+            currentHistoryIdRef.current = hid;
+          })();
         }
         setIsAnalyzing(false);
         setJobId(null);

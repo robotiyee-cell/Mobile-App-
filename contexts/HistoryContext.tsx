@@ -17,6 +17,7 @@ export interface HistoryItem {
   score?: number;
   analysisSummary?: string;
   details?: string;
+  designMatch?: string;
   lang?: Language;
 }
 
@@ -24,6 +25,7 @@ interface HistoryContextValue {
   items: HistoryItem[];
   isLoading: boolean;
   addItem: (item: HistoryItem) => Promise<void>;
+  updateItem: (id: string, patch: Partial<HistoryItem>) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
   clearHistory: () => Promise<void>;
   maxItems: number | -1;
@@ -116,6 +118,14 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
     }
   }, []);
 
+  const updateItem = useCallback(async (id: string, patch: Partial<HistoryItem>) => {
+    setItems(prev => {
+      const next = prev.map(i => (i.id === id ? { ...i, ...patch } : i));
+      void persist(next);
+      return next;
+    });
+  }, [persist]);
+
   const translateJsonSafely = async (jsonText: string, targetLang: Language): Promise<string | null> => {
     try {
       const isJson = !!jsonText && (jsonText.trim().startsWith('{') || jsonText.trim().startsWith('['));
@@ -153,6 +163,33 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
     }
   };
 
+  const translatePlainTextSafely = async (text: string, targetLang: Language): Promise<string | null> => {
+    try {
+      if (!text) return null;
+      const res = await fetch('https://toolkit.rork.com/text/llm/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: `Translate to ${targetLang === 'tr' ? 'Turkish' : 'English'} and return ONLY plain text. No markdown.` },
+            { role: 'user', content: text }
+          ]
+        })
+      });
+      const data = await res.json();
+      const completion = typeof data?.completion === 'string' ? data.completion : '';
+      if (!completion) return null;
+      let output = completion.trim();
+      if (output.startsWith('```')) {
+        output = output.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
+      }
+      return output;
+    } catch (e) {
+      console.log('History translate plain error', e);
+      return null;
+    }
+  };
+
   const extractSummary = (details: string | undefined): string | undefined => {
     if (!details) return undefined;
     try {
@@ -168,18 +205,29 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
   useEffect(() => {
     const run = async () => {
       if (translatingRef.current) return;
-      const need = items.filter(i => (i?.details && i.lang && i.lang !== language) || (i?.details && !i.lang));
+      const need = items.filter(i => ((i?.details || i?.designMatch) && i.lang && i.lang !== language) || ((i?.details || i?.designMatch) && !i.lang));
       if (need.length === 0) return;
       translatingRef.current = true;
       try {
         const updated: HistoryItem[] = await Promise.all(
           items.map(async (it) => {
-            if (!it.details) return it;
             if (it.lang === language) return it;
-            const translated = await translateJsonSafely(it.details, language);
-            if (!translated) return it;
-            const summary = extractSummary(translated) ?? it.analysisSummary;
-            return { ...it, details: translated, analysisSummary: summary, lang: language };
+            let next: HistoryItem = { ...it };
+            if (it.details) {
+              const translated = await translateJsonSafely(it.details, language);
+              if (translated) {
+                const summary = extractSummary(translated) ?? it.analysisSummary;
+                next = { ...next, details: translated, analysisSummary: summary };
+              }
+            }
+            if (it.designMatch) {
+              const dm = await translatePlainTextSafely(it.designMatch, language);
+              if (dm) {
+                next = { ...next, designMatch: dm };
+              }
+            }
+            next.lang = language;
+            return next;
           })
         );
         setItems(updated);
@@ -197,6 +245,7 @@ export const [HistoryProvider, useHistory] = createContextHook<HistoryContextVal
     items,
     isLoading,
     addItem,
+    updateItem,
     removeItem,
     clearHistory,
     maxItems,
