@@ -1003,6 +1003,71 @@ export default function OutfitRatingScreen() {
   const [designMatchLoading, setDesignMatchLoading] = useState<boolean>(false);
   const [designMatchText, setDesignMatchText] = useState<string>('');
 
+  interface DesignMatchItem {
+    raw: string;
+    brand?: string;
+    reason?: string;
+    confidence?: number;
+  }
+  interface DesignMatchParsed {
+    exact?: DesignMatchItem;
+    suggestions: DesignMatchItem[];
+  }
+
+  const parseDesignMatch = React.useCallback((text: string, lang: Language): DesignMatchParsed => {
+    try {
+      const lines = (text || '')
+        .split(/\r?\n+/)
+        .map((l) => l.trim())
+        .filter((l) => l.length > 0);
+      const exactLabels = [/^exact\s*match\s*:/i, /^tam\s*eşleşme\s*:/i];
+      const suggLabels = [/^closest\s*suggestions\s*:/i, /^en\s*yakın\s*öneriler\s*:/i];
+      let section: 'exact' | 'suggestions' | 'none' = 'none';
+      const parsed: DesignMatchParsed = { suggestions: [] };
+      const confRegex = /(confidence|güven\s*düzeyi)\s*:\s*(\d{1,3})\s*%/i;
+      const normalizeItem = (line: string): DesignMatchItem => {
+        const clean = line.replace(/^[-•\s]+/, '').trim();
+        const m = confRegex.exec(clean);
+        let confidence: number | undefined = undefined;
+        let body = clean;
+        if (m && m[2]) {
+          confidence = Math.max(0, Math.min(100, Number(m[2])));
+          body = clean.replace(m[0], '').trim();
+        }
+        const parts = body.split(/\s—\s|\s-\s/);
+        const brand = parts[0]?.trim();
+        const reason = parts.slice(1).join(' — ').trim();
+        return { raw: line, brand: brand || undefined, reason: reason || undefined, confidence };
+      };
+      for (const line of lines) {
+        if (exactLabels.some((r) => r.test(line))) {
+          section = 'exact';
+          continue;
+        }
+        if (suggLabels.some((r) => r.test(line))) {
+          section = 'suggestions';
+          continue;
+        }
+        if (section === 'exact' && !parsed.exact) {
+          parsed.exact = normalizeItem(line);
+          continue;
+        }
+        if (section === 'suggestions') {
+          parsed.suggestions.push(normalizeItem(line));
+          continue;
+        }
+        if (line.length > 0) {
+          parsed.suggestions.push(normalizeItem(line));
+        }
+      }
+      return parsed;
+    } catch {
+      return { suggestions: [] };
+    }
+  }, []);
+
+  const parsedDesignMatch = React.useMemo<DesignMatchParsed>(() => parseDesignMatch(designMatchText, language), [designMatchText, language, parseDesignMatch]);
+
   const translateDesignMatchIfNeeded = React.useCallback(async (text: string, toLang: Language): Promise<string> => {
     try {
       if (!text || typeof text !== 'string') return text;
@@ -2816,11 +2881,48 @@ Rules:
                           {designMatchLoading ? (
                             <ActivityIndicator color="#9B59B6" />
                           ) : designMatchText ? (
-                            <Text style={[
-                              styles.designMatchText,
-                              { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory), fontWeight: '700' as const }
-                            ]}
-                            >{designMatchText}</Text>
+                            <View style={styles.designMatchBlock} testID="design-match-block">
+                              {parsedDesignMatch.exact ? (
+                                <View style={{ marginBottom: 12 }}>
+                                  <Text style={styles.designMatchSubheader} testID="design-match-exact-title">{language === 'tr' ? 'Tam Eşleşme' : 'Exact match'}</Text>
+                                  <View style={styles.designMatchExactRow} testID="design-match-exact-item">
+                                    <View style={styles.designMatchIndex}><Text style={styles.designMatchIndexText}>★</Text></View>
+                                    <View style={{ flex: 1 }}>
+                                      <Text style={[styles.designMatchBrand, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} numberOfLines={1} ellipsizeMode="tail">{parsedDesignMatch.exact.brand ?? parsedDesignMatch.exact.raw}</Text>
+                                      {parsedDesignMatch.exact.reason ? (
+                                        <Text style={styles.designMatchReason}>{parsedDesignMatch.exact.reason}</Text>
+                                      ) : null}
+                                    </View>
+                                    {typeof parsedDesignMatch.exact.confidence === 'number' ? (
+                                      <View style={styles.designMatchConfidenceBadge} testID="design-match-exact-confidence">
+                                        <Text style={styles.designMatchConfidenceText}>{parsedDesignMatch.exact.confidence}%</Text>
+                                      </View>
+                                    ) : null}
+                                  </View>
+                                </View>
+                              ) : null}
+                              {parsedDesignMatch.suggestions && parsedDesignMatch.suggestions.length > 0 ? (
+                                <View>
+                                  <Text style={styles.designMatchSubheader} testID="design-match-suggestions-title">{language === 'tr' ? 'En Yakın Öneriler' : 'Closest suggestions'}</Text>
+                                  {parsedDesignMatch.suggestions.map((it, idx) => (
+                                    <View key={idx} style={styles.designMatchItemRow} testID={`design-match-item-${idx}`}>
+                                      <View style={styles.designMatchIndex}><Text style={styles.designMatchIndexText}>{idx + 1}</Text></View>
+                                      <View style={{ flex: 1 }}>
+                                        <Text style={[styles.designMatchBrand, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} numberOfLines={1} ellipsizeMode="tail">{it.brand ?? it.raw}</Text>
+                                        {it.reason ? (
+                                          <Text style={styles.designMatchReason}>{it.reason}</Text>
+                                        ) : null}
+                                      </View>
+                                      {typeof it.confidence === 'number' ? (
+                                        <View style={styles.designMatchConfidenceBadge} testID={`design-match-confidence-${idx}`}>
+                                          <Text style={styles.designMatchConfidenceText}>{it.confidence}%</Text>
+                                        </View>
+                                      ) : null}
+                                    </View>
+                                  ))}
+                                </View>
+                              ) : null}
+                            </View>
                           ) : (
                             <TouchableOpacity
                               style={[styles.button, styles.designMatchButton]}
@@ -3994,6 +4096,69 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     fontWeight: '600',
     letterSpacing: 0.2,
+  },
+  designMatchBlock: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 12,
+    padding: 12,
+    gap: 6,
+  },
+  designMatchSubheader: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#6A1B9A',
+    marginBottom: 6,
+  },
+  designMatchExactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 6,
+  },
+  designMatchItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  designMatchIndex: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: 'rgba(155, 89, 182, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  designMatchIndexText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#6A1B9A',
+  },
+  designMatchBrand: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#1a1a1a',
+  },
+  designMatchReason: {
+    fontSize: 13,
+    color: '#555',
+    lineHeight: 18,
+    marginTop: 2,
+  },
+  designMatchConfidenceBadge: {
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  designMatchConfidenceText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#FFD700',
   },
   designMatchButton: {
     backgroundColor: '#6A1B9A',
