@@ -3008,7 +3008,7 @@ Rules:
                                     </View>
                                     {typeof parsedDesignMatch.exact.confidence === 'number' ? (
                                       <View style={styles.designMatchConfidenceBadge} testID="design-match-exact-confidence">
-                                        <Text style={styles.designMatchConfidenceText}>{parsedDesignMatch.exact.confidence}%</Text>
+                                        <Text style={[styles.designMatchConfidenceText, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{parsedDesignMatch.exact.confidence}%</Text>
                                       </View>
                                     ) : null}
                                   </View>
@@ -3035,7 +3035,7 @@ Rules:
                                       </View>
                                       {typeof it.confidence === 'number' ? (
                                         <View style={styles.designMatchConfidenceBadge} testID={`design-match-confidence-${idx}`}>
-                                          <Text style={styles.designMatchConfidenceText}>{it.confidence}%</Text>
+                                          <Text style={[styles.designMatchConfidenceText, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{it.confidence}%</Text>
                                         </View>
                                       ) : null}
                                     </View>
