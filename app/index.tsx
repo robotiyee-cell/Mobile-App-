@@ -1056,7 +1056,10 @@ export default function OutfitRatingScreen() {
         }
         const parts = body.split(/\s—\s|\s-\s/);
         const brand = parts[0]?.trim();
-        const reason = parts.slice(1).join(' — ').trim();
+        let reason = parts.slice(1).join(' — ').trim();
+        if (reason) {
+          reason = reason.replace(/[—–-]+\s*$/, '').trim();
+        }
         return { raw: line, brand: brand || undefined, reason: reason || undefined, confidence };
       };
       for (const line of lines) {
@@ -2906,11 +2909,11 @@ Rules:
                                 <View style={{ marginBottom: 12 }}>
                                   <Text style={[styles.designMatchSubheader, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} testID="design-match-exact-title">{language === 'tr' ? 'Tam Eşleşme' : 'Exact match'}</Text>
                                   <View style={styles.designMatchExactRow} testID="design-match-exact-item">
-                                    <View style={styles.designMatchIndex}><Text style={styles.designMatchIndexText}>★</Text></View>
+                                    <View style={styles.designMatchIndex}><Text style={[styles.designMatchIndexText, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>★</Text></View>
                                     <View style={{ flex: 1 }}>
                                       <Text style={[styles.designMatchBrand, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} numberOfLines={1} ellipsizeMode="tail">{parsedDesignMatch.exact.brand ?? parsedDesignMatch.exact.raw}</Text>
                                       {parsedDesignMatch.exact.reason ? (
-                                        <Text style={styles.designMatchReason}>{parsedDesignMatch.exact.reason}</Text>
+                                        <Text style={[styles.designMatchReason, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{parsedDesignMatch.exact.reason}</Text>
                                       ) : null}
                                     </View>
                                     {typeof parsedDesignMatch.exact.confidence === 'number' ? (
@@ -2933,7 +2936,7 @@ Rules:
                                       ]}
                                       testID={`design-match-item-${idx}`}
                                     >
-                                      <View style={styles.designMatchIndex}><Text style={styles.designMatchIndexText}>{idx + 1}</Text></View>
+                                      <View style={styles.designMatchIndex}><Text style={[styles.designMatchIndexText, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{idx + 1}</Text></View>
                                       <View style={{ flex: 1 }}>
                                         <Text style={[styles.designMatchBrand, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} numberOfLines={1} ellipsizeMode="tail">{it.brand ?? it.raw}</Text>
                                         {it.reason ? (
