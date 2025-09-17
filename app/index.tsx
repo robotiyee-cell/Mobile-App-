@@ -480,7 +480,7 @@ export default function OutfitRatingScreen() {
     return raw;
   };
 
-  const MAX_BASE64_CHARS = 2_400_000 as const;
+  const MAX_BASE64_CHARS = 1_600_000 as const;
 
   const compressImageToBase64 = async (
     uri: string,
@@ -550,16 +550,16 @@ export default function OutfitRatingScreen() {
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           aspect: [3, 4],
-          quality: 0.7,
-          base64: false,
+          quality: 0.6,
+          base64: true,
         });
       } else {
         result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           aspect: [3, 4],
-          quality: 0.7,
-          base64: false,
+          quality: 0.6,
+          base64: true,
         });
       }
 
@@ -567,7 +567,7 @@ export default function OutfitRatingScreen() {
         const imageUri = result.assets[0].uri;
         setSelectedImage(imageUri);
         try {
-          let b64 = await compressImageToBase64(imageUri, 1280, 0.7);
+          let b64 = (result as ImagePicker.ImagePickerSuccessResult).assets?.[0]?.base64 ?? '';
           if (!b64 || b64.length === 0) {
             b64 = await uriToBase64(imageUri);
           }
@@ -668,7 +668,9 @@ export default function OutfitRatingScreen() {
       try {
         base64Image = selectedImageBase64 ?? await uriToBase64(imageToAnalyze);
         if (base64Image.length > MAX_BASE64_CHARS && Platform.OS !== 'web') {
-          base64Image = await compressImageToBase64(imageToAnalyze, 1280, 0.65);
+          Alert.alert(t('error'), t('failedToAnalyze'));
+          setIsAnalyzing(false);
+          return;
         }
       } catch (error) {
         console.log('Error converting image to base64:', error);
@@ -1027,7 +1029,7 @@ export default function OutfitRatingScreen() {
     try {
       setDesignMatchLoading(true);
       const imageToAnalyze = maskedImage || selectedImage;
-      const base64Image = await uriToBase64(imageToAnalyze);
+      const base64Image = selectedImageBase64 ?? await uriToBase64(imageToAnalyze);
       const res = await fetch('https://toolkit.rork.com/text/llm/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2792,7 +2794,11 @@ Rules:
                           {designMatchLoading ? (
                             <ActivityIndicator color="#9B59B6" />
                           ) : designMatchText ? (
-                            <Text style={styles.designMatchText}>{designMatchText}</Text>
+                            <Text style={[
+                              styles.designMatchText,
+                              { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory), fontWeight: '700' as const }
+                            ]}
+                            >{designMatchText}</Text>
                           ) : (
                             <TouchableOpacity
                               style={[styles.button, styles.designMatchButton]}
@@ -3965,7 +3971,6 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     lineHeight: 26,
     fontWeight: '600',
-    fontFamily: Platform.select({ ios: undefined, android: 'sans-serif-medium', web: 'system-ui' }),
     letterSpacing: 0.2,
   },
   designMatchButton: {
