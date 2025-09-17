@@ -432,7 +432,7 @@ export default function OutfitRatingScreen() {
     }
   };
 
-  const uriToBase64 = async (uri: string): Promise<string> => {
+  const uriToBase64Raw = async (uri: string): Promise<string> => {
     try {
       if (!uri) return '';
       if (uri.startsWith('data:')) {
@@ -463,9 +463,18 @@ export default function OutfitRatingScreen() {
       }
       return await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
     } catch (e) {
-      console.log('uriToBase64 failed', e);
+      console.log('uriToBase64Raw failed', e);
       throw e as Error;
     }
+  };
+
+  const uriToBase64 = async (uri: string): Promise<string> => {
+    const raw = await uriToBase64Raw(uri);
+    if (raw.length > MAX_BASE64_CHARS && Platform.OS !== 'web') {
+      const compressed = await compressImageToBase64(uri);
+      return compressed.length > 0 ? compressed : raw;
+    }
+    return raw;
   };
 
   const pickImage = async (useCamera: boolean = false) => {
@@ -486,25 +495,32 @@ export default function OutfitRatingScreen() {
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           aspect: [3, 4],
-          quality: 0.8,
-          base64: true,
+          quality: 0.7,
+          base64: false,
         });
       } else {
         result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           aspect: [3, 4],
-          quality: 0.8,
-          base64: true,
+          quality: 0.7,
+          base64: false,
         });
       }
 
       if (!result.canceled && result.assets[0]) {
         const imageUri = result.assets[0].uri;
-        const pickedBase64 = (result.assets[0] as any)?.base64 as string | undefined;
         setSelectedImage(imageUri);
-        setSelectedImageBase64(pickedBase64 ?? null);
-        
+        try {
+          let b64 = await compressImageToBase64(imageUri, 1280, 0.7);
+          if (!b64 || b64.length === 0) {
+            b64 = await uriToBase64(imageUri);
+          }
+          setSelectedImageBase64(b64);
+        } catch (e) {
+          console.log('compress on pick failed', e);
+          setSelectedImageBase64(null);
+        }
         const masked = await maskFaceInImage(imageUri);
         setMaskedImage(masked);
         
@@ -596,6 +612,9 @@ export default function OutfitRatingScreen() {
 
       try {
         base64Image = selectedImageBase64 ?? await uriToBase64(imageToAnalyze);
+        if (base64Image.length > MAX_BASE64_CHARS && Platform.OS !== 'web') {
+          base64Image = await compressImageToBase64(imageToAnalyze, 1280, 0.65);
+        }
       } catch (error) {
         console.log('Error converting image to base64:', error);
         throw new Error('Failed to process image');
