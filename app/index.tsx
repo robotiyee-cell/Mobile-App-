@@ -481,7 +481,7 @@ export default function OutfitRatingScreen() {
     return raw;
   };
 
-  const MAX_BASE64_CHARS = 1_600_000 as const;
+  const MAX_BASE64_CHARS = 1_200_000 as const;
 
   const compressImageToBase64 = async (
     uri: string,
@@ -715,6 +715,26 @@ export default function OutfitRatingScreen() {
       } catch (e) {
         const err = e as { message?: string } | undefined;
         console.log('startMutation failed', err?.message ?? e);
+        try {
+          const imageToAnalyze = maskedImage || selectedImage;
+          const fallback = await compressImageToBase64(imageToAnalyze, 900, 0.6);
+          if (fallback && fallback.length > 0) {
+            console.log('Retrying analysis with stronger compression');
+            const resp2 = await startMutation.mutateAsync({
+              imageBase64: fallback,
+              category: categoryToUse,
+              language,
+              plan: subscription.tier,
+            } as any);
+            if (resp2 && typeof resp2 === 'object' && (resp2 as any).jobId) {
+              setJobId((resp2 as { jobId: string }).jobId);
+              console.log('Analysis job started on retry:', { jobId: (resp2 as any).jobId, req: thisReq });
+              return;
+            }
+          }
+        } catch (retryErr) {
+          console.log('Retry failed', retryErr);
+        }
         Alert.alert(t('error'), t('failedToAnalyze'));
         setIsAnalyzing(false);
         return;
@@ -2875,16 +2895,16 @@ Rules:
 
                         <View style={styles.designMatchSection}>
                           <View style={styles.suggestionsHeader}>
-                            <Sparkles size={20} color="#9B59B6" />
-                            <Text style={styles.designMatchTitle}>{t('designMatchHeader')}</Text>
+                            <Sparkles size={20} color={getTextColor((selectedCategory ?? 'rate') as StyleCategory)} />
+                            <Text style={[styles.designMatchTitle, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{t('designMatchHeader')}</Text>
                           </View>
                           {designMatchLoading ? (
                             <ActivityIndicator color="#9B59B6" />
                           ) : designMatchText ? (
-                            <View style={styles.designMatchBlock} testID="design-match-block">
+                            <View style={[styles.designMatchBlock]} testID="design-match-block">
                               {parsedDesignMatch.exact ? (
                                 <View style={{ marginBottom: 12 }}>
-                                  <Text style={styles.designMatchSubheader} testID="design-match-exact-title">{language === 'tr' ? 'Tam Eşleşme' : 'Exact match'}</Text>
+                                  <Text style={[styles.designMatchSubheader, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} testID="design-match-exact-title">{language === 'tr' ? 'Tam Eşleşme' : 'Exact match'}</Text>
                                   <View style={styles.designMatchExactRow} testID="design-match-exact-item">
                                     <View style={styles.designMatchIndex}><Text style={styles.designMatchIndexText}>★</Text></View>
                                     <View style={{ flex: 1 }}>
@@ -2903,7 +2923,7 @@ Rules:
                               ) : null}
                               {parsedDesignMatch.suggestions && parsedDesignMatch.suggestions.length > 0 ? (
                                 <View>
-                                  <Text style={styles.designMatchSubheader} testID="design-match-suggestions-title">{language === 'tr' ? 'En Yakın Öneriler' : 'Closest suggestions'}</Text>
+                                  <Text style={[styles.designMatchSubheader, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} testID="design-match-suggestions-title">{language === 'tr' ? 'En Yakın Öneriler' : 'Closest suggestions'}</Text>
                                   {parsedDesignMatch.suggestions.map((it, idx) => (
                                     <View key={idx} style={styles.designMatchItemRow} testID={`design-match-item-${idx}`}>
                                       <View style={styles.designMatchIndex}><Text style={styles.designMatchIndexText}>{idx + 1}</Text></View>
@@ -4098,7 +4118,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
   designMatchBlock: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'transparent',
     borderRadius: 12,
     padding: 12,
     gap: 6,
