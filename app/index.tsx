@@ -19,6 +19,7 @@ import {
 import { Image } from 'expo-image';
 import * as MailComposer from 'expo-mail-composer';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera, Upload, Star, Sparkles, Lightbulb, History, Shield, Heart, Crown, Coffee, Flower, Zap, Gamepad2, Music, X, Check, FileText, CreditCard, AlertCircle, Settings, Scissors, TrendingUp, Home } from 'lucide-react-native';
@@ -524,8 +525,28 @@ export default function OutfitRatingScreen() {
           }
         });
       }
-      const base64 = await uriToBase64(uri);
-      return base64;
+      // Native (iOS/Android): iteratively downscale + compress with expo-image-manipulator
+      const tryScales = [maxWidth, 1280, 1024, 900, 800, 700, 600, 512, 448, 384];
+      const q = Math.min(1, Math.max(0.2, quality));
+      for (let i = 0; i < tryScales.length; i++) {
+        const target = tryScales[i];
+        try {
+          const manipulated = await ImageManipulator.manipulateAsync(
+            uri,
+            [{ resize: { width: target } }],
+            { compress: q, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+          );
+          const b64 = manipulated.base64 ?? '';
+          if (b64.length === 0) continue;
+          if (b64.length <= MAX_BASE64_CHARS || i === tryScales.length - 1) {
+            return b64;
+          }
+        } catch (err) {
+          console.log('manipulateAsync failed at scale', target, err);
+          // Fallthrough to next smaller scale
+        }
+      }
+      return '';
     } catch (e) {
       console.log('compressImageToBase64 failed', e);
       return '';
@@ -668,9 +689,10 @@ export default function OutfitRatingScreen() {
       try {
         base64Image = selectedImageBase64 ?? await uriToBase64(imageToAnalyze);
         if (base64Image.length > MAX_BASE64_CHARS && Platform.OS !== 'web') {
-          Alert.alert(t('error'), t('failedToAnalyze'));
-          setIsAnalyzing(false);
-          return;
+          const compressed = await compressImageToBase64(imageToAnalyze);
+          if (compressed && compressed.length > 0) {
+            base64Image = compressed;
+          }
         }
       } catch (error) {
         console.log('Error converting image to base64:', error);
