@@ -735,6 +735,58 @@ export default function OutfitRatingScreen() {
         } catch (retryErr) {
           console.log('Retry failed', retryErr);
         }
+        try {
+          console.log('Falling back to direct LLM analysis (no backend)');
+          const direct = await directLLMAnalysis({ imageBase64: base64Image, category: categoryToUse, language, plan: subscription.tier });
+          const validated = validateAnalysis(direct as any, categoryToUse);
+          let result: any = direct;
+          if (!validated.ok) {
+            try {
+              if (categoryToUse === 'rate' && direct && (direct as any).results) {
+                result = {
+                  ...direct,
+                  overallAnalysis: ensureParagraph(String((direct as any).overallAnalysis ?? ''), 'overall', language),
+                  results: (direct as any).results.map((r: any) => ({
+                    ...r,
+                    analysis: ensureParagraph(String(r?.analysis ?? ''), String(r?.category ?? 'rate'), language),
+                    suggestions: Array.isArray(r?.suggestions) && r.suggestions.length > 0 ? r.suggestions : generateShortSuggestions(String(r?.category ?? 'rate'), language),
+                  })),
+                };
+              } else if (direct && typeof direct === 'object') {
+                result = {
+                  style: ensureParagraph(String((direct as any).style ?? ''), String(categoryToUse ?? ''), language),
+                  colorCoordination: ensureParagraph(String((direct as any).colorCoordination ?? ''), String(categoryToUse ?? ''), language),
+                  accessories: ensureParagraph(String((direct as any).accessories ?? ''), String(categoryToUse ?? ''), language),
+                  harmony: ensureParagraph(String((direct as any).harmony ?? ''), String(categoryToUse ?? ''), language),
+                  score: Number((direct as any).score ?? 0),
+                  suggestions: Array.isArray((direct as any).suggestions) && (direct as any).suggestions.length > 0 ? (direct as any).suggestions : generateShortSuggestions(String(categoryToUse ?? 'rate'), language),
+                } as OutfitAnalysis;
+              }
+            } catch {}
+          }
+          setAnalysis(result);
+          incrementAnalysisCount();
+          if (!savedForActiveIdRef.current && selectedImage && categoryToUse) {
+            const rating: SavedRating = {
+              id: Date.now().toString(),
+              imageUri: selectedImage,
+              maskedImageUri: maskedImage || undefined,
+              category: categoryToUse,
+              analysis: result,
+              timestamp: Date.now(),
+              planTier: subscription.tier,
+            };
+            (async () => {
+              const hid = await saveRating({ ...rating, lang: language });
+              currentHistoryIdRef.current = hid;
+            })();
+          }
+          setIsAnalyzing(false);
+          setJobId(null);
+          return;
+        } catch (directErr) {
+          console.log('Direct LLM analysis failed', directErr);
+        }
         Alert.alert(t('error'), t('failedToAnalyze'));
         setIsAnalyzing(false);
         return;
@@ -1130,6 +1182,44 @@ export default function OutfitRatingScreen() {
       } catch {}
     })();
   }, [language]);
+
+  async function directLLMAnalysis(input: { imageBase64: string; category: StyleCategory; language: Language; plan: string; }): Promise<OutfitAnalysis | AllCategoriesAnalysis> {
+    const systemLang = input.language === 'tr' ? 'Turkish' : 'English';
+    const isAll = input.category === 'rate';
+    const schemaHint = isAll
+      ? `Output STRICT JSON with the following shape:\n{\n  "overallScore": number (1..12),\n  "overallAnalysis": string,\n  "results": [ { "category": "sexy"|"elegant"|"casual"|"naive"|"trendy"|"anime"|"sixties", "score": number (1..12), "analysis": string, "suggestions": string[] } ] (exactly 7 items)\n}\nReturn ONLY JSON, no code fences.`
+      : `Output STRICT JSON with the following shape:\n{\n  "style": string,\n  "colorCoordination": string,\n  "accessories": string,\n  "harmony": string,\n  "score": number (1..12),\n  "suggestions": string[]\n}\nReturn ONLY JSON, no code fences.`;
+    const messages = [
+      { role: 'system' as const, content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. All outputs MUST be in ${systemLang}. ${schemaHint}` },
+      { role: 'user' as const, content: [
+        { type: 'text' as const, text: `Analyze this outfit for the "${input.category}" style and rate out of 12. Respond in ${systemLang}. Follow the schema exactly.` },
+        { type: 'image' as const, image: `data:image/jpeg;base64,${input.imageBase64}` },
+      ]},
+    ];
+    const res = await fetch('https://toolkit.rork.com/text/llm/', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages })
+    });
+    const raw = await res.text();
+    if (!res.ok) throw new Error(`llm_http_${res.status}`);
+    let data: any;
+    try { data = JSON.parse(raw); } catch {
+      let txt = raw.trim();
+      if (txt.startsWith('```')) txt = txt.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
+      const fbStart = txt.indexOf('{'); const fbEnd = txt.lastIndexOf('}');
+      const jsonSlice = fbStart !== -1 && fbEnd !== -1 && fbEnd > fbStart ? txt.slice(fbStart, fbEnd + 1) : txt;
+      data = JSON.parse(jsonSlice);
+    }
+    const completion = data?.completion as unknown;
+    if (typeof completion === 'object' && completion) return completion as any;
+    if (typeof completion === 'string') {
+      let txt = completion.trim();
+      if (txt.startsWith('```')) txt = txt.replace(/^```[a-zA-Z]*\n?/, '').replace(/```\s*$/, '').trim();
+      const fbStart = txt.indexOf('{'); const fbEnd = txt.lastIndexOf('}');
+      const jsonSlice = fbStart !== -1 && fbEnd !== -1 && fbEnd > fbStart ? txt.slice(fbStart, fbEnd + 1) : txt;
+      return JSON.parse(jsonSlice) as any;
+    }
+    return data as any;
+  }
 
   const generateDesignMatch = async (): Promise<void> => {
     if (!selectedImage) {
