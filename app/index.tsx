@@ -477,6 +477,58 @@ export default function OutfitRatingScreen() {
     return raw;
   };
 
+  const MAX_BASE64_CHARS = 2_400_000 as const;
+
+  const compressImageToBase64 = async (
+    uri: string,
+    maxWidth: number = 1280,
+    quality: number = 0.7,
+  ): Promise<string> => {
+    try {
+      if (!uri) return '';
+      if (Platform.OS === 'web') {
+        return await new Promise<string>((resolve) => {
+          try {
+            const img = document.createElement('img');
+            (img as any).crossOrigin = 'anonymous';
+            img.onload = () => {
+              try {
+                const canvas = document.createElement('canvas');
+                const scale = Math.min(1, maxWidth / (img.width || maxWidth));
+                const w = Math.max(1, Math.round((img.width || maxWidth) * scale));
+                const h = Math.max(1, Math.round((img.height || maxWidth) * scale));
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                  resolve('');
+                  return;
+                }
+                ctx.drawImage(img, 0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/jpeg', Math.min(1, Math.max(0.1, quality)));
+                const parts = dataUrl.split(',');
+                resolve(parts[1] ?? '');
+              } catch (e) {
+                console.log('web canvas compress failed', e);
+                resolve('');
+              }
+            };
+            (img as HTMLImageElement).onerror = () => resolve('');
+            (img as HTMLImageElement).src = uri;
+          } catch (e) {
+            console.log('web init compress failed', e);
+            resolve('');
+          }
+        });
+      }
+      const base64 = await uriToBase64(uri);
+      return base64;
+    } catch (e) {
+      console.log('compressImageToBase64 failed', e);
+      return '';
+    }
+  };
+
   const pickImage = async (useCamera: boolean = false) => {
     try {
       if (isAnalyzing) {
