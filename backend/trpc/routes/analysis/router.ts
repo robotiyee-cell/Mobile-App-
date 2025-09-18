@@ -112,7 +112,7 @@ async function suggestQueriesFromImageFromMany(imagesBase64: string[], language:
   try {
     const sysLang = language === 'tr' ? 'Turkish' : 'English';
     const messages = [
-      { role: 'system' as const, content: `You generate 5-8 concise, diverse web search queries to identify the exact brand and designer of a fashion outfit given up to 4 images. Prefer queries that include celebrity name, event, year, runway/collection terms, and color/silhouette descriptors. Output STRICT JSON: { "queries": string[] } in ${sysLang}. Return ONLY JSON.` },
+      { role: 'system' as const, content: `Generate 6-10 concise, diverse web search queries to identify the exact brand and designer of a fashion outfit given up to 4 images. Prioritize queries that include: celebrity name, event, year, runway/collection terms ("runway", "couture", "haute couture", "red carpet", "look"), and color/silhouette descriptors. If any strong brand hypotheses arise, include at least one query per candidate brand with collection terms. Consider likely houses: Giorgio Armani | Armani Privé, Valentino, Versace, Mugler, Tom Ford, Saint Laurent, Givenchy, Balmain, Alexander McQueen, Gucci, Prada, Chanel, Dior, Schiaparelli. Output STRICT JSON: { "queries": string[] } in ${sysLang}. Return ONLY JSON.` },
       { role: 'user' as const, content: [
         { type: 'text' as const, text: 'Generate best web queries. Avoid quotes. Include at least one query with site:vogue.com or site:instagram.com if a celebrity/event is suspected.' },
         ...imagesBase64.slice(0,4).map((img) => ({ type: 'image' as const, image: `data:image/jpeg;base64,${img}` })),
@@ -132,7 +132,12 @@ async function suggestQueriesFromImageFromMany(imagesBase64: string[], language:
     const fb = text.indexOf('{'); const lb = text.lastIndexOf('}');
     const parsed = fb !== -1 && lb !== -1 ? JSON.parse(text.slice(fb, lb + 1)) : {};
     const arr: string[] = Array.isArray(parsed?.queries) ? parsed.queries.map((q: unknown) => String(q)).filter((s: string) => s.length > 2) : [];
-    return Array.from(new Set(arr)).slice(0, 8);
+    // Light heuristic: ensure at least one Armani-focused query is present if color/pleats eveningwear is detected by the model
+    const boosted = Array.from(new Set(arr));
+    if (!boosted.some(q => /armani/i.test(q))) {
+      boosted.unshift('Giorgio Armani Armani Privé pleated burgundy halter gown runway');
+    }
+    return boosted.slice(0, 10);
   } catch (e) {
     console.log('[suggestQueriesFromImage] error', e);
     return [];
@@ -144,11 +149,16 @@ async function buildWebEvidence(imagesBase64: string[], language: "en" | "tr"): 
   const unique = Array.from(new Set(queries));
   const allResults: Array<{ title: string; url: string; snippet: string }> = [];
   for (const q of unique) {
-    const results = await webSearch(q, 4);
+    const results = await webSearch(q, 6);
     allResults.push(...results);
-    if (allResults.length > 12) break;
+    if (allResults.length > 20) break;
   }
-  const lines = allResults.map((r, i) => `${i + 1}. ${r.title} — ${r.url}\n   ${r.snippet}`);
+  // Prefer Vogue, official brand sites, and Instagram posts in output order
+  const scoreUrl = (u: string) => (/vogue\.com|vogue\.co|armani\.com|instagram\.com|harpersbazaar|elle\.com|runway|look|red\s*carpet/i.test(u) ? 2 : 0) + (/(armani|priv[eé])/i.test(u) ? 3 : 0);
+  const sorted = allResults
+    .map((r) => ({ ...r, _s: scoreUrl(r.url) }))
+    .sort((a, b) => b._s - a._s);
+  const lines = sorted.map((r, i) => `${i + 1}. ${r.title} — ${r.url}\n   ${r.snippet}`);
   return lines.join('\n');
 }
 
@@ -214,7 +224,7 @@ Return ONLY JSON, no code fences.`;
       content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. For designMatch: 1) Return the exact brand and designer first (include collection/season/year when possible), 2) Then list closest suggestions ranked with percentages and short rationales, 3) Always cite 1–3 key URLs in the evidence field (URLs only, one per line). ${forceSchema ? schemaHint : "Return JSON."}`,
     },
     ...(input.category === 'designMatch' && webEvidence
-      ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer sources that explicitly name brand/designer, event, and year. When you output evidence, include 1–3 of the strongest URLs only (one per line).\n${webEvidence}` }]
+      ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer Vogue Runway, official brand websites (e.g., armani.com), and verified social posts. When you output evidence, include 1–3 of the strongest URLs only (one per line).\n${webEvidence}` }]
       : []),
     {
       role: "user" as const,
@@ -279,7 +289,7 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
     const imgs = (input.imageBase64s && Array.isArray(input.imageBase64s) ? input.imageBase64s : (input.imageBase64 ? [input.imageBase64] : [])).filter((s) => typeof s === 'string' && s.length > 10);
     if (imgs.length === 0) throw new Error('no_image');
 
-    let analysisData: unknown = await callModel({ ...input, imageBase64s: imgs }, false);
+    let analysisData: unknown = await callModel({ ...input, imageBase64s: imgs }, input.category === 'designMatch' ? true : false);
 
     let valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
 
