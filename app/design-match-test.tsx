@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { Stack } from 'expo-router';
@@ -26,6 +26,44 @@ interface DesignMatchTopItem {
   year?: number;
   similarityPercent: number;
   rationale: string;
+}
+
+function EvidenceBlock({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const onToggle = useCallback(() => setExpanded((e) => !e), []);
+  return (
+    <View>
+      <Text style={styles.evidence} numberOfLines={expanded ? undefined : 6} testID="evidence-text">
+        {text}
+      </Text>
+      <TouchableOpacity onPress={onToggle} accessibilityRole="button" testID="evidence-toggle">
+        <Text style={styles.toggleText}>{expanded ? 'Show less' : 'Show more'}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+function SuggestionItem({ item }: { item: DesignMatchTopItem }) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const onToggle = useCallback(() => setExpanded((e) => !e), []);
+
+  return (
+    <View style={styles.suggestionRow} testID={`suggestion-${item.rank}`}>
+      <Text style={styles.suggestionRank}>{item.rank}.</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.suggestionMain} testID={`suggestion-main-${item.rank}`}>{item.brand} — {item.designer}</Text>
+        <TouchableOpacity onPress={onToggle} accessibilityRole="button" testID={`suggestion-toggle-${item.rank}`}>
+          <Text
+            style={styles.suggestionMeta}
+            numberOfLines={expanded ? undefined : 3}
+          >
+            {`${item.similarityPercent}% • ${item.rationale}`}
+          </Text>
+          <Text style={styles.toggleText}>{expanded ? 'Show less' : 'Show more'}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
 
 interface DesignMatchResult {
@@ -176,20 +214,12 @@ export default function DesignMatchTest() {
             {!!result.exactMatch.year && <Text style={styles.resultMeta}>Year: {result.exactMatch.year}</Text>}
             {!!result.exactMatch.pieceName && <Text style={styles.resultMeta}>Piece: {result.exactMatch.pieceName}</Text>}
             {!!result.exactMatch.evidence && (
-              <Text style={styles.evidence} numberOfLines={6}>
-                {result.exactMatch.evidence}
-              </Text>
+              <EvidenceBlock text={result.exactMatch.evidence} />
             )}
 
             <Text style={styles.suggestionsTitle}>Closest Suggestions</Text>
             {result.topMatches.slice(0, 5).map((m) => (
-              <View key={m.rank} style={styles.suggestionRow}>
-                <Text style={styles.suggestionRank}>{m.rank}.</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.suggestionMain}>{m.brand} — {m.designer}</Text>
-                  <Text style={styles.suggestionMeta}>{m.similarityPercent}% • {m.rationale}</Text>
-                </View>
-              </View>
+              <SuggestionItem key={m.rank} item={m} />
             ))}
           </View>
         )}
@@ -226,5 +256,6 @@ const styles = StyleSheet.create({
   suggestionRow: { flexDirection: 'row', gap: 10, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   suggestionRank: { color: '#9CA3AF', width: 22 },
   suggestionMain: { color: '#F9FAFB', fontWeight: '700' },
-  suggestionMeta: { color: '#9CA3AF' },
+  suggestionMeta: { color: '#9CA3AF', flexWrap: 'wrap' as const },
+  toggleText: { color: '#93C5FD', marginTop: 4, fontWeight: '700' },
 });
