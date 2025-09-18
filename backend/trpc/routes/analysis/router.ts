@@ -82,39 +82,107 @@ function validateDesignMatch(data: unknown): boolean {
   return true;
 }
 
-async function webSearch(query: string, limit: number = 5): Promise<Array<{ title: string; url: string; snippet: string }>> {
+async function webSearch(query: string, limit: number = 6): Promise<Array<{ title: string; url: string; snippet: string }>> {
   try {
     const q = encodeURIComponent(query);
-    const res = await fetch(`https://duckduckgo.com/html/?q=${q}`, {
-      headers: { "User-Agent": "Mozilla/5.0 RorkBot" },
-    });
-    const html = await res.text();
+    const headers = { "User-Agent": "Mozilla/5.0 RorkBot" } as const;
+
+    const [ddgRes, braveRes] = await Promise.allSettled([
+      fetch(`https://duckduckgo.com/html/?q=${q}`, { headers }),
+      fetch(`https://search.brave.com/search?q=${q}`, { headers }),
+    ]);
+
     const items: Array<{ title: string; url: string; snippet: string }> = [];
-    const resultBlocks = html.split('result__body').slice(1);
-    for (const block of resultBlocks) {
-      const aMatch = block.match(/<a[^>]*class=\"result__a[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>(.*?)<\/a>/i);
-      const sMatch = block.match(/<a[^>]*class=\"result__snippet[^\"]*\"[^>]*>(.*?)<\/a>|<div[^>]*class=\"result__snippet[^\"]*\"[^>]*>(.*?)<\/div>/i);
-      const url = aMatch?.[1] ?? "";
-      const title = aMatch ? aMatch[2].replace(/<[^>]+>/g, " ").trim() : "";
-      const snippetRaw = (sMatch?.[1] ?? sMatch?.[2] ?? "");
-      const snippet = snippetRaw.replace(/<[^>]+>/g, " ").trim();
-      if (url && title) items.push({ title, url, snippet });
-      if (items.length >= limit) break;
-    }
-    return items;
+
+    const parseDDG = async (resP: PromiseSettledResult<Response>) => {
+      if (resP.status !== 'fulfilled') return;
+      const html = await resP.value.text();
+      const blocks = html.split('result__body').slice(1);
+      for (const block of blocks) {
+        const aMatch = block.match(/<a[^>]*class=\"result__a[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>(.*?)<\/a>/i);
+        const sMatch = block.match(/<a[^>]*class=\"result__snippet[^\"]*\"[^>]*>(.*?)<\/a>|<div[^>]*class=\"result__snippet[^\"]*\"[^>]*>(.*?)<\/div>/i);
+        let url = aMatch?.[1] ?? "";
+        const redirect = url.match(/uddg=([^&]+)/);
+        if (redirect?.[1]) {
+          try { url = decodeURIComponent(redirect[1]); } catch {}
+        }
+        const title = aMatch ? aMatch[2].replace(/<[^>]+>/g, " ").trim() : "";
+        const snippetRaw = (sMatch?.[1] ?? sMatch?.[2] ?? "");
+        const snippet = snippetRaw.replace(/<[^>]+>/g, " ").trim();
+        if (url && title) items.push({ title, url, snippet });
+        if (items.length >= limit) break;
+      }
+    };
+
+    const parseBrave = async (resP: PromiseSettledResult<Response>) => {
+      if (resP.status !== 'fulfilled') return;
+      const html = await resP.value.text();
+      const blocks = html.split('result-header').slice(1);
+      for (const block of blocks) {
+        const aMatch = block.match(/<a[^>]*href=\"([^\"]+)\"[^>]*class=\"result-header[^\"]*\"[^>]*>(.*?)<\/a>/i) || block.match(/<a[^>]*class=\"h-link[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>(.*?)<\/a>/i);
+        const sMatch = block.match(/<p[^>]*class=\"snippet[^\"]*\"[^>]*>(.*?)<\/p>/i);
+        const url = aMatch?.[1] ?? "";
+        const title = aMatch ? aMatch[2].replace(/<[^>]+>/g, " ").trim() : "";
+        const snippet = (sMatch?.[1] ?? "").replace(/<[^>]+>/g, " ").trim();
+        if (url && title) items.push({ title, url, snippet });
+        if (items.length >= limit) break;
+      }
+    };
+
+    await Promise.all([parseDDG(ddgRes), parseBrave(braveRes)]);
+
+    const seen = new Set<string>();
+    const deduped = items.filter((it) => {
+      const key = it.url.replace(/#.*/, "");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    return deduped.slice(0, limit);
   } catch (e) {
     console.log('[webSearch] error', e);
     return [];
   }
 }
 
-async function suggestQueriesFromImageFromMany(imagesBase64: string[], language: "en" | "tr"): Promise<string[]> {
+async function extractCandidatesFromImages(imagesBase64: string[], language: "en" | "tr"): Promise<string[]> {
   try {
     const sysLang = language === 'tr' ? 'Turkish' : 'English';
     const messages = [
-      { role: 'system' as const, content: `Generate 6-10 concise, diverse web search queries to identify the exact brand and designer of a fashion outfit given up to 4 images. Prioritize queries that include: celebrity name, event, year, runway/collection terms ("runway", "couture", "haute couture", "red carpet", "look"), and color/silhouette descriptors. If any strong brand hypotheses arise, include at least one query per candidate brand with collection terms. Consider likely houses: Giorgio Armani | Armani Privé, Valentino, Versace, Mugler, Tom Ford, Saint Laurent, Givenchy, Balmain, Alexander McQueen, Gucci, Prada, Chanel, Dior, Schiaparelli. Output STRICT JSON: { "queries": string[] } in ${sysLang}. Return ONLY JSON.` },
+      { role: 'system' as const, content: `From up to 4 outfit images, list the most likely FASHION HOUSES / BRANDS or DESIGNERS responsible. Focus on couture/eveningwear houses. Output STRICT JSON: { "brands": string[] } in ${sysLang}. RETURN ONLY JSON.` },
       { role: 'user' as const, content: [
-        { type: 'text' as const, text: 'Generate best web queries. Avoid quotes. Include at least one query with site:vogue.com or site:instagram.com if a celebrity/event is suspected.' },
+        { type: 'text' as const, text: 'Identify likely brands/designers. Keep to concise canonical names (e.g., "Armani Privé", "Valentino", "Versace").' },
+        ...imagesBase64.slice(0,4).map((img) => ({ type: 'image' as const, image: `data:image/jpeg;base64,${img}` })),
+      ]},
+    ];
+    const res = await fetch("https://toolkit.rork.com/text/llm/", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages }) });
+    const raw = await res.text();
+    let json: any;
+    try { json = JSON.parse(raw); } catch { const fb = raw.indexOf('{'); const lb = raw.lastIndexOf('}'); json = fb !== -1 && lb !== -1 ? JSON.parse(raw.slice(fb, lb + 1)) : {}; }
+    const completion = json?.completion;
+    const text = typeof completion === 'string' ? completion : JSON.stringify(completion ?? {});
+    const fb = text.indexOf('{'); const lb = text.lastIndexOf('}');
+    const parsed = fb !== -1 && lb !== -1 ? JSON.parse(text.slice(fb, lb + 1)) : {};
+    const brands: string[] = Array.isArray(parsed?.brands) ? parsed.brands.map((s: unknown) => String(s)).filter((s: string) => s.length > 1) : [];
+    const defaults = ["Armani Privé","Valentino","Versace","Mugler","Tom Ford","Saint Laurent","Givenchy","Balmain","Alexander McQueen","Gucci","Prada","Chanel","Dior","Schiaparelli"];
+    const unique = Array.from(new Set([...brands, ...defaults.slice(0, 3)]));
+    return unique.slice(0, 8);
+  } catch (e) {
+    console.log('[extractCandidatesFromImages] error', e);
+    return ["Armani Privé", "Valentino", "Versace"]; 
+  }
+}
+
+async function suggestQueriesFromImageFromMany(imagesBase64: string[], language: "en" | "tr"): Promise<string[]> {
+  try {
+    const sysLang = language === 'tr' ? 'Turkish' : 'English';
+    const candidateBrands = await extractCandidatesFromImages(imagesBase64, language);
+    const brandLine = candidateBrands.join(', ');
+    const messages = [
+      { role: 'system' as const, content: `Generate 8-12 precise, diverse web search queries to identify the exact brand and designer of a fashion outfit given up to 4 images. Always include: celebrity name (if any), event and year (if any), runway/collection terms (runway, couture, haute couture, red carpet, look), color/silhouette descriptors. Ensure at least one query per candidate brand from: ${brandLine}. Output STRICT JSON: { "queries": string[] } in ${sysLang}. Return ONLY JSON.` },
+      { role: 'user' as const, content: [
+        { type: 'text' as const, text: 'Avoid quotes. Include at least one site:vogue.com and one site:instagram.com query when celebrity/event likely.' },
         ...imagesBase64.slice(0,4).map((img) => ({ type: 'image' as const, image: `data:image/jpeg;base64,${img}` })),
       ]},
     ];
@@ -132,33 +200,60 @@ async function suggestQueriesFromImageFromMany(imagesBase64: string[], language:
     const fb = text.indexOf('{'); const lb = text.lastIndexOf('}');
     const parsed = fb !== -1 && lb !== -1 ? JSON.parse(text.slice(fb, lb + 1)) : {};
     const arr: string[] = Array.isArray(parsed?.queries) ? parsed.queries.map((q: unknown) => String(q)).filter((s: string) => s.length > 2) : [];
-    // Light heuristic: ensure at least one Armani-focused query is present if color/pleats eveningwear is detected by the model
-    const boosted = Array.from(new Set(arr));
-    if (!boosted.some(q => /armani/i.test(q))) {
-      boosted.unshift('Giorgio Armani Armani Privé pleated burgundy halter gown runway');
-    }
-    return boosted.slice(0, 10);
+    const boosted = Array.from(new Set([
+      ...candidateBrands.map((b) => `${b} runway look red carpet`),
+      ...arr
+    ]));
+    return boosted.slice(0, 12);
   } catch (e) {
     console.log('[suggestQueriesFromImage] error', e);
     return [];
   }
 }
 
+function escapeRegExp(s: string): string {
+  return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+}
+
+async function getPageText(url: string): Promise<string> {
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 RorkBot" } });
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('text')) return '';
+    const html = await res.text();
+    const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    return text.slice(0, 20000);
+  } catch {
+    return '';
+  }
+}
+
 async function buildWebEvidence(imagesBase64: string[], language: "en" | "tr"): Promise<string> {
   const queries = await suggestQueriesFromImageFromMany(imagesBase64, language);
+  const candidateBrands = await extractCandidatesFromImages(imagesBase64, language);
   const unique = Array.from(new Set(queries));
-  const allResults: Array<{ title: string; url: string; snippet: string }> = [];
+  const allResults: Array<{ title: string; url: string; snippet: string, pageText?: string, score?: number }> = [];
   for (const q of unique) {
     const results = await webSearch(q, 6);
-    allResults.push(...results);
-    if (allResults.length > 20) break;
+    for (const r of results) {
+      const pageText = await getPageText(r.url);
+      allResults.push({ ...r, pageText });
+      if (allResults.length > 24) break;
+    }
+    if (allResults.length > 24) break;
   }
-  // Prefer Vogue, official brand sites, and Instagram posts in output order
-  const scoreUrl = (u: string) => (/vogue\.com|vogue\.co|armani\.com|instagram\.com|harpersbazaar|elle\.com|runway|look|red\s*carpet/i.test(u) ? 2 : 0) + (/(armani|priv[eé])/i.test(u) ? 3 : 0);
+  const brandRegex = new RegExp(`(${candidateBrands.map(b => escapeRegExp(b)).join('|')})`, 'i');
+  const scoreUrl = (u: string, title: string, snippet: string, pageText: string) => {
+    let s = 0;
+    if (/vogue\.com|vogue\.co|instagram\.com|armani\.com|valentino\.com|versace\.com|harpersbazaar|elle\.com/i.test(u)) s += 3;
+    if (/runway|look|red\s*carpet|premiere|festival|couture|haute/i.test(`${u} ${title} ${snippet}`)) s += 2;
+    if (brandRegex.test(u) || brandRegex.test(title) || brandRegex.test(snippet) || brandRegex.test(pageText)) s += 4;
+    return s;
+  };
   const sorted = allResults
-    .map((r) => ({ ...r, _s: scoreUrl(r.url) }))
-    .sort((a, b) => b._s - a._s);
-  const lines = sorted.map((r, i) => `${i + 1}. ${r.title} — ${r.url}\n   ${r.snippet}`);
+    .map((r) => ({ ...r, score: scoreUrl(r.url, r.title, r.snippet, r.pageText ?? '') }))
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const lines = sorted.slice(0, 12).map((r, i) => `${i + 1}. ${r.title} — ${r.url}\n   ${r.snippet}`);
   return lines.join('\n');
 }
 
@@ -225,6 +320,9 @@ Return ONLY JSON, no code fences.`;
     },
     ...(input.category === 'designMatch' && webEvidence
       ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer Vogue Runway, official brand websites (e.g., armani.com), and verified social posts. When you output evidence, include 1–3 of the strongest URLs only (one per line).\n${webEvidence}` }]
+      : []),
+    ...(input.category === 'designMatch'
+      ? [{ role: 'system' as const, content: `Hard constraints: If multiple brands are plausible, prefer the one with corroborated URLs from Vogue Runway or the official brand domain. If confidence < 60, reflect that and do NOT assert an exact year unless present in the cited source.` }]
       : []),
     {
       role: "user" as const,
@@ -304,7 +402,6 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
       valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
     }
 
-    // Last-resort coercion: if still invalid, try to coerce minimal shape so UI can render instead of failing hard
     if (!valid) {
       const safeCoerce = (() => {
         try {
@@ -369,7 +466,6 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
               topMatches: normalized,
             };
           }
-          // single category
           const base = typeof analysisData === "object" && analysisData ? (analysisData as any) : {};
           return {
             style: String(base?.style ?? (input.language === "tr" ? "Görseldeki stil kısaca tanımlanamadı." : "Style summary unavailable.")),
