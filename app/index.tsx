@@ -2061,12 +2061,29 @@ Rules:
   ] as const;
   const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
+  const bgAnim = React.useRef(new Animated.Value(0)).current;
 
   const formatScore = (score: number): string => {
     const n = Number(score);
     if (!Number.isFinite(n)) return '0,0';
     return n.toFixed(1).replace('.', ',');
   };
+
+  useEffect(() => {
+    let loop: Animated.CompositeAnimation | null = null;
+    if (isAppActive && !bgFailed) {
+      loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(bgAnim, { toValue: 1, duration: 12000, useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(bgAnim, { toValue: 0, duration: 12000, useNativeDriver: Platform.OS !== 'web' }),
+        ])
+      );
+      loop.start();
+    }
+    return () => {
+      if (loop) loop.stop();
+    };
+  }, [isAppActive, bgFailed, bgAnim]);
 
   const allCategoryScores = React.useMemo<Record<string, number>>(() => {
     if (selectedCategory === 'rate' && analysis && 'results' in (analysis as AllCategoriesAnalysis)) {
@@ -2175,33 +2192,49 @@ Rules:
   return (
     <View style={styles.container}>
       {!bgFailed && (
-        <Image 
-          source={{ uri: bgCandidates[bgIndex] }}
-          cachePolicy="memory-disk"
-          contentFit="cover"
-          transition={300}
-          recyclingKey={bgCandidates[bgIndex]}
-          style={[styles.mainBackgroundImage, { opacity: 0.25 }]}
+        <Animated.View
+          style={[
+            styles.mainBackgroundWrapper,
+            {
+              transform: [
+                { scale: Animated.add(Animated.multiply(bgAnim, 0.06), new Animated.Value(1)) },
+                { translateX: Animated.multiply(bgAnim, 6) },
+                { translateY: Animated.multiply(bgAnim, 4) },
+              ],
+              opacity: Animated.add(Animated.multiply(bgAnim, 0.08), new Animated.Value(0.25)),
+            },
+          ]}
           pointerEvents="none"
-          onError={(err) => {
-            console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
-            setBgIndex((prev) => {
-              const next = prev + 1;
-              if (next >= bgCandidates.length) {
-                if (!bgFailed) setBgFailed(true);
-                return prev;
+          testID="background-animated-wrapper"
+        >
+          <Image 
+            source={{ uri: bgCandidates[bgIndex] }}
+            cachePolicy="memory-disk"
+            contentFit="cover"
+            transition={300}
+            recyclingKey={bgCandidates[bgIndex]}
+            style={styles.mainBackgroundImage}
+            onError={(err) => {
+              console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
+              setBgIndex((prev) => {
+                const next = prev + 1;
+                if (next >= bgCandidates.length) {
+                  if (!bgFailed) setBgFailed(true);
+                  return prev;
+                }
+                return next;
+              });
+            }}
+            onLoad={() => {
+              console.log('Background image loaded successfully', bgCandidates[bgIndex]);
+              if (bgFailed) {
+                setBgFailed(false);
               }
-              return next;
-            });
-          }}
-          onLoad={() => {
-            console.log('Background image loaded successfully', bgCandidates[bgIndex]);
-            if (bgFailed) {
-              setBgFailed(false);
-            }
-          }}
-          testID="background-image"
-        />
+            }}
+            accessibilityLabel="background-image"
+            testID="background-image"
+          />
+        </Animated.View>
       )}
       {/* Lightening overlay when results are shown */}
       {analysis ? <View style={styles.resultLightOverlay} pointerEvents="none" /> : null}
@@ -3348,6 +3381,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFE4E6',
     position: 'relative',
   },
+  mainBackgroundWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
   mainBackgroundImage: {
     position: 'absolute',
     top: 0,
@@ -3356,7 +3397,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    zIndex: 1,
   },
 
   flowerBackground: {
