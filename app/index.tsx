@@ -11,6 +11,7 @@ import {
   Modal,
   Pressable,
   Animated,
+  Easing,
   AppState,
   AppStateStatus,
   Share,
@@ -2074,8 +2075,8 @@ Rules:
     if (isAppActive && !bgFailed) {
       loop = Animated.loop(
         Animated.sequence([
-          Animated.timing(bgAnim, { toValue: 1, duration: 12000, useNativeDriver: Platform.OS !== 'web' }),
-          Animated.timing(bgAnim, { toValue: 0, duration: 12000, useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(bgAnim, { toValue: 1, duration: 16000, easing: Easing.inOut(Easing.quad), useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(bgAnim, { toValue: 0, duration: 16000, easing: Easing.inOut(Easing.quad), useNativeDriver: Platform.OS !== 'web' }),
         ])
       );
       loop.start();
@@ -2195,14 +2196,22 @@ Rules:
         <Animated.View
           style={[
             styles.mainBackgroundWrapper,
-            {
-              transform: [
-                { scale: Animated.add(Animated.multiply(bgAnim, 0.06), new Animated.Value(1)) },
-                { translateX: Animated.multiply(bgAnim, 6) },
-                { translateY: Animated.multiply(bgAnim, 4) },
-              ],
-              opacity: Animated.add(Animated.multiply(bgAnim, 0.08), new Animated.Value(0.25)),
-            },
+            (() => {
+              const scale = bgAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 1.06, 1] });
+              const rotate = bgAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: ['-3deg', '3deg', '-3deg'] });
+              const tx = bgAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-6, 6, -6] });
+              const ty = bgAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-4, 4, -4] });
+              const opacity = bgAnim.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0.33] });
+              return {
+                transform: [
+                  { scale },
+                  { rotate },
+                  { translateX: tx },
+                  { translateY: ty },
+                ],
+                opacity,
+              } as const;
+            })(),
           ]}
           pointerEvents="none"
           testID="background-animated-wrapper"
