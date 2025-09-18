@@ -11,7 +11,6 @@ import {
   Modal,
   Pressable,
   Animated,
-  Easing,
   AppState,
   AppStateStatus,
   Share,
@@ -2062,29 +2061,12 @@ Rules:
   ] as const;
   const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
-  const bgAnim = React.useRef(new Animated.Value(0)).current;
 
   const formatScore = (score: number): string => {
     const n = Number(score);
     if (!Number.isFinite(n)) return '0,0';
     return n.toFixed(1).replace('.', ',');
   };
-
-  useEffect(() => {
-    let loop: Animated.CompositeAnimation | null = null;
-    if (isAppActive && !bgFailed) {
-      loop = Animated.loop(
-        Animated.sequence([
-          Animated.timing(bgAnim, { toValue: 1, duration: 16000, easing: Easing.inOut(Easing.quad), useNativeDriver: Platform.OS !== 'web' }),
-          Animated.timing(bgAnim, { toValue: 0, duration: 16000, easing: Easing.inOut(Easing.quad), useNativeDriver: Platform.OS !== 'web' }),
-        ])
-      );
-      loop.start();
-    }
-    return () => {
-      if (loop) loop.stop();
-    };
-  }, [isAppActive, bgFailed, bgAnim]);
 
   const allCategoryScores = React.useMemo<Record<string, number>>(() => {
     if (selectedCategory === 'rate' && analysis && 'results' in (analysis as AllCategoriesAnalysis)) {
@@ -2193,57 +2175,33 @@ Rules:
   return (
     <View style={styles.container}>
       {!bgFailed && (
-        <Animated.View
-          style={[
-            styles.mainBackgroundWrapper,
-            (() => {
-              const scale = bgAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 1.06, 1] });
-              const rotate = bgAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: ['-3deg', '3deg', '-3deg'] });
-              const tx = bgAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-6, 6, -6] });
-              const ty = bgAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-4, 4, -4] });
-              const opacity = bgAnim.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0.33] });
-              return {
-                transform: [
-                  { scale },
-                  { rotate },
-                  { translateX: tx },
-                  { translateY: ty },
-                ],
-                opacity,
-              } as const;
-            })(),
-          ]}
+        <Image 
+          source={{ uri: bgCandidates[bgIndex] }}
+          cachePolicy="memory-disk"
+          contentFit="cover"
+          transition={300}
+          recyclingKey={bgCandidates[bgIndex]}
+          style={[styles.mainBackgroundImage, { opacity: 0.25 }]}
           pointerEvents="none"
-          testID="background-animated-wrapper"
-        >
-          <Image 
-            source={{ uri: bgCandidates[bgIndex] }}
-            cachePolicy="memory-disk"
-            contentFit="cover"
-            transition={300}
-            recyclingKey={bgCandidates[bgIndex]}
-            style={styles.mainBackgroundImage}
-            onError={(err) => {
-              console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
-              setBgIndex((prev) => {
-                const next = prev + 1;
-                if (next >= bgCandidates.length) {
-                  if (!bgFailed) setBgFailed(true);
-                  return prev;
-                }
-                return next;
-              });
-            }}
-            onLoad={() => {
-              console.log('Background image loaded successfully', bgCandidates[bgIndex]);
-              if (bgFailed) {
-                setBgFailed(false);
+          onError={(err) => {
+            console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
+            setBgIndex((prev) => {
+              const next = prev + 1;
+              if (next >= bgCandidates.length) {
+                if (!bgFailed) setBgFailed(true);
+                return prev;
               }
-            }}
-            accessibilityLabel="background-image"
-            testID="background-image"
-          />
-        </Animated.View>
+              return next;
+            });
+          }}
+          onLoad={() => {
+            console.log('Background image loaded successfully', bgCandidates[bgIndex]);
+            if (bgFailed) {
+              setBgFailed(false);
+            }
+          }}
+          testID="background-image"
+        />
       )}
       {/* Lightening overlay when results are shown */}
       {analysis ? <View style={styles.resultLightOverlay} pointerEvents="none" /> : null}
@@ -3390,14 +3348,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFE4E6',
     position: 'relative',
   },
-  mainBackgroundWrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
-  },
   mainBackgroundImage: {
     position: 'absolute',
     top: 0,
@@ -3406,6 +3356,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
+    zIndex: 1,
   },
 
   flowerBackground: {
