@@ -1499,6 +1499,97 @@ Rules:
     </Svg>
   );
 
+  function DancingWinkBackground({ sourceUri, opacity = 0.25 }: { sourceUri: string; opacity?: number }) {
+    const rotate = React.useRef(new Animated.Value(0)).current;
+    const bob = React.useRef(new Animated.Value(0)).current;
+    const wink = React.useRef(new Animated.Value(0)).current;
+    const [winkDataUri, setWinkDataUri] = useState<string | null>(null);
+    const [fallbackFailed, setFallbackFailed] = useState<boolean>(false);
+
+    useEffect(() => {
+      let mounted = true;
+      (async () => {
+        try {
+          const b64 = await uriToBase64Raw(sourceUri);
+          const res = await fetch('https://toolkit.rork.com/images/edit/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: 'Create a single subtle variant of the same portrait where the person gives a quick wink. Keep pose, colors, crop and background identical; only close one eye naturally. No text, no extra artifacts.',
+              images: [{ type: 'image', image: b64 }],
+            })
+          });
+          if (!res.ok) throw new Error('wink_http');
+          const data = await res.json();
+          const mime: string = data?.image?.mimeType ?? 'image/png';
+          const base64Data: string = data?.image?.base64Data ?? '';
+          if (mounted && base64Data) setWinkDataUri(`data:${mime};base64,${base64Data}`);
+        } catch (e) {
+          console.log('Wink frame generation failed; using single frame', e);
+        }
+      })();
+      return () => { mounted = false; };
+    }, [sourceUri]);
+
+    useEffect(() => {
+      const useND = Platform.OS !== 'web';
+      const rot = Animated.loop(
+        Animated.sequence([
+          Animated.timing(rotate, { toValue: 1, duration: 1400, useNativeDriver: useND }),
+          Animated.timing(rotate, { toValue: -1, duration: 1400, useNativeDriver: useND }),
+        ])
+      );
+      const bobbing = Animated.loop(
+        Animated.sequence([
+          Animated.timing(bob, { toValue: 1, duration: 900, useNativeDriver: useND }),
+          Animated.timing(bob, { toValue: -1, duration: 900, useNativeDriver: useND }),
+        ])
+      );
+      const winker = Animated.loop(
+        Animated.sequence([
+          Animated.delay(1600),
+          Animated.timing(wink, { toValue: 1, duration: 220, useNativeDriver: useND }),
+          Animated.timing(wink, { toValue: 0, duration: 220, useNativeDriver: useND }),
+          Animated.delay(1400),
+        ])
+      );
+      rot.start();
+      bobbing.start();
+      winker.start();
+      return () => { rot.stop(); bobbing.stop(); winker.stop(); };
+    }, [bob, rotate, wink]);
+
+    const rotateDeg = rotate.interpolate({ inputRange: [-1, 1], outputRange: ['-6deg', '6deg'] });
+    const translateY = bob.interpolate({ inputRange: [-1, 1], outputRange: [6, -6] });
+
+    return (
+      <View style={styles.dancingBgWrapper} pointerEvents="none" testID="animated-background">
+        <Animated.View style={{ transform: [{ rotate: rotateDeg }, { translateY }], opacity }}>
+          <Image
+            source={{ uri: sourceUri }}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            style={styles.mainBackgroundImage}
+            onError={() => setFallbackFailed(true)}
+          />
+          {winkDataUri ? (
+            <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: wink }]}> 
+              <Image
+                source={{ uri: winkDataUri }}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                style={styles.mainBackgroundImage}
+              />
+            </Animated.View>
+          ) : null}
+        </Animated.View>
+        {fallbackFailed && (
+          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#d9eefe' }]} />
+        )}
+      </View>
+    );
+  }
+
   const FlowerBackground = () => (
     <Svg
       style={styles.flowerBackground}
@@ -2174,35 +2265,10 @@ Rules:
 
   return (
     <View style={styles.container}>
-      {!bgFailed && (
-        <Image 
-          source={{ uri: bgCandidates[bgIndex] }}
-          cachePolicy="memory-disk"
-          contentFit="cover"
-          transition={300}
-          recyclingKey={bgCandidates[bgIndex]}
-          style={[styles.mainBackgroundImage, { opacity: 0.25 }]}
-          pointerEvents="none"
-          onError={(err) => {
-            console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
-            setBgIndex((prev) => {
-              const next = prev + 1;
-              if (next >= bgCandidates.length) {
-                if (!bgFailed) setBgFailed(true);
-                return prev;
-              }
-              return next;
-            });
-          }}
-          onLoad={() => {
-            console.log('Background image loaded successfully', bgCandidates[bgIndex]);
-            if (bgFailed) {
-              setBgFailed(false);
-            }
-          }}
-          testID="background-image"
-        />
-      )}
+      <DancingWinkBackground
+        sourceUri="https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/i2b1axo6iq07tycaffx00"
+        opacity={0.25}
+      />
       {/* Lightening overlay when results are shown */}
       {analysis ? <View style={styles.resultLightOverlay} pointerEvents="none" /> : null}
       <FlowerBackground />
@@ -3356,6 +3422,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
+  },
+  dancingBgWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     zIndex: 1,
   },
 
