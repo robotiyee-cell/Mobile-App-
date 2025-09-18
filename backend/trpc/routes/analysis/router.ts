@@ -22,6 +22,10 @@ function isFiniteScore(n: unknown): n is number {
   return typeof n === "number" && Number.isFinite(n) && n > 0 && n <= 12;
 }
 
+function isPercent(n: unknown): n is number {
+  return typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100;
+}
+
 function validateSingleCategory(data: unknown): boolean {
   if (!data || typeof data !== "object") return false;
   const a = data as Record<string, unknown>;
@@ -56,6 +60,28 @@ function validateAllCategories(data: unknown): boolean {
   return ok;
 }
 
+function validateDesignMatch(data: unknown): boolean {
+  if (!data || typeof data !== "object") return false;
+  const a = data as Record<string, unknown>;
+  const exact = a.exactMatch as Record<string, unknown> | undefined;
+  const top = a.topMatches as unknown;
+  if (!exact || typeof exact !== "object") return false;
+  if (!isNonEmptyString(exact.brand, 2)) return false;
+  if (!isNonEmptyString(exact.designer, 2)) return false;
+  if (exact.year !== undefined && typeof exact.year !== "number") return false;
+  if (exact.confidence !== undefined && !isPercent(exact.confidence)) return false;
+  if (!Array.isArray(top) || top.length < 3) return false;
+  for (const m of top) {
+    if (!m || typeof m !== "object") return false;
+    const mm = m as Record<string, unknown>;
+    if (!isNonEmptyString(mm.brand, 2)) return false;
+    if (!isNonEmptyString(mm.designer, 2)) return false;
+    if (!isPercent(mm.similarityPercent)) return false;
+    if (!isNonEmptyString(mm.rationale, 5)) return false;
+  }
+  return true;
+}
+
 async function callModel(input: { imageBase64: string; category: string; language: "en" | "tr"; plan: string; }, forceSchema: boolean) {
   const lengthPolicy = input.plan === "ultimate"
     ? "very long (7+ sentences, detailed and thorough)"
@@ -77,6 +103,24 @@ async function callModel(input: { imageBase64: string; category: string; languag
   ] (exactly 7 items, one per category in the union, no extra categories)
 }
 Return ONLY JSON, no code fences.`
+    : input.category === "designMatch"
+    ? `Output STRICT JSON with the following shape:
+{
+  "exactMatch": {
+    "brand": string,
+    "designer": string,
+    "collection"?: string,
+    "season"?: string,
+    "year"?: number,
+    "pieceName"?: string,
+    "confidence": number (0..100),
+    "evidence": string
+  },
+  "topMatches": [
+    { "rank": number (1..10), "brand": string, "designer": string, "collection"?: string, "season"?: string, "year"?: number, "similarityPercent": number (0..100), "rationale": string }
+  ] (min 3, max 7)
+}
+Return ONLY JSON, no code fences.`
     : `Output STRICT JSON with the following shape:
 {
   "style": string,
@@ -96,7 +140,9 @@ Return ONLY JSON, no code fences.`;
     {
       role: "user" as const,
       content: [
-        { type: "text" as const, text: `Analyze this outfit for the "${input.category}" style and rate out of 12. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}` },
+        { type: "text" as const, text: input.category === "designMatch"
+          ? `Task: 1) Identify the exact brand and designer of the outfit in the image. If known, include collection/season/year and the specific piece name. 2) Then rank the closest alternative brands/designs with similarity percentages and concise rationales. Keep answers accurate, verifiable, and avoid hallucinations. If unsure, reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
+          : `Analyze this outfit for the "${input.category}" style and rate out of 12. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}` },
         { type: "image" as const, image: `data:image/jpeg;base64,${input.imageBase64}` },
       ],
     },
@@ -153,11 +199,11 @@ async function runAnalysis(jobId: string, input: { imageBase64: string; category
   try {
     let analysisData: unknown = await callModel(input, false);
 
-    let valid = input.category === "rate" ? validateAllCategories(analysisData) : validateSingleCategory(analysisData);
+    let valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
 
     if (!valid) {
       analysisData = await callModel(input, true);
-      valid = input.category === "rate" ? validateAllCategories(analysisData) : validateSingleCategory(analysisData);
+      valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
     }
 
     // Last-resort coercion: if still invalid, try to coerce minimal shape so UI can render instead of failing hard
@@ -186,6 +232,43 @@ async function runAnalysis(jobId: string, input: { imageBase64: string; category
               overallScore: Number(base?.overallScore ?? 6),
               overallAnalysis: String(base?.overallAnalysis ?? (input.language === "tr" ? "Kısa özet oluşturulamadı." : "No overall analysis.")),
               results: normalized,
+            };
+          }
+          if (input.category === "designMatch") {
+            const base = typeof analysisData === "object" && analysisData ? (analysisData as any) : {};
+            const top = Array.isArray(base?.topMatches) ? base.topMatches : [];
+            const normalized = top.slice(0, 7).map((m: any, i: number) => ({
+              rank: Number(m?.rank ?? i + 1),
+              brand: String(m?.brand ?? "Unknown"),
+              designer: String(m?.designer ?? "Unknown"),
+              collection: m?.collection ? String(m.collection) : undefined,
+              season: m?.season ? String(m.season) : undefined,
+              year: typeof m?.year === "number" ? m.year : undefined,
+              similarityPercent: isPercent(m?.similarityPercent) ? m.similarityPercent : 0,
+              rationale: String(m?.rationale ?? (input.language === "tr" ? "Açıklama yok." : "No rationale.")),
+            }));
+            while (normalized.length < 3) {
+              const i = normalized.length;
+              normalized.push({
+                rank: i + 1,
+                brand: "Unknown",
+                designer: "Unknown",
+                similarityPercent: 0,
+                rationale: input.language === "tr" ? "Açıklama yok." : "No rationale.",
+              });
+            }
+            return {
+              exactMatch: {
+                brand: String(base?.exactMatch?.brand ?? "Unknown"),
+                designer: String(base?.exactMatch?.designer ?? "Unknown"),
+                collection: base?.exactMatch?.collection ? String(base.exactMatch.collection) : undefined,
+                season: base?.exactMatch?.season ? String(base.exactMatch.season) : undefined,
+                year: typeof base?.exactMatch?.year === "number" ? base.exactMatch.year : undefined,
+                pieceName: base?.exactMatch?.pieceName ? String(base.exactMatch.pieceName) : undefined,
+                confidence: isPercent(base?.exactMatch?.confidence) ? base.exactMatch.confidence : 0,
+                evidence: String(base?.exactMatch?.evidence ?? (input.language === "tr" ? "Kanıt belirtilmedi." : "No evidence provided.")),
+              },
+              topMatches: normalized,
             };
           }
           // single category
