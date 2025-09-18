@@ -1114,13 +1114,23 @@ export default function OutfitRatingScreen() {
         }
         return { raw: line, brand: brand || undefined, reason: reason || undefined, confidence };
       };
-      for (const line of lines) {
-        if (exactLabels.some((r) => r.test(line))) {
+      for (const rawLine of lines) {
+        let line = rawLine;
+        const exactHeader = exactLabels.find((r) => r.test(line));
+        const suggHeader = suggLabels.find((r) => r.test(line));
+
+        if (exactHeader) {
           section = 'exact';
+          const idx = line.indexOf(':');
+          const tail = idx !== -1 ? line.slice(idx + 1).trim() : '';
+          if (tail && !parsed.exact) parsed.exact = normalizeItem(tail);
           continue;
         }
-        if (suggLabels.some((r) => r.test(line))) {
+        if (suggHeader) {
           section = 'suggestions';
+          const idx = line.indexOf(':');
+          const tail = idx !== -1 ? line.slice(idx + 1).trim() : '';
+          if (tail) parsed.suggestions.push(normalizeItem(tail));
           continue;
         }
         if (section === 'exact' && !parsed.exact) {
