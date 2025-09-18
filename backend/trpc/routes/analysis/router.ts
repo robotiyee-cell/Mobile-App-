@@ -289,12 +289,18 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
     const imgs = (input.imageBase64s && Array.isArray(input.imageBase64s) ? input.imageBase64s : (input.imageBase64 ? [input.imageBase64] : [])).filter((s) => typeof s === 'string' && s.length > 10);
     if (imgs.length === 0) throw new Error('no_image');
 
-    let analysisData: unknown = await callModel({ ...input, imageBase64s: imgs }, input.category === 'designMatch' ? true : false);
+    const payload: { imageBase64s: string[]; category: string; language: "en" | "tr"; plan: string } = {
+      imageBase64s: imgs,
+      category: input.category,
+      language: input.language,
+      plan: input.plan,
+    };
+    let analysisData: unknown = await callModel(payload, input.category === 'designMatch' ? true : false);
 
     let valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
 
     if (!valid) {
-      analysisData = await callModel({ ...input, imageBase64s: imgs }, true);
+      analysisData = await callModel(payload, true);
       valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
     }
 
