@@ -207,7 +207,7 @@ Return ONLY JSON, no code fences.`;
   const messages = [
     {
       role: "system" as const,
-      content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. ${forceSchema ? schemaHint : "Return JSON."}`,
+      content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. Always ensure the most likely exact brand/designer is returned as exactMatch, and the alternatives are listed under topMatches sorted by similarity. ${forceSchema ? schemaHint : "Return JSON."}`,
     },
     ...(input.category === 'designMatch' && webEvidence
       ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer sources that explicitly name brand/designer, event, and year. Cite key URLs in the evidence field.\n${webEvidence}` }]
@@ -216,7 +216,7 @@ Return ONLY JSON, no code fences.`;
       role: "user" as const,
       content: [
         { type: "text" as const, text: input.category === "designMatch"
-          ? `Task: 1) Identify the exact brand and designer of the outfit in the image. If known, include collection/season/year and the specific piece name. 2) Then rank the closest alternative brands/designs with similarity percentages and concise rationales. Ground claims in the provided web evidence when possible. If unsure, reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
+          ? `Task: 1) Identify the exact brand and designer of the outfit in the image. If known, include collection/season/year and the specific piece name. Return this under exactMatch. 2) Then rank the closest alternative brands/designs with similarity percentages and concise rationales under topMatches (sorted descending by similarity). If any alternative is more likely than the current exact guess, promote it to exactMatch. Ground claims in the provided web evidence when possible. If unsure, reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
           : `Analyze this outfit for the "${input.category}" style and rate out of 12. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}` },
         { type: "image" as const, image: `data:image/jpeg;base64,${input.imageBase64}` },
       ],
