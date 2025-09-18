@@ -190,6 +190,10 @@ Return ONLY JSON, no code fences.`
     { "rank": number (1..10), "brand": string, "designer": string, "collection"?: string, "season"?: string, "year"?: number, "similarityPercent": number (0..100), "rationale": string }
   ] (min 3, max 7)
 }
+Constraints:
+- exactMatch MUST be the most likely brand and designer and appear first. Include collection/season/year when possible.
+- topMatches MUST be sorted by similarityPercent descending with concise rationales.
+- exactMatch.evidence MUST cite 1–3 key URLs (only URLs), one per line.
 Return ONLY JSON, no code fences.`
     : `Output STRICT JSON with the following shape:
 {
@@ -207,16 +211,16 @@ Return ONLY JSON, no code fences.`;
   const messages = [
     {
       role: "system" as const,
-      content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. Always ensure the most likely exact brand/designer is returned as exactMatch, and the alternatives are listed under topMatches sorted by similarity. ${forceSchema ? schemaHint : "Return JSON."}`,
+      content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. For designMatch: 1) Return the exact brand and designer first (include collection/season/year when possible), 2) Then list closest suggestions ranked with percentages and short rationales, 3) Always cite 1–3 key URLs in the evidence field (URLs only, one per line). ${forceSchema ? schemaHint : "Return JSON."}`,
     },
     ...(input.category === 'designMatch' && webEvidence
-      ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer sources that explicitly name brand/designer, event, and year. Cite key URLs in the evidence field.\n${webEvidence}` }]
+      ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer sources that explicitly name brand/designer, event, and year. When you output evidence, include 1–3 of the strongest URLs only (one per line).\n${webEvidence}` }]
       : []),
     {
       role: "user" as const,
       content: [
         { type: "text" as const, text: input.category === "designMatch"
-          ? `Task: 1) Identify the exact brand and designer of the outfit in the image. If known, include collection/season/year and the specific piece name. Return this under exactMatch. 2) Then rank the closest alternative brands/designs with similarity percentages and concise rationales under topMatches (sorted descending by similarity). If any alternative is more likely than the current exact guess, promote it to exactMatch. Ground claims in the provided web evidence when possible. If unsure, reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
+          ? `Task: 1) Identify the exact brand and designer of the outfit in the image. Include collection/season/year and piece name when possible. Output as exactMatch. EXACTMATCH MUST BE THE MOST LIKELY. 2) Then list closest suggestions under topMatches, ranked by similarityPercent with short rationales. 3) In exactMatch.evidence, cite 1–3 key URLs (URLs only, one per line). Use provided web evidence where possible; if conflicting, choose the strongest sources (e.g., Vogue Runway, official Instagram). Reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
           : `Analyze this outfit for the "${input.category}" style and rate out of 12. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}` },
         ...input.imageBase64s.slice(0,4).map((img) => ({ type: "image" as const, image: `data:image/jpeg;base64,${img}` })),
       ],
