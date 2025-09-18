@@ -1,0 +1,230 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { Image } from 'expo-image';
+import { Stack } from 'expo-router';
+import { trpc } from '@/lib/trpc';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Loader2, Search, CheckCircle2, AlertTriangle, RefreshCw, Link as LinkIcon, ImagePlus } from 'lucide-react-native';
+
+interface DesignMatchExact {
+  brand: string;
+  designer: string;
+  collection?: string;
+  season?: string;
+  year?: number;
+  pieceName?: string;
+  confidence?: number;
+  evidence?: string;
+}
+
+interface DesignMatchTopItem {
+  rank: number;
+  brand: string;
+  designer: string;
+  collection?: string;
+  season?: string;
+  year?: number;
+  similarityPercent: number;
+  rationale: string;
+}
+
+interface DesignMatchResult {
+  exactMatch: DesignMatchExact;
+  topMatches: DesignMatchTopItem[];
+}
+
+const DEFAULT_URLS = [
+  'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/j33m3klxqmz07l4tqd57v',
+  'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/dqhuvs6z9cfn4njggviv4',
+  'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/phxi7o26b1lfib2rfflzf',
+  'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/pgbvy8ozg4vkqp8kkowya',
+];
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+  if (Platform.OS === 'web') {
+    // @ts-ignore
+    return btoa(binary);
+  }
+  // polyfill
+  const base64 = globalThis.Buffer ? globalThis.Buffer.from(binary, 'binary').toString('base64') : binary;
+  return base64;
+}
+
+export default function DesignMatchTest() {
+  const [urls, setUrls] = useState<string[]>(DEFAULT_URLS);
+  const [running, setRunning] = useState<boolean>(false);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const utils = trpc.useUtils();
+
+  const startMutation = trpc.analysis.start.useMutation();
+  const statusQuery = trpc.analysis.status.useQuery(
+    { jobId: jobId ?? '' },
+    { enabled: !!jobId, refetchInterval: (q) => (q.state.data?.status === 'processing' ? 1200 : false) as any }
+  );
+
+  const result: DesignMatchResult | null = useMemo(() => {
+    const r = statusQuery.data?.result as unknown;
+    if (r && typeof r === 'object' && (r as any).exactMatch && (r as any).topMatches) return r as DesignMatchResult;
+    return null;
+  }, [statusQuery.data]);
+
+  const fetchBase64 = useCallback(async (url: string): Promise<string> => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('download_failed');
+    const buf = await res.arrayBuffer();
+    return arrayBufferToBase64(buf);
+  }, []);
+
+  const onRun = useCallback(async () => {
+    setError(null);
+    setRunning(true);
+    try {
+      const filtered = urls.map((u) => u.trim()).filter((u) => u.length > 6).slice(0, 4);
+      if (filtered.length === 0) throw new Error('no_urls');
+      const base64s: string[] = await Promise.all(filtered.map((u) => fetchBase64(u)));
+      const resp = await startMutation.mutateAsync({ imageBase64s: base64s, category: 'designMatch', language: 'en', plan: 'premium' });
+      setJobId(resp.jobId);
+    } catch (e: any) {
+      setError(e?.message ?? 'unknown_error');
+      setRunning(false);
+    }
+  }, [urls, startMutation, fetchBase64]);
+
+  useEffect(() => {
+    if (statusQuery.data?.status === 'succeeded' || statusQuery.data?.status === 'failed') {
+      setRunning(false);
+    }
+  }, [statusQuery.data?.status]);
+
+  return (
+    <View style={styles.container} testID="designMatchTest">
+      <Stack.Screen options={{ title: 'Design Match Test' }} />
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.sectionTitle}>Input images (up to 4 URLs)</Text>
+        {urls.map((u, idx) => (
+          <View key={idx} style={styles.urlRow}>
+            <LinkIcon size={18} color="#666" />
+            <TextInput
+              value={u}
+              onChangeText={(t) => {
+                const copy = [...urls];
+                copy[idx] = t;
+                setUrls(copy);
+              }}
+              placeholder={`Image URL ${idx + 1}`}
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={styles.input}
+              testID={`url-${idx}`}
+            />
+          </View>
+        ))}
+        <View style={styles.row}>
+          <TouchableOpacity
+            onPress={() => setUrls((prev) => (prev.length < 4 ? [...prev, ''] : prev))}
+            style={[styles.button, styles.secondary]}
+            testID="addUrl"
+          >
+            <ImagePlus size={18} color="#1a1a1a" />
+            <Text style={styles.buttonTextSecondary}>Add URL</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setUrls(DEFAULT_URLS)} style={[styles.button, styles.secondary]}>
+            <RefreshCw size={18} color="#1a1a1a" />
+            <Text style={styles.buttonTextSecondary}>Reset</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.previewGrid}>
+          {urls.slice(0, 4).map((u, i) => (
+            <Image key={i} source={{ uri: u }} style={styles.preview} contentFit="cover" />
+          ))}
+        </View>
+
+        <TouchableOpacity onPress={onRun} disabled={running} style={[styles.button, styles.primary]} testID="runBtn">
+          <LinearGradient colors={["#111827", "#0f766e"]} style={styles.gradient} />
+          {running ? <Loader2 size={18} color="#fff" /> : <Search size={18} color="#fff" />}
+          <Text style={styles.buttonText}>{running ? 'Running…' : 'Run Design Match'}</Text>
+        </TouchableOpacity>
+
+        {error && (
+          <View style={styles.errorBox} testID="errorBox">
+            <AlertTriangle size={18} color="#B91C1C" />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
+        {statusQuery.data?.status === 'processing' && (
+          <Text style={styles.info}>Processing… Job {jobId}</Text>
+        )}
+
+        {result && (
+          <View style={styles.resultBox} testID="resultBox">
+            <View style={styles.resultHeader}>
+              <CheckCircle2 size={20} color="#10B981" />
+              <Text style={styles.resultTitle}>Exact Match</Text>
+            </View>
+            <Text style={styles.resultMain}>{result.exactMatch.brand} — {result.exactMatch.designer}</Text>
+            {typeof result.exactMatch.confidence === 'number' && (
+              <Text style={styles.resultMeta}>Confidence: {result.exactMatch.confidence}%</Text>
+            )}
+            {!!result.exactMatch.collection && <Text style={styles.resultMeta}>Collection: {result.exactMatch.collection}</Text>}
+            {!!result.exactMatch.season && <Text style={styles.resultMeta}>Season: {result.exactMatch.season}</Text>}
+            {!!result.exactMatch.year && <Text style={styles.resultMeta}>Year: {result.exactMatch.year}</Text>}
+            {!!result.exactMatch.pieceName && <Text style={styles.resultMeta}>Piece: {result.exactMatch.pieceName}</Text>}
+            {!!result.exactMatch.evidence && (
+              <Text style={styles.evidence} numberOfLines={6}>
+                {result.exactMatch.evidence}
+              </Text>
+            )}
+
+            <Text style={styles.suggestionsTitle}>Closest Suggestions</Text>
+            {result.topMatches.slice(0, 5).map((m) => (
+              <View key={m.rank} style={styles.suggestionRow}>
+                <Text style={styles.suggestionRank}>{m.rank}.</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.suggestionMain}>{m.brand} — {m.designer}</Text>
+                  <Text style={styles.suggestionMeta}>{m.similarityPercent}% • {m.rationale}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0f172a' },
+  content: { padding: 16, gap: 12 },
+  sectionTitle: { color: '#E5E7EB', fontSize: 16, fontWeight: '700', marginBottom: 6 },
+  urlRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#111827', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 8 },
+  input: { flex: 1, color: '#F9FAFB', paddingVertical: 6 },
+  row: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  button: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 10, overflow: 'hidden' },
+  primary: { backgroundColor: 'transparent' },
+  secondary: { backgroundColor: '#F3F4F6' },
+  gradient: { ...StyleSheet.absoluteFillObject, borderRadius: 10, opacity: 0.9 },
+  buttonText: { color: '#fff', fontWeight: '700' },
+  buttonTextSecondary: { color: '#111827', fontWeight: '700' },
+  previewGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  preview: { width: '48%', aspectRatio: 3/4, borderRadius: 10, backgroundColor: '#111827' },
+  errorBox: { marginTop: 10, backgroundColor: '#FEE2E2', padding: 10, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  errorText: { color: '#991B1B' },
+  info: { color: '#A7F3D0', marginTop: 8 },
+  resultBox: { backgroundColor: '#111827', borderRadius: 12, padding: 14, gap: 8, marginTop: 14 },
+  resultHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  resultTitle: { color: '#D1FAE5', fontWeight: '800', fontSize: 16 },
+  resultMain: { color: '#F9FAFB', fontWeight: '800', fontSize: 18 },
+  resultMeta: { color: '#93C5FD' },
+  evidence: { color: '#9CA3AF', backgroundColor: '#0B1220', padding: 8, borderRadius: 8 },
+  suggestionsTitle: { color: '#E5E7EB', fontWeight: '800', marginTop: 6 },
+  suggestionRow: { flexDirection: 'row', gap: 10, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  suggestionRank: { color: '#9CA3AF', width: 22 },
+  suggestionMain: { color: '#F9FAFB', fontWeight: '700' },
+  suggestionMeta: { color: '#9CA3AF' },
+});

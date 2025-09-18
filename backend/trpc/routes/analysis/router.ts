@@ -108,14 +108,14 @@ async function webSearch(query: string, limit: number = 5): Promise<Array<{ titl
   }
 }
 
-async function suggestQueriesFromImage(imageBase64: string, language: "en" | "tr"): Promise<string[]> {
+async function suggestQueriesFromImageFromMany(imagesBase64: string[], language: "en" | "tr"): Promise<string[]> {
   try {
     const sysLang = language === 'tr' ? 'Turkish' : 'English';
     const messages = [
-      { role: 'system' as const, content: `You generate 3-5 concise web search queries to identify the exact brand/designer of a fashion outfit in an image. Output STRICT JSON: { "queries": string[] } in ${sysLang}. Return ONLY JSON.` },
+      { role: 'system' as const, content: `You generate 5-8 concise, diverse web search queries to identify the exact brand and designer of a fashion outfit given up to 4 images. Prefer queries that include celebrity name, event, year, runway/collection terms, and color/silhouette descriptors. Output STRICT JSON: { "queries": string[] } in ${sysLang}. Return ONLY JSON.` },
       { role: 'user' as const, content: [
-        { type: 'text' as const, text: 'Generate the best web search queries (include celebrity/event guesses if any). Avoid quotes.' },
-        { type: 'image' as const, image: `data:image/jpeg;base64,${imageBase64}` },
+        { type: 'text' as const, text: 'Generate best web queries. Avoid quotes. Include at least one query with site:vogue.com or site:instagram.com if a celebrity/event is suspected.' },
+        ...imagesBase64.slice(0,4).map((img) => ({ type: 'image' as const, image: `data:image/jpeg;base64,${img}` })),
       ]},
     ];
     const res = await fetch("https://toolkit.rork.com/text/llm/", {
@@ -132,15 +132,15 @@ async function suggestQueriesFromImage(imageBase64: string, language: "en" | "tr
     const fb = text.indexOf('{'); const lb = text.lastIndexOf('}');
     const parsed = fb !== -1 && lb !== -1 ? JSON.parse(text.slice(fb, lb + 1)) : {};
     const arr = Array.isArray(parsed?.queries) ? parsed.queries.map((q: unknown) => String(q)).filter((s: string) => s.length > 2) : [];
-    return arr.slice(0, 5);
+    return Array.from(new Set(arr)).slice(0, 8);
   } catch (e) {
     console.log('[suggestQueriesFromImage] error', e);
     return [];
   }
 }
 
-async function buildWebEvidence(imageBase64: string, language: "en" | "tr"): Promise<string> {
-  const queries = await suggestQueriesFromImage(imageBase64, language);
+async function buildWebEvidence(imagesBase64: string[], language: "en" | "tr"): Promise<string> {
+  const queries = await suggestQueriesFromImageFromMany(imagesBase64, language);
   const unique = Array.from(new Set(queries));
   const allResults: Array<{ title: string; url: string; snippet: string }> = [];
   for (const q of unique) {
@@ -152,7 +152,7 @@ async function buildWebEvidence(imageBase64: string, language: "en" | "tr"): Pro
   return lines.join('\n');
 }
 
-async function callModel(input: { imageBase64: string; category: string; language: "en" | "tr"; plan: string; }, forceSchema: boolean) {
+async function callModel(input: { imageBase64s: string[]; category: string; language: "en" | "tr"; plan: string; }, forceSchema: boolean) {
   const lengthPolicy = input.plan === "ultimate"
     ? "very long (7+ sentences, detailed and thorough)"
     : input.plan === "premium"
@@ -202,7 +202,7 @@ Return ONLY JSON, no code fences.`
 }
 Return ONLY JSON, no code fences.`;
 
-  const webEvidence = input.category === 'designMatch' ? await buildWebEvidence(input.imageBase64, input.language) : '';
+  const webEvidence = input.category === 'designMatch' ? await buildWebEvidence(input.imageBase64s, input.language) : '';
 
   const messages = [
     {
@@ -218,7 +218,7 @@ Return ONLY JSON, no code fences.`;
         { type: "text" as const, text: input.category === "designMatch"
           ? `Task: 1) Identify the exact brand and designer of the outfit in the image. If known, include collection/season/year and the specific piece name. Return this under exactMatch. 2) Then rank the closest alternative brands/designs with similarity percentages and concise rationales under topMatches (sorted descending by similarity). If any alternative is more likely than the current exact guess, promote it to exactMatch. Ground claims in the provided web evidence when possible. If unsure, reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
           : `Analyze this outfit for the "${input.category}" style and rate out of 12. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}` },
-        { type: "image" as const, image: `data:image/jpeg;base64,${input.imageBase64}` },
+        ...input.imageBase64s.slice(0,4).map((img) => ({ type: "image" as const, image: `data:image/jpeg;base64,${img}` })),
       ],
     },
   ];
@@ -264,7 +264,7 @@ Return ONLY JSON, no code fences.`;
   throw new Error("invalid_completion");
 }
 
-async function runAnalysis(jobId: string, input: { imageBase64: string; category: string; language: "en" | "tr"; plan: string; }) {
+async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBase64s?: string[]; category: string; language: "en" | "tr"; plan: string; }) {
   const job = jobs.get(jobId);
   if (!job) return;
   job.status = "processing";
@@ -272,7 +272,10 @@ async function runAnalysis(jobId: string, input: { imageBase64: string; category
   jobs.set(jobId, job);
 
   try {
-    let analysisData: unknown = await callModel(input, false);
+    const imgs = (input.imageBase64s && Array.isArray(input.imageBase64s) ? input.imageBase64s : (input.imageBase64 ? [input.imageBase64] : [])).filter((s) => typeof s === 'string' && s.length > 10);
+    if (imgs.length === 0) throw new Error('no_image');
+
+    let analysisData: unknown = await callModel({ ...input, imageBase64s: imgs }, false);
 
     let valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
 
@@ -385,7 +388,8 @@ async function runAnalysis(jobId: string, input: { imageBase64: string; category
 }
 
 const startInput = z.object({
-  imageBase64: z.string().min(10),
+  imageBase64: z.string().min(10).optional(),
+  imageBase64s: z.array(z.string().min(10)).min(1).max(4).optional(),
   category: z.string().min(1),
   language: z.enum(["en", "tr"]),
   plan: z.string().min(1),

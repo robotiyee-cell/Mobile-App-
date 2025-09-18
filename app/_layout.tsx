@@ -36,6 +36,12 @@ function RootLayoutNav() {
         headerTitleStyle: { fontWeight: '700', fontSize: 14 },
         headerShadowVisible: true
       }} />
+      <Stack.Screen name="design-match-test" options={{
+        title: 'Design Match Test',
+        headerStyle: { backgroundColor: '#111827' },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: { fontWeight: '700', fontSize: 14 },
+      }} />
       <Stack.Screen name="terms" options={{
         title: t('termsTitle'),
         headerTransparent: false,
