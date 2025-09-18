@@ -131,7 +131,7 @@ async function suggestQueriesFromImageFromMany(imagesBase64: string[], language:
     const text = typeof completion === 'string' ? completion : JSON.stringify(completion ?? {});
     const fb = text.indexOf('{'); const lb = text.lastIndexOf('}');
     const parsed = fb !== -1 && lb !== -1 ? JSON.parse(text.slice(fb, lb + 1)) : {};
-    const arr = Array.isArray(parsed?.queries) ? parsed.queries.map((q: unknown) => String(q)).filter((s: string) => s.length > 2) : [];
+    const arr: string[] = Array.isArray(parsed?.queries) ? parsed.queries.map((q: unknown) => String(q)).filter((s: string) => s.length > 2) : [];
     return Array.from(new Set(arr)).slice(0, 8);
   } catch (e) {
     console.log('[suggestQueriesFromImage] error', e);
@@ -280,7 +280,7 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
     let valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
 
     if (!valid) {
-      analysisData = await callModel(input, true);
+      analysisData = await callModel({ ...input, imageBase64s: imgs }, true);
       valid = input.category === "rate" ? validateAllCategories(analysisData) : input.category === "designMatch" ? validateDesignMatch(analysisData) : validateSingleCategory(analysisData);
     }
 
