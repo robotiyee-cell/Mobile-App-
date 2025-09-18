@@ -82,6 +82,76 @@ function validateDesignMatch(data: unknown): boolean {
   return true;
 }
 
+async function webSearch(query: string, limit: number = 5): Promise<Array<{ title: string; url: string; snippet: string }>> {
+  try {
+    const q = encodeURIComponent(query);
+    const res = await fetch(`https://duckduckgo.com/html/?q=${q}`, {
+      headers: { "User-Agent": "Mozilla/5.0 RorkBot" },
+    });
+    const html = await res.text();
+    const items: Array<{ title: string; url: string; snippet: string }> = [];
+    const resultBlocks = html.split('result__body').slice(1);
+    for (const block of resultBlocks) {
+      const aMatch = block.match(/<a[^>]*class=\"result__a[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>(.*?)<\/a>/i);
+      const sMatch = block.match(/<a[^>]*class=\"result__snippet[^\"]*\"[^>]*>(.*?)<\/a>|<div[^>]*class=\"result__snippet[^\"]*\"[^>]*>(.*?)<\/div>/i);
+      const url = aMatch?.[1] ?? "";
+      const title = aMatch ? aMatch[2].replace(/<[^>]+>/g, " ").trim() : "";
+      const snippetRaw = (sMatch?.[1] ?? sMatch?.[2] ?? "");
+      const snippet = snippetRaw.replace(/<[^>]+>/g, " ").trim();
+      if (url && title) items.push({ title, url, snippet });
+      if (items.length >= limit) break;
+    }
+    return items;
+  } catch (e) {
+    console.log('[webSearch] error', e);
+    return [];
+  }
+}
+
+async function suggestQueriesFromImage(imageBase64: string, language: "en" | "tr"): Promise<string[]> {
+  try {
+    const sysLang = language === 'tr' ? 'Turkish' : 'English';
+    const messages = [
+      { role: 'system' as const, content: `You generate 3-5 concise web search queries to identify the exact brand/designer of a fashion outfit in an image. Output STRICT JSON: { "queries": string[] } in ${sysLang}. Return ONLY JSON.` },
+      { role: 'user' as const, content: [
+        { type: 'text' as const, text: 'Generate the best web search queries (include celebrity/event guesses if any). Avoid quotes.' },
+        { type: 'image' as const, image: `data:image/jpeg;base64,${imageBase64}` },
+      ]},
+    ];
+    const res = await fetch("https://toolkit.rork.com/text/llm/", {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages })
+    });
+    const raw = await res.text();
+    let json: any;
+    try { json = JSON.parse(raw); } catch {
+      const fb = raw.indexOf('{'); const lb = raw.lastIndexOf('}');
+      json = fb !== -1 && lb !== -1 ? JSON.parse(raw.slice(fb, lb + 1)) : {};
+    }
+    const completion = json?.completion;
+    const text = typeof completion === 'string' ? completion : JSON.stringify(completion ?? {});
+    const fb = text.indexOf('{'); const lb = text.lastIndexOf('}');
+    const parsed = fb !== -1 && lb !== -1 ? JSON.parse(text.slice(fb, lb + 1)) : {};
+    const arr = Array.isArray(parsed?.queries) ? parsed.queries.map((q: unknown) => String(q)).filter((s: string) => s.length > 2) : [];
+    return arr.slice(0, 5);
+  } catch (e) {
+    console.log('[suggestQueriesFromImage] error', e);
+    return [];
+  }
+}
+
+async function buildWebEvidence(imageBase64: string, language: "en" | "tr"): Promise<string> {
+  const queries = await suggestQueriesFromImage(imageBase64, language);
+  const unique = Array.from(new Set(queries));
+  const allResults: Array<{ title: string; url: string; snippet: string }> = [];
+  for (const q of unique) {
+    const results = await webSearch(q, 4);
+    allResults.push(...results);
+    if (allResults.length > 12) break;
+  }
+  const lines = allResults.map((r, i) => `${i + 1}. ${r.title} — ${r.url}\n   ${r.snippet}`);
+  return lines.join('\n');
+}
+
 async function callModel(input: { imageBase64: string; category: string; language: "en" | "tr"; plan: string; }, forceSchema: boolean) {
   const lengthPolicy = input.plan === "ultimate"
     ? "very long (7+ sentences, detailed and thorough)"
@@ -132,16 +202,21 @@ Return ONLY JSON, no code fences.`
 }
 Return ONLY JSON, no code fences.`;
 
+  const webEvidence = input.category === 'designMatch' ? await buildWebEvidence(input.imageBase64, input.language) : '';
+
   const messages = [
     {
       role: "system" as const,
       content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. ${forceSchema ? schemaHint : "Return JSON."}`,
     },
+    ...(input.category === 'designMatch' && webEvidence
+      ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer sources that explicitly name brand/designer, event, and year. Cite key URLs in the evidence field.\n${webEvidence}` }]
+      : []),
     {
       role: "user" as const,
       content: [
         { type: "text" as const, text: input.category === "designMatch"
-          ? `Task: 1) Identify the exact brand and designer of the outfit in the image. If known, include collection/season/year and the specific piece name. 2) Then rank the closest alternative brands/designs with similarity percentages and concise rationales. Keep answers accurate, verifiable, and avoid hallucinations. If unsure, reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
+          ? `Task: 1) Identify the exact brand and designer of the outfit in the image. If known, include collection/season/year and the specific piece name. 2) Then rank the closest alternative brands/designs with similarity percentages and concise rationales. Ground claims in the provided web evidence when possible. If unsure, reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
           : `Analyze this outfit for the "${input.category}" style and rate out of 12. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}` },
         { type: "image" as const, image: `data:image/jpeg;base64,${input.imageBase64}` },
       ],
