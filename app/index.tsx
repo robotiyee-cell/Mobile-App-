@@ -2053,25 +2053,14 @@ Rules:
 
 
   const bgCandidates = [
-    'https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/dnovyjesc3kz1p29ufq3z',
+    // Google Drive direct thumbnail endpoint is more reliable for CORS and hotlinking
+    'https://drive.google.com/thumbnail?id=1a69AMRfUbMmy4R86_ZEi6ZD-zoGxFFEj&sz=w2000',
+    // Fallbacks
     'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
     'https://images.unsplash.com/photo-1495567720989-cebdbdd97913?auto=format&fit=crop&w=1600&q=80'
   ] as const;
   const [bgIndex, setBgIndex] = useState<number>(0);
   const [bgFailed, setBgFailed] = useState<boolean>(false);
-  const danceAnim = useRef(new Animated.Value(0)).current;
-  const rotate = danceAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: ['-2deg', '2deg', '-2deg'] });
-  const scale = danceAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1.02, 1.06, 1.02] });
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(danceAnim, { toValue: 1, duration: 1800, useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(danceAnim, { toValue: 0, duration: 1800, useNativeDriver: Platform.OS !== 'web' }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [danceAnim]);
 
   const formatScore = (score: number): string => {
     const n = Number(score);
@@ -2186,35 +2175,33 @@ Rules:
   return (
     <View style={styles.container}>
       {!bgFailed && (
-        <Animated.View style={[styles.animatedBgContainer, { transform: [{ rotate }, { scale }] }]} pointerEvents="none">
-          <Image 
-            source={{ uri: bgCandidates[bgIndex] }}
-            cachePolicy="memory-disk"
-            contentFit="cover"
-            transition={300}
-            recyclingKey={bgCandidates[bgIndex]}
-            style={[styles.mainBackgroundImage, { opacity: 0.28 }]}
-            pointerEvents="none"
-            onError={(err) => {
-              console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
-              setBgIndex((prev) => {
-                const next = prev + 1;
-                if (next >= bgCandidates.length) {
-                  if (!bgFailed) setBgFailed(true);
-                  return prev;
-                }
-                return next;
-              });
-            }}
-            onLoad={() => {
-              console.log('Background image loaded successfully', bgCandidates[bgIndex]);
-              if (bgFailed) {
-                setBgFailed(false);
+        <Image 
+          source={{ uri: bgCandidates[bgIndex] }}
+          cachePolicy="memory-disk"
+          contentFit="cover"
+          transition={300}
+          recyclingKey={bgCandidates[bgIndex]}
+          style={[styles.mainBackgroundImage, { opacity: 0.25 }]}
+          pointerEvents="none"
+          onError={(err) => {
+            console.log('Background image failed to load', { err, tried: bgCandidates[bgIndex] });
+            setBgIndex((prev) => {
+              const next = prev + 1;
+              if (next >= bgCandidates.length) {
+                if (!bgFailed) setBgFailed(true);
+                return prev;
               }
-            }}
-            testID="background-image"
-          />
-        </Animated.View>
+              return next;
+            });
+          }}
+          onLoad={() => {
+            console.log('Background image loaded successfully', bgCandidates[bgIndex]);
+            if (bgFailed) {
+              setBgFailed(false);
+            }
+          }}
+          testID="background-image"
+        />
       )}
       {/* Lightening overlay when results are shown */}
       {analysis ? <View style={styles.resultLightOverlay} pointerEvents="none" /> : null}
@@ -3361,14 +3348,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFE4E6',
     position: 'relative',
   },
-  animatedBgContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
-  },
   mainBackgroundImage: {
     position: 'absolute',
     top: 0,
@@ -3377,6 +3356,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
+    zIndex: 1,
   },
 
   flowerBackground: {
