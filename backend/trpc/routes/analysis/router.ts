@@ -257,6 +257,33 @@ async function buildWebEvidence(imagesBase64: string[], language: "en" | "tr"): 
   return lines.join('\n');
 }
 
+async function detectNonReal(imagesBase64: string[], language: "en" | "tr"): Promise<{ nonReal: boolean; reason: string }> {
+  try {
+    const sysLang = language === 'tr' ? 'Turkish' : 'English';
+    const messages = [
+      { role: 'system' as const, content: `Classify if ALL provided images depict a real photograph of a person wearing a real fashion item, or instead a cartoon/comic/anime drawing, meme/parody image, emoji-like icon, or an AI-rendered illustration. Output STRICT JSON as { "nonReal": boolean, "reason": string } in ${sysLang}. Return ONLY JSON.` },
+      { role: 'user' as const, content: [
+        { type: 'text' as const, text: 'If any image is non-real (cartoon/parody/meme/AI), set nonReal=true.' },
+        ...imagesBase64.slice(0, 4).map((img) => ({ type: 'image' as const, image: `data:image/jpeg;base64,${img}` })),
+      ]},
+    ];
+    const res = await fetch("https://toolkit.rork.com/text/llm/", { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages }) });
+    const raw = await res.text();
+    let json: any;
+    try { json = JSON.parse(raw); } catch { const fb = raw.indexOf('{'); const lb = raw.lastIndexOf('}'); json = fb !== -1 && lb !== -1 ? JSON.parse(raw.slice(fb, lb + 1)) : {}; }
+    const completion = json?.completion;
+    const text = typeof completion === 'string' ? completion : JSON.stringify(completion ?? {});
+    const fb = text.indexOf('{'); const lb = text.lastIndexOf('}');
+    const parsed = fb !== -1 && lb !== -1 ? JSON.parse(text.slice(fb, lb + 1)) : {};
+    const nonReal = Boolean(parsed?.nonReal);
+    const reason = typeof parsed?.reason === 'string' ? parsed.reason : '';
+    return { nonReal, reason };
+  } catch (e) {
+    console.log('[detectNonReal] error', e);
+    return { nonReal: false, reason: '' };
+  }
+}
+
 async function callModel(input: { imageBase64s: string[]; category: string; language: "en" | "tr"; plan: string; }, forceSchema: boolean) {
   const lengthPolicy = input.plan === "ultimate"
     ? "very long (7+ sentences, detailed and thorough)"
@@ -316,13 +343,15 @@ Return ONLY JSON, no code fences.`;
   const messages = [
     {
       role: "system" as const,
-      content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. For designMatch: 1) Return the exact brand and designer first (include collection/season/year when possible), 2) Then list closest suggestions ranked with percentages and short rationales, 3) Always cite 1–3 key URLs in the evidence field (URLs only, one per line). ${forceSchema ? schemaHint : "Return JSON."}`,
+      content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. For designMatch: 1) Return the exact brand and designer first (include collection/season/year when possible), 2) Then list closest suggestions ranked with percentages and short rationales, 3) Always cite 1–3 key URLs in the evidence field (URLs only, one per line). Non‑real images (cartoon/comic/anime drawings, memes/parodies, emoji-like icons, or AI renders) MUST be explicitly flagged. In that case, do NOT assert a real brand or designer; use a clear first sentence:
+- English: "This image is an illustration or parody, not a real fashion product; therefore an exact brand/designer match is not applicable."
+- Turkish: "Bu görsel bir illüstrasyon/parodi niteliğindedir; gerçek bir moda ürünü değildir, bu nedenle marka/tasarımcı eşleştirmesi uygulanamaz." ${forceSchema ? schemaHint : "Return JSON."}`,
     },
     ...(input.category === 'designMatch' && webEvidence
       ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer Vogue Runway, official brand websites (e.g., armani.com), and verified social posts. When you output evidence, include 1–3 of the strongest URLs only (one per line).\n${webEvidence}` }]
       : []),
     ...(input.category === 'designMatch'
-      ? [{ role: 'system' as const, content: `Hard constraints: If multiple brands are plausible, prefer the one with corroborated URLs from Vogue Runway or the official brand domain. If confidence < 60, reflect that and do NOT assert an exact year unless present in the cited source.` }]
+      ? [{ role: 'system' as const, content: `Hard constraints: If multiple brands are plausible, prefer the one with corroborated URLs from Vogue Runway or the official brand domain. If confidence < 60, reflect that and do NOT assert an exact year unless present in the cited source. If the image is non‑real (cartoon/comic/anime, meme/parody, emoji-like, AI render), set brand/designer to a neutral value (e.g., "Not applicable" / "Uygulanamaz"), confidence to 0–5, and start the evidence with the specified sentence in the target language.` }]
       : []),
     {
       role: "user" as const,
@@ -386,6 +415,59 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
   try {
     const imgs = (input.imageBase64s && Array.isArray(input.imageBase64s) ? input.imageBase64s : (input.imageBase64 ? [input.imageBase64] : [])).filter((s) => typeof s === 'string' && s.length > 10);
     if (imgs.length === 0) throw new Error('no_image');
+
+    if (input.category === 'designMatch') {
+      const nonReal = await detectNonReal(imgs, input.language);
+      if (nonReal.nonReal) {
+        const tr = input.language === 'tr';
+        const exactMsgEN = 'This image is an illustration or parody, not a real fashion product; therefore an exact brand/designer match is not applicable.';
+        const exactMsgTR = 'Bu görsel bir illüstrasyon/parodi niteliğindedir; gerçek bir moda ürünü değildir, bu nedenle marka/tasarımcı eşleştirmesi uygulanamaz.';
+        const evidenceText = tr ? exactMsgTR : exactMsgEN;
+        const analysisData = {
+          exactMatch: {
+            brand: tr ? 'Uygulanamaz' : 'Not applicable',
+            designer: tr ? 'Uygulanamaz' : 'Not applicable',
+            confidence: 0,
+            pieceName: tr ? 'Gerçek ürün değil' : 'Not a real product',
+            evidence: evidenceText,
+          },
+          topMatches: [
+            {
+              rank: 1,
+              brand: tr ? 'Uygulanamaz' : 'Not applicable',
+              designer: tr ? 'Uygulanamaz' : 'Not applicable',
+              similarityPercent: 0,
+              rationale: tr
+                ? 'Görsel karikatür/illüstrasyon veya parodi niteliğinde olduğundan gerçek bir marka/tasarımcı ile eşleştirme yapılmamıştır.'
+                : 'Image appears to be an illustration or parody, so no real brand/designer match is provided.',
+            },
+            {
+              rank: 2,
+              brand: tr ? '—' : '—',
+              designer: tr ? '—' : '—',
+              similarityPercent: 0,
+              rationale: tr
+                ? (nonReal.reason ? `Gerekçe: ${nonReal.reason}` : '—')
+                : (nonReal.reason ? `Reason: ${nonReal.reason}` : '—'),
+            },
+            {
+              rank: 3,
+              brand: tr ? '—' : '—',
+              designer: tr ? '—' : '—',
+              similarityPercent: 0,
+              rationale: tr ? '—' : '—',
+            },
+          ],
+        };
+        const valid = validateDesignMatch(analysisData);
+        if (!valid) throw new Error('non_real_schema_error');
+        job.status = "succeeded";
+        job.result = analysisData;
+        job.updatedAt = Date.now();
+        jobs.set(jobId, job);
+        return;
+      }
+    }
 
     const payload: { imageBase64s: string[]; category: string; language: "en" | "tr"; plan: string } = {
       imageBase64s: imgs,
