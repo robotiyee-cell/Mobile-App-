@@ -2936,6 +2936,76 @@ Rules:
                         </View>
                       )}
                     </View>
+
+                  <View style={styles.designMatchSection}>
+                    <View style={styles.suggestionsHeader}>
+                      <Sparkles size={20} color={getTextColor((selectedCategory ?? 'rate') as StyleCategory)} />
+                      <Text style={[styles.designMatchTitle, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{t('designMatchHeader')}</Text>
+                    </View>
+                    {designMatchLoading ? (
+                      <ActivityIndicator color="#9B59B6" />
+                    ) : designMatchText ? (
+                      <View style={[styles.designMatchBlock]} testID="design-match-block">
+                        {parsedDesignMatch.exact ? (
+                          <View style={{ marginBottom: 12 }}>
+                            <Text style={[styles.designMatchSubheader, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} testID="design-match-exact-title">{language === 'tr' ? 'Tam Eşleşme' : 'Exact match'}</Text>
+                            <View style={styles.designMatchExactRow} testID="design-match-exact-item">
+                              <View style={styles.designMatchIndex}><Text style={[styles.designMatchIndexText, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>★</Text></View>
+                              <View style={{ flex: 1 }}>
+                                <Text style={[styles.designMatchBrand, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} numberOfLines={1} ellipsizeMode="tail">{parsedDesignMatch.exact.brand ?? parsedDesignMatch.exact.raw}</Text>
+                                {parsedDesignMatch.exact.reason ? (
+                                  <Text style={[styles.designMatchReason, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{parsedDesignMatch.exact.reason}</Text>
+                                ) : null}
+                              </View>
+                              {typeof parsedDesignMatch.exact.confidence === 'number' ? (
+                                <View style={styles.designMatchConfidenceBadge} testID="design-match-exact-confidence">
+                                  <Text style={[styles.designMatchConfidenceText, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{parsedDesignMatch.exact.confidence}%</Text>
+                                </View>
+                              ) : null}
+                            </View>
+                          </View>
+                        ) : null}
+                        {parsedDesignMatch.suggestions && parsedDesignMatch.suggestions.length > 0 ? (
+                          <View>
+                            <Text style={[styles.designMatchSubheader, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} testID="design-match-suggestions-title">{language === 'tr' ? 'En Yakın Öneriler' : 'Closest suggestions'}</Text>
+                            {parsedDesignMatch.suggestions.map((it, idx) => (
+                              <View
+                                key={idx}
+                                style={[
+                                  styles.designMatchItemRow,
+                                  idx === parsedDesignMatch.suggestions.length - 1 && styles.designMatchItemRowLast,
+                                ]}
+                                testID={`design-match-item-${idx}`}
+                              >
+                                <View style={styles.designMatchIndex}><Text style={[styles.designMatchIndexText, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{idx + 1}</Text></View>
+                                <View style={{ flex: 1 }}>
+                                  <Text style={[styles.designMatchBrand, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]} numberOfLines={1} ellipsizeMode="tail">{it.brand ?? it.raw}</Text>
+                                  {it.reason ? (
+                                    <Text style={[styles.designMatchReason, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{it.reason}</Text>
+                                  ) : null}
+                                </View>
+                                {typeof it.confidence === 'number' ? (
+                                  <View style={styles.designMatchConfidenceBadge} testID={`design-match-confidence-${idx}`}>
+                                    <Text style={[styles.designMatchConfidenceText, { color: getTextColor((selectedCategory ?? 'rate') as StyleCategory) }]}>{it.confidence}%</Text>
+                                  </View>
+                                ) : null}
+                              </View>
+                            ))}
+                          </View>
+                        ) : null}
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={[styles.button, styles.designMatchButton]}
+                        onPress={generateDesignMatch}
+                        testID="btn-design-match"
+                      >
+                        <Sparkles size={20} color="white" />
+                        <Text style={styles.buttonText}>{t('findDesignMatchButtonHeader')}</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+
                   </View>
                 </>
               ) : (
