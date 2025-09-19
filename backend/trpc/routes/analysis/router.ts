@@ -419,13 +419,13 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
               normalized.push({
                 category: sevenCats[idx] ?? "sexy",
                 score: 6,
-                analysis: input.language === "tr" ? "Özet bulunamadı." : "No analysis.",
+                analysis: input.language === "tr" ? "Bu kategori için detaylı analiz oluşturulamadı. Lütfen farklı bir fotoğraf deneyin." : "No analysis available for this category. Please try a different photo.",
                 suggestions: [],
               });
             }
             return {
               overallScore: Number(base?.overallScore ?? 6),
-              overallAnalysis: String(base?.overallAnalysis ?? (input.language === "tr" ? "Kısa özet oluşturulamadı." : "No overall analysis.")),
+              overallAnalysis: String(base?.overallAnalysis ?? (input.language === "tr" ? "Genel stil analizi oluşturulamadı. Bu görsel için analiz yapılamıyor olabilir." : "Overall style analysis could not be generated. This image may not be suitable for analysis.")),
               results: normalized,
             };
           }
@@ -440,7 +440,7 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
               season: m?.season ? String(m.season) : undefined,
               year: typeof m?.year === "number" ? m.year : undefined,
               similarityPercent: isPercent(m?.similarityPercent) ? m.similarityPercent : 0,
-              rationale: String(m?.rationale ?? (input.language === "tr" ? "Açıklama yok." : "No rationale.")),
+              rationale: String(m?.rationale ?? (input.language === "tr" ? "Bu tasarım için detaylı açıklama oluşturulamadı." : "No detailed explanation available for this design."))
             }));
             while (normalized.length < 3) {
               const i = normalized.length;
@@ -449,7 +449,7 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
                 brand: "Unknown",
                 designer: "Unknown",
                 similarityPercent: 0,
-                rationale: input.language === "tr" ? "Açıklama yok." : "No rationale.",
+                rationale: input.language === "tr" ? "Bu tasarım için detaylı açıklama oluşturulamadı." : "No detailed explanation available for this design."
               });
             }
             return {
@@ -461,17 +461,17 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
                 year: typeof base?.exactMatch?.year === "number" ? base.exactMatch.year : undefined,
                 pieceName: base?.exactMatch?.pieceName ? String(base.exactMatch.pieceName) : undefined,
                 confidence: isPercent(base?.exactMatch?.confidence) ? base.exactMatch.confidence : 0,
-                evidence: String(base?.exactMatch?.evidence ?? (input.language === "tr" ? "Kanıt belirtilmedi." : "No evidence provided.")),
+                evidence: String(base?.exactMatch?.evidence ?? (input.language === "tr" ? "Bu tasarım için web kanıtı bulunamadı. Görsel analiz edilememiş olabilir." : "No web evidence found for this design. The image may not be analyzable."))
               },
               topMatches: normalized,
             };
           }
           const base = typeof analysisData === "object" && analysisData ? (analysisData as any) : {};
           return {
-            style: String(base?.style ?? (input.language === "tr" ? "Görseldeki stil kısaca tanımlanamadı." : "Style summary unavailable.")),
-            colorCoordination: String(base?.colorCoordination ?? (input.language === "tr" ? "Renk uyumu kısaca oluşturulamadı." : "Color coordination unavailable.")),
-            accessories: String(base?.accessories ?? (input.language === "tr" ? "Aksesuar önerileri kısaca oluşturulamadı." : "Accessories insight unavailable.")),
-            harmony: String(base?.harmony ?? (input.language === "tr" ? "Genel uyum kısaca oluşturulamadı." : "Overall harmony unavailable.")),
+            style: String(base?.style ?? (input.language === "tr" ? "Bu görseldeki stil analiz edilemedi. Görsel net olmayabilir veya kıyafet detayları yetersiz olabilir." : "The style in this image could not be analyzed. The image may not be clear or clothing details may be insufficient.")),
+            colorCoordination: String(base?.colorCoordination ?? (input.language === "tr" ? "Renk koordinasyonu analizi oluşturulamadı. Görseldeki renkler net görünmüyor olabilir." : "Color coordination analysis could not be generated. The colors in the image may not be clearly visible.")),
+            accessories: String(base?.accessories ?? (input.language === "tr" ? "Aksesuar analizi oluşturulamadı. Görseldeki aksesuarlar net görünmüyor olabilir." : "Accessories analysis could not be generated. The accessories in the image may not be clearly visible.")),
+            harmony: String(base?.harmony ?? (input.language === "tr" ? "Genel uyum analizi oluşturulamadı. Kıyafet kombinasyonu net değerlendirilemedi." : "Overall harmony analysis could not be generated. The outfit combination could not be clearly evaluated.")),
             score: Number(base?.score ?? 6),
             suggestions: Array.isArray(base?.suggestions) ? base.suggestions : [],
           };
