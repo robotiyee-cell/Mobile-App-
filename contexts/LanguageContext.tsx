@@ -77,6 +77,9 @@ const translations = {
     exactMatch: 'Exact Match',
     closestSuggestions: 'Closest Suggestions',
     confidence: 'Confidence',
+    nonFashionTitle: 'This image is not a fashion product',
+    nonFashionSubtitle: 'It looks like a cartoon/parody/fictional character; an exact brand/design match may not exist.',
+    nonFashionAction: 'We instead suggest brands with similar humor, color palette, and silhouette.',
     
     // Analysis
     analyzing: 'Analyzing...',
@@ -336,6 +339,9 @@ const translations = {
     exactMatch: 'Tam Eşleşme',
     closestSuggestions: 'En Yakın Öneriler',
     confidence: 'Güven Düzeyi',
+    nonFashionTitle: 'Bu görsel bir moda ürünü değil',
+    nonFashionSubtitle: 'Karikatür/parodi/kurgu bir karakter gibi görünüyor; birebir marka veya tasarım eşleşmesi olmayabilir.',
+    nonFashionAction: 'Bunun yerine mizah tonu, renk paleti ve silüet benzerliği olan markaları önerdik.',
     
     // Analysis
     analyzing: 'Analiz ediliyor...',
