@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { Stack } from 'expo-router';
 import { trpc } from '@/lib/trpc';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Loader2, Search, CheckCircle2, AlertTriangle, RefreshCw, Link as LinkIcon, ImagePlus } from 'lucide-react-native';
+import { Loader2, Search, CheckCircle2, AlertTriangle, RefreshCw, Link as LinkIcon, ImagePlus, TrendingUp, TrendingDown, Minus } from 'lucide-react-native';
 
 interface DesignMatchExact {
   brand: string;
@@ -28,6 +28,30 @@ interface DesignMatchTopItem {
   rationale: string;
 }
 
+type TrendDirection = "increasing" | "decreasing" | "stable";
+
+interface TrendAnalysis {
+  direction: TrendDirection;
+  strength: number;
+  timeframe: string;
+  reasoning: string;
+}
+
+interface CategoryResult {
+  category: string;
+  score: number;
+  analysis: string;
+  suggestions: string[];
+  trendAnalysis?: TrendAnalysis;
+}
+
+interface AllCategoriesResult {
+  overallScore: number;
+  overallAnalysis: string;
+  overallTrendAnalysis?: TrendAnalysis;
+  results: CategoryResult[];
+}
+
 function EvidenceBlock({ text }: { text: string }) {
   const [expanded, setExpanded] = useState<boolean>(false);
   const onToggle = useCallback(() => setExpanded((e) => !e), []);
@@ -39,6 +63,82 @@ function EvidenceBlock({ text }: { text: string }) {
       <TouchableOpacity onPress={onToggle} accessibilityRole="button" testID="evidence-toggle">
         <Text style={styles.toggleText}>{expanded ? 'Show less' : 'Show more'}</Text>
       </TouchableOpacity>
+    </View>
+  );
+}
+
+function TrendIndicator({ trend }: { trend: TrendAnalysis }) {
+  const getTrendIcon = () => {
+    switch (trend.direction) {
+      case 'increasing': return <TrendingUp size={16} color="#10B981" />;
+      case 'decreasing': return <TrendingDown size={16} color="#EF4444" />;
+      case 'stable': return <Minus size={16} color="#6B7280" />;
+    }
+  };
+
+  const getTrendColor = () => {
+    switch (trend.direction) {
+      case 'increasing': return '#10B981';
+      case 'decreasing': return '#EF4444';
+      case 'stable': return '#6B7280';
+    }
+  };
+
+  const strengthBars = Array.from({ length: 10 }, (_, i) => (
+    <View
+      key={i}
+      style={[
+        styles.strengthBar,
+        { backgroundColor: i < trend.strength ? getTrendColor() : '#374151' }
+      ]}
+    />
+  ));
+
+  return (
+    <View style={styles.trendContainer}>
+      <View style={styles.trendHeader}>
+        {getTrendIcon()}
+        <Text style={[styles.trendDirection, { color: getTrendColor() }]}>
+          {trend.direction.charAt(0).toUpperCase() + trend.direction.slice(1)}
+        </Text>
+        <Text style={styles.trendTimeframe}>({trend.timeframe})</Text>
+      </View>
+      <View style={styles.strengthContainer}>
+        <Text style={styles.strengthLabel}>Strength: {trend.strength}/10</Text>
+        <View style={styles.strengthBars}>{strengthBars}</View>
+      </View>
+      <Text style={styles.trendReasoning}>{trend.reasoning}</Text>
+    </View>
+  );
+}
+
+function CategoryResultItem({ item }: { item: CategoryResult }) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const onToggle = useCallback(() => setExpanded((e) => !e), []);
+
+  return (
+    <View style={styles.categoryItem}>
+      <View style={styles.categoryHeader}>
+        <Text style={styles.categoryName}>{item.category}</Text>
+        <Text style={styles.categoryScore}>{item.score}/12</Text>
+      </View>
+      <TouchableOpacity onPress={onToggle} accessibilityRole="button">
+        <Text style={styles.categoryAnalysis} numberOfLines={expanded ? undefined : 2}>
+          {item.analysis}
+        </Text>
+        <Text style={styles.toggleText}>{expanded ? 'Show less' : 'Show more'}</Text>
+      </TouchableOpacity>
+      {item.trendAnalysis && (
+        <TrendIndicator trend={item.trendAnalysis} />
+      )}
+      {item.suggestions.length > 0 && (
+        <View style={styles.suggestionsContainer}>
+          <Text style={styles.suggestionsLabel}>Suggestions:</Text>
+          {item.suggestions.map((suggestion, idx) => (
+            <Text key={idx} style={styles.suggestionText}>• {suggestion}</Text>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -110,6 +210,12 @@ export default function DesignMatchTest() {
     return null;
   }, [statusQuery.data]);
 
+  const allCategoriesResult: AllCategoriesResult | null = useMemo(() => {
+    const r = statusQuery.data?.result as unknown;
+    if (r && typeof r === 'object' && (r as any).overallScore && (r as any).results) return r as AllCategoriesResult;
+    return null;
+  }, [statusQuery.data]);
+
   const fetchBase64 = useCallback(async (url: string): Promise<string> => {
     const res = await fetch(url);
     if (!res.ok) throw new Error('download_failed');
@@ -125,6 +231,21 @@ export default function DesignMatchTest() {
       if (filtered.length === 0) throw new Error('no_urls');
       const base64s: string[] = await Promise.all(filtered.map((u) => fetchBase64(u)));
       const resp = await startMutation.mutateAsync({ imageBase64s: base64s, category: 'designMatch', language: 'en', plan: 'premium' });
+      setJobId(resp.jobId);
+    } catch (e: any) {
+      setError(e?.message ?? 'unknown_error');
+      setRunning(false);
+    }
+  }, [urls, startMutation, fetchBase64]);
+
+  const onRunWithCategory = useCallback(async (category: string) => {
+    setError(null);
+    setRunning(true);
+    try {
+      const filtered = urls.map((u) => u.trim()).filter((u) => u.length > 6).slice(0, 4);
+      if (filtered.length === 0) throw new Error('no_urls');
+      const base64s: string[] = await Promise.all(filtered.map((u) => fetchBase64(u)));
+      const resp = await startMutation.mutateAsync({ imageBase64s: base64s, category, language: 'en', plan: 'premium' });
       setJobId(resp.jobId);
     } catch (e: any) {
       setError(e?.message ?? 'unknown_error');
@@ -178,15 +299,26 @@ export default function DesignMatchTest() {
 
         <View style={styles.previewGrid}>
           {urls.slice(0, 4).map((u, i) => (
-            <Image key={i} source={{ uri: u }} style={styles.preview} contentFit="cover" />
+            <Image key={`preview-${i}`} source={{ uri: u }} style={styles.preview} contentFit="cover" />
           ))}
         </View>
 
-        <TouchableOpacity onPress={onRun} disabled={running} style={[styles.button, styles.primary]} testID="runBtn">
-          <LinearGradient colors={["#111827", "#0f766e"]} style={styles.gradient} />
-          {running ? <Loader2 size={18} color="#fff" /> : <Search size={18} color="#fff" />}
-          <Text style={styles.buttonText}>{running ? 'Running…' : 'Run Design Match'}</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity onPress={onRun} disabled={running} style={[styles.button, styles.primary]} testID="runBtn">
+            <LinearGradient colors={["#111827", "#0f766e"]} style={styles.gradient} />
+            {running ? <Loader2 size={18} color="#fff" /> : <Search size={18} color="#fff" />}
+            <Text style={styles.buttonText}>{running ? 'Running…' : 'Run Design Match'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => onRunWithCategory('rate')} 
+            disabled={running} 
+            style={[styles.button, styles.secondary]} 
+            testID="runTrendBtn"
+          >
+            <TrendingUp size={18} color="#1a1a1a" />
+            <Text style={styles.buttonTextSecondary}>Trend Analysis</Text>
+          </TouchableOpacity>
+        </View>
 
         {error && (
           <View style={styles.errorBox} testID="errorBox">
@@ -220,6 +352,29 @@ export default function DesignMatchTest() {
             <Text style={styles.suggestionsTitle}>Closest Suggestions</Text>
             {result.topMatches.slice(0, 5).map((m) => (
               <SuggestionItem key={m.rank} item={m} />
+            ))}
+          </View>
+        )}
+
+        {allCategoriesResult && (
+          <View style={styles.resultBox} testID="trendResultBox">
+            <View style={styles.resultHeader}>
+              <TrendingUp size={20} color="#10B981" />
+              <Text style={styles.resultTitle}>Style Analysis with Trends</Text>
+            </View>
+            <Text style={styles.resultMain}>Overall Score: {allCategoriesResult.overallScore}/12</Text>
+            <Text style={styles.overallAnalysis}>{allCategoriesResult.overallAnalysis}</Text>
+            
+            {allCategoriesResult.overallTrendAnalysis && (
+              <View style={styles.overallTrendSection}>
+                <Text style={styles.overallTrendTitle}>Overall Fashion Trend</Text>
+                <TrendIndicator trend={allCategoriesResult.overallTrendAnalysis} />
+              </View>
+            )}
+
+            <Text style={styles.categoriesTitle}>Category Breakdown</Text>
+            {allCategoriesResult.results.map((category, idx) => (
+              <CategoryResultItem key={idx} item={category} />
             ))}
           </View>
         )}
@@ -258,4 +413,26 @@ const styles = StyleSheet.create({
   suggestionMain: { color: '#F9FAFB', fontWeight: '700' },
   suggestionMeta: { color: '#9CA3AF', flexWrap: 'wrap' as const },
   toggleText: { color: '#93C5FD', marginTop: 4, fontWeight: '700' },
+  buttonRow: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  trendContainer: { backgroundColor: '#0B1220', borderRadius: 8, padding: 10, marginTop: 8 },
+  trendHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  trendDirection: { fontWeight: '700', fontSize: 14 },
+  trendTimeframe: { color: '#9CA3AF', fontSize: 12 },
+  strengthContainer: { marginBottom: 6 },
+  strengthLabel: { color: '#E5E7EB', fontSize: 12, marginBottom: 4 },
+  strengthBars: { flexDirection: 'row', gap: 2 },
+  strengthBar: { width: 12, height: 4, borderRadius: 2 },
+  trendReasoning: { color: '#9CA3AF', fontSize: 12, lineHeight: 16 },
+  categoryItem: { backgroundColor: '#1F2937', borderRadius: 8, padding: 12, marginBottom: 8 },
+  categoryHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  categoryName: { color: '#F9FAFB', fontWeight: '700', fontSize: 16, textTransform: 'capitalize' },
+  categoryScore: { color: '#10B981', fontWeight: '800', fontSize: 16 },
+  categoryAnalysis: { color: '#D1D5DB', lineHeight: 18, marginBottom: 4 },
+  suggestionsContainer: { marginTop: 8 },
+  suggestionsLabel: { color: '#93C5FD', fontWeight: '700', fontSize: 12, marginBottom: 4 },
+  suggestionText: { color: '#9CA3AF', fontSize: 12, marginBottom: 2 },
+  overallAnalysis: { color: '#D1D5DB', marginTop: 8, lineHeight: 18 },
+  overallTrendSection: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)' },
+  overallTrendTitle: { color: '#E5E7EB', fontWeight: '700', fontSize: 14, marginBottom: 8 },
+  categoriesTitle: { color: '#E5E7EB', fontWeight: '800', fontSize: 16, marginTop: 16, marginBottom: 8 },
 });

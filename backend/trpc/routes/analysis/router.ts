@@ -42,6 +42,29 @@ const sevenCats = ["sexy", "elegant", "casual", "naive", "trendy", "anime", "six
 
 type SevenCat = typeof sevenCats[number];
 
+type TrendDirection = "increasing" | "decreasing" | "stable";
+
+interface TrendAnalysis {
+  direction: TrendDirection;
+  strength: number; // 1-10 scale
+  timeframe: string;
+  reasoning: string;
+}
+
+function validateTrendAnalysis(data: unknown): boolean {
+  if (!data || typeof data !== "object") return false;
+  const a = data as Record<string, unknown>;
+  return (
+    typeof a.direction === "string" &&
+    ["increasing", "decreasing", "stable"].includes(a.direction) &&
+    typeof a.strength === "number" &&
+    a.strength >= 1 &&
+    a.strength <= 10 &&
+    isNonEmptyString(a.timeframe, 3) &&
+    isNonEmptyString(a.reasoning, 10)
+  );
+}
+
 function validateAllCategories(data: unknown): boolean {
   if (!data || typeof data !== "object") return false;
   const a = data as Record<string, unknown>;
@@ -56,7 +79,9 @@ function validateAllCategories(data: unknown): boolean {
     if (!isNonEmptyString(rr.category)) ok = false;
     if (!isFiniteScore(rr.score)) ok = false;
     if (!isNonEmptyString(rr.analysis, 5)) ok = false;
+    if (rr.trendAnalysis && !validateTrendAnalysis(rr.trendAnalysis)) ok = false;
   }
+  if (a.overallTrendAnalysis && !validateTrendAnalysis(a.overallTrendAnalysis)) return false;
   return ok;
 }
 
@@ -228,6 +253,44 @@ async function getPageText(url: string): Promise<string> {
   }
 }
 
+async function getTrendData(category: string, language: "en" | "tr"): Promise<string> {
+  try {
+    const currentYear = new Date().getFullYear();
+    const queries = [
+      `${category} fashion trend ${currentYear}`,
+      `${category} style trending ${currentYear}`,
+      `${category} fashion popularity ${currentYear}`,
+      `${category} style trend analysis ${currentYear}`,
+      `${category} fashion forecast ${currentYear}`,
+    ];
+    
+    const allResults: Array<{ title: string; url: string; snippet: string }> = [];
+    for (const query of queries.slice(0, 3)) {
+      const results = await webSearch(query, 4);
+      allResults.push(...results);
+      if (allResults.length > 10) break;
+    }
+    
+    const trendKeywords = /trending|popular|rising|growing|declining|fading|hot|viral|mainstream|niche|emerging|peak|saturated/i;
+    const relevantResults = allResults.filter(r => 
+      trendKeywords.test(`${r.title} ${r.snippet}`) ||
+      r.url.includes('vogue') ||
+      r.url.includes('elle') ||
+      r.url.includes('harpersbazaar') ||
+      r.url.includes('fashionista')
+    );
+    
+    const lines = relevantResults.slice(0, 8).map((r, i) => 
+      `${i + 1}. ${r.title} — ${r.snippet}`
+    );
+    
+    return lines.join('\n');
+  } catch (e) {
+    console.log('[getTrendData] error', e);
+    return '';
+  }
+}
+
 async function buildWebEvidence(imagesBase64: string[], language: "en" | "tr"): Promise<string> {
   const queries = await suggestQueriesFromImageFromMany(imagesBase64, language);
   const candidateBrands = await extractCandidatesFromImages(imagesBase64, language);
@@ -295,13 +358,32 @@ async function callModel(input: { imageBase64s: string[]; category: string; lang
 
   const systemLang = input.language === "tr" ? "Turkish" : "English";
 
+  const trendData = input.category === 'rate' ? await getTrendData('fashion', input.language) : '';
+
   const schemaHint = input.category === "rate"
     ? `Output STRICT JSON with the following shape:
 {
   "overallScore": number (1..12),
   "overallAnalysis": string,
+  "overallTrendAnalysis": {
+    "direction": "increasing"|"decreasing"|"stable",
+    "strength": number (1..10),
+    "timeframe": string,
+    "reasoning": string
+  },
   "results": [
-    { "category": "sexy"|"elegant"|"casual"|"naive"|"trendy"|"anime"|"sixties", "score": number (1..12), "analysis": string, "suggestions": string[] }
+    { 
+      "category": "sexy"|"elegant"|"casual"|"naive"|"trendy"|"anime"|"sixties", 
+      "score": number (1..12), 
+      "analysis": string, 
+      "suggestions": string[],
+      "trendAnalysis": {
+        "direction": "increasing"|"decreasing"|"stable",
+        "strength": number (1..10),
+        "timeframe": string,
+        "reasoning": string
+      }
+    }
   ] (exactly 7 items, one per category in the union, no extra categories)
 }
 Return ONLY JSON, no code fences.`
@@ -343,12 +425,15 @@ Return ONLY JSON, no code fences.`;
   const messages = [
     {
       role: "system" as const,
-      content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. For designMatch: 1) Return the exact brand and designer first (include collection/season/year when possible), 2) Then list closest suggestions ranked with percentages and short rationales, 3) Always cite 1–3 key URLs in the evidence field (URLs only, one per line). Non‑real images (cartoon/comic/anime drawings, memes/parodies, emoji-like icons, or AI renders) MUST be explicitly flagged. In that case, do NOT assert a real brand or designer; use a clear first sentence:
+      content: `You are a professional fashion stylist and outfit critic focused on the "${input.category}" aesthetic. OUTPUT LENGTH POLICY: ${lengthPolicy}. All outputs MUST be in ${systemLang}. For designMatch: 1) Return the exact brand and designer first (include collection/season/year when possible), 2) Then list closest suggestions ranked with percentages and short rationales, 3) Always cite 1–3 key URLs in the evidence field (URLs only, one per line). For trend analysis: Analyze whether each style category is currently increasing, decreasing, or stable in popularity. Consider social media trends, runway shows, celebrity influence, and market data. Rate trend strength 1-10 (1=barely noticeable, 10=major shift). Non‑real images (cartoon/comic/anime drawings, memes/parodies, emoji-like icons, or AI renders) MUST be explicitly flagged. In that case, do NOT assert a real brand or designer; use a clear first sentence:
 - English: "This image is an illustration or parody, not a real fashion product; therefore an exact brand/designer match is not applicable."
 - Turkish: "Bu görsel bir illüstrasyon/parodi niteliğindedir; gerçek bir moda ürünü değildir, bu nedenle marka/tasarımcı eşleştirmesi uygulanamaz." ${forceSchema ? schemaHint : "Return JSON."}`,
     },
     ...(input.category === 'designMatch' && webEvidence
       ? [{ role: 'system' as const, content: `Use the following recent web evidence to ground your answer. Prefer Vogue Runway, official brand websites (e.g., armani.com), and verified social posts. When you output evidence, include 1–3 of the strongest URLs only (one per line).\n${webEvidence}` }]
+      : []),
+    ...(input.category === 'rate' && trendData
+      ? [{ role: 'system' as const, content: `Use the following trend data to inform your trend analysis. Consider current fashion movements, social media popularity, and market indicators:\n${trendData}` }]
       : []),
     ...(input.category === 'designMatch'
       ? [{ role: 'system' as const, content: `Hard constraints: If multiple brands are plausible, prefer the one with corroborated URLs from Vogue Runway or the official brand domain. If confidence < 60, reflect that and do NOT assert an exact year unless present in the cited source. If the image is non‑real (cartoon/comic/anime, meme/parody, emoji-like, AI render), set brand/designer to a neutral value (e.g., "Not applicable" / "Uygulanamaz"), confidence to 0–5, and start the evidence with the specified sentence in the target language.` }]
@@ -358,6 +443,8 @@ Return ONLY JSON, no code fences.`;
       content: [
         { type: "text" as const, text: input.category === "designMatch"
           ? `Task: 1) Identify the exact brand and designer of the outfit in the image. Include collection/season/year and piece name when possible. Output as exactMatch. EXACTMATCH MUST BE THE MOST LIKELY. 2) Then list closest suggestions under topMatches, ranked by similarityPercent with short rationales. 3) In exactMatch.evidence, cite 1–3 key URLs (URLs only, one per line). Use provided web evidence where possible; if conflicting, choose the strongest sources (e.g., Vogue Runway, official Instagram). Reflect uncertainty with lower confidence. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
+          : input.category === "rate"
+          ? `Analyze this outfit across all 7 style categories and rate out of 12. For each category AND overall, provide trend analysis: determine if this style is currently increasing, decreasing, or stable in popularity. Consider 2024 fashion trends, social media influence, runway shows, and celebrity adoption. Rate trend strength 1-10. Provide specific timeframe (e.g., "past 6 months", "2024 season") and reasoning. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}`
           : `Analyze this outfit for the "${input.category}" style and rate out of 12. Respond in ${systemLang}. ${forceSchema ? "Follow the schema exactly." : ""}` },
         ...input.imageBase64s.slice(0,4).map((img) => ({ type: "image" as const, image: `data:image/jpeg;base64,${img}` })),
       ],
@@ -495,6 +582,17 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
               score: Number(r?.score ?? 6),
               analysis: String(r?.analysis ?? ""),
               suggestions: Array.isArray(r?.suggestions) ? r.suggestions : [],
+              trendAnalysis: r?.trendAnalysis && typeof r.trendAnalysis === 'object' ? {
+                direction: String(r.trendAnalysis.direction ?? 'stable') as TrendDirection,
+                strength: Number(r.trendAnalysis.strength ?? 5),
+                timeframe: String(r.trendAnalysis.timeframe ?? '2024'),
+                reasoning: String(r.trendAnalysis.reasoning ?? (input.language === "tr" ? "Trend analizi mevcut değil." : "Trend analysis not available."))
+              } : {
+                direction: 'stable' as TrendDirection,
+                strength: 5,
+                timeframe: '2024',
+                reasoning: input.language === "tr" ? "Trend analizi mevcut değil." : "Trend analysis not available."
+              }
             }));
             while (normalized.length < 7) {
               const idx = normalized.length;
@@ -508,6 +606,17 @@ async function runAnalysis(jobId: string, input: { imageBase64?: string; imageBa
             return {
               overallScore: Number(base?.overallScore ?? 6),
               overallAnalysis: String(base?.overallAnalysis ?? (input.language === "tr" ? "Genel stil analizi oluşturulamadı. Bu görsel için analiz yapılamıyor olabilir." : "Overall style analysis could not be generated. This image may not be suitable for analysis.")),
+              overallTrendAnalysis: base?.overallTrendAnalysis && typeof base.overallTrendAnalysis === 'object' ? {
+                direction: String(base.overallTrendAnalysis.direction ?? 'stable') as TrendDirection,
+                strength: Number(base.overallTrendAnalysis.strength ?? 5),
+                timeframe: String(base.overallTrendAnalysis.timeframe ?? '2024'),
+                reasoning: String(base.overallTrendAnalysis.reasoning ?? (input.language === "tr" ? "Genel trend analizi mevcut değil." : "Overall trend analysis not available."))
+              } : {
+                direction: 'stable' as TrendDirection,
+                strength: 5,
+                timeframe: '2024',
+                reasoning: input.language === "tr" ? "Genel trend analizi mevcut değil." : "Overall trend analysis not available."
+              },
               results: normalized,
             };
           }
