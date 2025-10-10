@@ -2165,9 +2165,11 @@ Rules:
         setJobId(null);
       } else if (s === 'failed') {
         const be = (statusQuery.data as any)?.error as string | undefined;
+        console.log('Analysis failed with error:', be);
         setIsAnalyzing(false);
         setJobId(null);
-        Alert.alert(t('error'), t('failedToAnalyze'));
+        const errorMsg = be ? `${t('failedToAnalyze')} (${be})` : t('failedToAnalyze');
+        Alert.alert(t('error'), errorMsg);
       }
     } catch {}
   }, [statusQuery.data]);
