@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
 
-import { useAuth } from './AuthContext';
-
 export type SubscriptionTier = 'free' | 'basic' | 'premium' | 'ultimate';
 
 export interface SubscriptionPlan {
@@ -143,7 +141,6 @@ const STORAGE_KEYS_BASE = {
 };
 
 export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
-  const { user } = useAuth();
   const [subscription, setSubscription] = useState<UserSubscription>({
     tier: 'free',
     expiresAt: null,
@@ -152,8 +149,9 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     analysesRemaining: 3
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  const key = (name: string) => `${name}${user?.id ? `_${user.id}` : ''}`;
+  const key = (name: string) => `${name}${userId ? `_${userId}` : ''}`;
 
   const loadSubscriptionData = useCallback(async () => {
     try {
@@ -204,12 +202,12 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
 
   const saveSubscriptionData = useCallback(async (newSubscription: UserSubscription) => {
     try {
-      const keyLocal = (name: string) => `${name}${user?.id ? `_${user.id}` : ''}`;
+      const keyLocal = (name: string) => `${name}${userId ? `_${userId}` : ''}`;
       await AsyncStorage.setItem(keyLocal(STORAGE_KEYS_BASE.SUBSCRIPTION), JSON.stringify(newSubscription));
     } catch (error) {
       console.error('Error saving subscription data:', error);
     }
-  }, []);
+  }, [userId]);
 
   const resetAnalysisCount = useCallback(async () => {
     const plan = SUBSCRIPTION_PLANS.find(p => p.id === subscription.tier);
@@ -222,15 +220,15 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     };
     
     setSubscription(updatedSubscription);
-    const k = (name: string) => `${name}${user?.id ? `_${user.id}` : ''}`;
+    const k = (name: string) => `${name}${userId ? `_${userId}` : ''}`;
     await AsyncStorage.setItem(k(STORAGE_KEYS_BASE.ANALYSIS_COUNT), '0');
-  }, [subscription]);
+  }, [subscription, userId]);
 
   // Load subscription data on mount
   useEffect(() => {
     loadSubscriptionData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [userId]);
 
   // Reset daily analysis count at midnight
   useEffect(() => {
@@ -344,9 +342,13 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     };
     
     setSubscription(updatedSubscription);
-    const k = (name: string) => `${name}${user?.id ? `_${user.id}` : ''}`;
+    const k = (name: string) => `${name}${userId ? `_${userId}` : ''}`;
     await AsyncStorage.setItem(k(STORAGE_KEYS_BASE.ANALYSIS_COUNT), newCount.toString());
-  }, [subscription]);
+  }, [subscription, userId]);
+
+  const setUserIdForContext = useCallback((id: string | null) => {
+    setUserId(id);
+  }, []);
 
   return useMemo(() => ({
     subscription,
@@ -357,6 +359,7 @@ export const [SubscriptionProvider, useSubscription] = createContextHook(() => {
     restoreSubscription,
     canAnalyze,
     incrementAnalysisCount,
-    resetAnalysisCount
-  }), [subscription, isLoading, subscribeTo, cancelSubscription, restoreSubscription, canAnalyze, incrementAnalysisCount, resetAnalysisCount]);
+    resetAnalysisCount,
+    setUserIdForContext
+  }), [subscription, isLoading, subscribeTo, cancelSubscription, restoreSubscription, canAnalyze, incrementAnalysisCount, resetAnalysisCount, setUserIdForContext]);
 });

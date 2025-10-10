@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
-
-import { useAuth } from './AuthContext';
 
 export type Language = 'en' | 'tr';
 
@@ -11,6 +9,7 @@ interface LanguageContextType {
   setLanguage: (lang: Language) => Promise<void>;
   t: (key: string) => string;
   languageLabel: string;
+  setUserIdForContext: (id: string | null) => void;
 }
 
 const translations = {
@@ -542,14 +541,14 @@ const translations = {
 };
 
 export const [LanguageProvider, useLanguage] = createContextHook(() => {
-  const { user } = useAuth();
   const [language, setLanguageState] = useState<Language>('en');
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     loadLanguage();
-  }, []);
+  }, [userId]);
 
-  const storageKey = `app_language${user?.id ? `_${user.id}` : ''}`;
+  const storageKey = `app_language${userId ? `_${userId}` : ''}`;
 
   const loadLanguage = async () => {
     try {
@@ -564,13 +563,17 @@ export const [LanguageProvider, useLanguage] = createContextHook(() => {
 
   const setLanguage = async (lang: Language) => {
     try {
-      const storageKeyLocal = `app_language${user?.id ? `_${user.id}` : ''}`;
+      const storageKeyLocal = `app_language${userId ? `_${userId}` : ''}`;
       await AsyncStorage.setItem(storageKeyLocal, lang);
       setLanguageState(lang);
     } catch (error) {
       console.log('Error saving language:', error);
     }
   };
+
+  const setUserIdForContext = useCallback((id: string | null) => {
+    setUserId(id);
+  }, []);
 
   const t = (key: string): string => {
     const keys = key.split('.');
@@ -594,5 +597,6 @@ export const [LanguageProvider, useLanguage] = createContextHook(() => {
     setLanguage,
     t,
     languageLabel,
+    setUserIdForContext,
   };
 });
