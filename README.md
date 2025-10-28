@@ -42,7 +42,7 @@ You can also identify which **brand or designer** a specific outfit resembles or
 ## 🚀 TestFlight Access  
 
 You can try the beta version via **Apple TestFlight**:  
-👉 [Join Looks 4 Fun on TestFlight](https://testflight.apple.com/) *(replace with your actual invite link)*  
+👉 [Join Looks 4 Fun on TestFlight](https://testflight.apple.com/join/NfB8cD2w) 
 
 Once installed, you can test the latest features, submit feedback, and help shape future updates.
 
@@ -72,8 +72,8 @@ Once installed, you can test the latest features, submit feedback, and help shap
 ## 💌 Contact & Support  
 
 💼 [Portfolio Projects](https://robotiyee-cell.github.io/)  
-
+robotiyee@gmail.com
 ---
 
 ### © 2025 Robotiyee | Looks 4 Fun – AI Fashion Companion  
-*Test it now on [[Apple TestFlight](https://testflight.apple.com/join/NfB8cD2w)*  
+
