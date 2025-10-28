@@ -2,7 +2,6 @@
 ### AI-Powered Fashion Evaluation & Outfit Rating App  
 
 **Platform:** iOS (TestFlight)  
-**Developer:** Robotiyee  
 **Category:** Fashion · Lifestyle · AI Assistant  
 
 ---
@@ -72,12 +71,9 @@ Once installed, you can test the latest features, submit feedback, and help shap
 
 ## 💌 Contact & Support  
 
-**Developer:** Robotiyee  
-🌐 [LinkedIn](https://linkedin.com/in/robotiyee)  
-📧 robotiyee@example.com  
 💼 [Portfolio Projects](https://robotiyee-cell.github.io/)  
 
 ---
 
 ### © 2025 Robotiyee | Looks 4 Fun – AI Fashion Companion  
-*Test it now on [Apple TestFlight](https://testflight.apple.com/)*  
+*Test it now on [[Apple TestFlight](https://testflight.apple.com/join/NfB8cD2w)*  
