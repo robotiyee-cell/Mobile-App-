@@ -20,6 +20,13 @@ Users can upload or take a photo, select a clothing category, and tap **“Evalu
 It can also identify which **brand or designer**  a specific outfit resembles, helping users make smarter wardrobe and shopping decisions.
 
 ---
+
+## 💬 Prompt Engineering & AI Workflow  
+This project was conceptualized and built using **AI-assisted development workflows**.  
+I personally **designed and refined the prompts** that guided the Rork AI tool in generating the mobile app structure, component logic, and UI flow.  
+This process demonstrates the ability to apply **prompt engineering techniques** to achieve desired design and functionality outcomes.
+
+---
 ## ✨ Key Features  
 
 | Feature | Description |
