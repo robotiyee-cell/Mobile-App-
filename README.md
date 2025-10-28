@@ -5,17 +5,21 @@
 **Category:** Fashion · Lifestyle · AI Assistant  
 
 ---
-
-## 🧭 Overview  
-
-**Looks 4 Fun** is an intelligent mobile application that helps users evaluate, rate, and analyze their outfits using **AI-driven fashion insights**.  
-
-Upload or take a photo, select a clothing category, and tap **“Evaluate My Outfit”** — the app instantly analyzes your look based on style, color harmony, and trend relevance.  
-
-You can also identify which **brand or designer** a specific outfit resembles or belongs to, helping users make smarter wardrobe and shopping decisions.  
+## 🎯 Purpose  
+Practice project exploring how AI-assisted tools can accelerate mobile app creation while focusing on real user experience design.
 
 ---
 
+## 🧠 Concept & Design  
+**Looks 4 Fun** is an intelligent mobile application that helps users evaluate, rate, and analyze their outfits using AI-driven fashion insights.  
+
+The project was **inspired by personal needs** for quick, data-driven fashion feedback.  
+I used **Rork**, an AI-based tool for automated mobile app generation, and then **personally designed the user interface (UI)** and **user experience (UX)** to ensure an engaging, intuitive flow.  
+
+Users can upload or take a photo, select a clothing category, and tap **“Evaluate My Outfit”** — the app instantly analyzes the look based on style, color harmony, and trend relevance.  
+It can also identify which **brand or designer**  a specific outfit resembles, helping users make smarter wardrobe and shopping decisions.
+
+---
 ## ✨ Key Features  
 
 | Feature | Description |
